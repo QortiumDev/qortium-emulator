@@ -1,0 +1,4478 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Emulator</title>
+    <style>
+      @font-face {
+        font-family: 'Lexend';
+        src: url('Lexend-Regular.ttf');
+      }
+      :root {
+        --text-scale: 1;
+        --bg: #071a14;
+        --bg-deep: #030b08;
+        --panel: rgba(12, 36, 28, 0.86);
+        --panel-strong: rgba(14, 48, 37, 0.95);
+        --text: #f3f6ff;
+        --muted: #a7b2d6;
+        --accent: #2fe1a0;
+        --accent-strong: #24c488;
+        --accent-soft: rgba(47, 225, 160, 0.18);
+        --highlight: #36c792;
+        --stroke: rgba(212, 255, 235, 0.11);
+        --shadow: 0 20px 60px rgba(4, 6, 16, 0.65);
+        --danger: #ff8a8a;
+        --bg-glow-primary: rgba(52, 199, 146, 0.18);
+        --bg-glow-accent: rgba(47, 225, 160, 0.2);
+        --orb-primary: rgba(52, 199, 146, 0.24);
+        --orb-accent: rgba(47, 225, 160, 0.2);
+        --topbar-bg: rgba(6, 22, 17, 0.82);
+        --control-bg: rgba(255, 255, 255, 0.06);
+        --control-bg-hover: rgba(255, 255, 255, 0.12);
+        --status-pill-bg: rgba(255, 255, 255, 0.08);
+        --status-loading-text: #ffe2a3;
+        --status-loading-border: rgba(255, 226, 163, 0.4);
+        --status-loading-bg: rgba(255, 197, 92, 0.18);
+        --status-ready-text: #b5ffd8;
+        --status-ready-border: rgba(47, 225, 160, 0.5);
+        --status-ready-bg: rgba(47, 225, 160, 0.16);
+        --status-error-text: #ffb3b3;
+        --status-error-border: rgba(255, 122, 122, 0.5);
+        --status-error-bg: rgba(255, 122, 122, 0.12);
+        --chip-bg: rgba(16, 58, 44, 0.66);
+        --screen-border: rgba(255, 255, 255, 0.12);
+        --screen-bg: #000;
+        --screen-inset-stroke: rgba(255, 255, 255, 0.08);
+        --input-border: rgba(255, 255, 255, 0.12);
+        --input-bg: rgba(6, 10, 23, 0.75);
+        --btn-primary-text: #041215;
+        --btn-primary-accent-to: #baffd8;
+        --btn-secondary-from: rgba(30, 157, 112, 0.86);
+        --btn-secondary-to: rgba(18, 101, 75, 0.72);
+        --btn-secondary-text: #ecfff6;
+        --ghost-border: rgba(255, 255, 255, 0.2);
+        --button-shadow: 0 10px 20px rgba(6, 14, 32, 0.4);
+        --status-log-border: rgba(255, 255, 255, 0.12);
+        --status-log-bg: rgba(5, 8, 18, 0.7);
+        --status-log-text: #c4cde8;
+        --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+        --accent-border: rgba(47, 225, 160, 0.45);
+        --brand-logo-bg: rgba(8, 44, 32, 0.72);
+        --home-hero-from: rgba(11, 54, 39, 0.94);
+        --home-hero-to: rgba(6, 30, 23, 0.92);
+        --left-sidebar-min-width: 220px;
+        --left-sidebar-max-width: calc(100vw - 20px);
+      }
+      :root[data-text-size='small'],
+      :root[data-qdnes-text-size='small'] {
+        --text-scale: 1;
+      }
+      :root[data-text-size='medium'],
+      :root[data-qdnes-text-size='medium'] {
+        --text-scale: 1.25;
+      }
+      :root[data-text-size='large'],
+      :root[data-qdnes-text-size='large'] {
+        --text-scale: 1.5;
+      }
+      :root[data-theme='light'] {
+        --bg: #eefaf4;
+        --bg-deep: #def2e8;
+        --panel: rgba(255, 255, 255, 0.9);
+        --panel-strong: rgba(255, 255, 255, 0.97);
+        --text: #152443;
+        --muted: #4f6289;
+        --accent: #1fb986;
+        --accent-strong: #16946b;
+        --accent-soft: rgba(31, 185, 134, 0.15);
+        --highlight: #159a6f;
+        --stroke: rgba(20, 34, 66, 0.16);
+        --shadow: 0 14px 32px rgba(41, 65, 116, 0.16);
+        --danger: #c13c4f;
+        --bg-glow-primary: rgba(21, 154, 111, 0.16);
+        --bg-glow-accent: rgba(31, 185, 134, 0.14);
+        --orb-primary: rgba(21, 154, 111, 0.18);
+        --orb-accent: rgba(31, 185, 134, 0.16);
+        --topbar-bg: rgba(241, 253, 247, 0.92);
+        --control-bg: rgba(15, 123, 88, 0.09);
+        --control-bg-hover: rgba(15, 123, 88, 0.15);
+        --status-pill-bg: rgba(15, 123, 88, 0.1);
+        --status-loading-text: #7a4c00;
+        --status-loading-border: rgba(168, 111, 13, 0.35);
+        --status-loading-bg: rgba(252, 213, 124, 0.42);
+        --status-ready-text: #135c45;
+        --status-ready-border: rgba(23, 131, 96, 0.4);
+        --status-ready-bg: rgba(31, 185, 134, 0.16);
+        --status-error-text: #8f2436;
+        --status-error-border: rgba(165, 56, 78, 0.35);
+        --status-error-bg: rgba(232, 152, 169, 0.24);
+        --chip-bg: rgba(15, 123, 88, 0.11);
+        --screen-border: rgba(20, 34, 66, 0.2);
+        --screen-bg: #000;
+        --screen-inset-stroke: rgba(255, 255, 255, 0.1);
+        --input-border: rgba(20, 34, 66, 0.2);
+        --input-bg: rgba(255, 255, 255, 0.92);
+        --btn-primary-text: #062017;
+        --btn-primary-accent-to: #8beac5;
+        --btn-secondary-from: rgba(24, 166, 119, 0.9);
+        --btn-secondary-to: rgba(16, 116, 84, 0.7);
+        --btn-secondary-text: #f3fff9;
+        --ghost-border: rgba(21, 93, 67, 0.22);
+        --button-shadow: 0 8px 18px rgba(31, 116, 84, 0.22);
+        --status-log-border: rgba(20, 34, 66, 0.18);
+        --status-log-bg: rgba(248, 251, 255, 0.9);
+        --status-log-text: #344a73;
+        --sidebar-hover-bg: rgba(24, 52, 111, 0.08);
+        --accent-border: rgba(31, 185, 134, 0.45);
+        --brand-logo-bg: rgba(255, 255, 255, 0.7);
+        --home-hero-from: rgba(233, 251, 242, 0.98);
+        --home-hero-to: rgba(217, 243, 231, 0.95);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+        font-family: 'Lexend', sans-serif;
+        font-size: calc(16px * var(--text-scale));
+        color: var(--text);
+        background: radial-gradient(circle at top, var(--bg-glow-primary), transparent 55%),
+          radial-gradient(circle at 80% 20%, var(--bg-glow-accent), transparent 40%),
+          linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+      }
+      body::before,
+      body::after {
+        content: '';
+        position: fixed;
+        width: 420px;
+        height: 420px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--orb-primary), transparent 70%);
+        filter: blur(10px);
+        opacity: 0.6;
+        z-index: 0;
+      }
+      body::before {
+        top: -120px;
+        right: -80px;
+      }
+      body::after {
+        bottom: -160px;
+        left: -120px;
+        background: radial-gradient(circle, var(--orb-accent), transparent 70%);
+      }
+      #app {
+        height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+      .topbar {
+        position: relative;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--stroke);
+        background: var(--topbar-bg);
+        backdrop-filter: blur(10px);
+      }
+      .brand-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .menu-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        border: 1px solid var(--stroke);
+        flex: 0 0 auto;
+        padding: 0;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        background: var(--control-bg);
+        color: var(--text);
+        cursor: pointer;
+      }
+      .menu-button:hover {
+        background: var(--control-bg-hover);
+      }
+      .menu-button-line {
+        width: 18px;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+      .brand-meta {
+        display: grid;
+        gap: 0;
+        min-width: 0;
+      }
+      .brand-title {
+        font-size: calc(14px * var(--text-scale));
+        letter-spacing: 0.02em;
+        color: var(--text);
+      }
+      .brand-version {
+        font-size: calc(11px * var(--text-scale));
+        color: var(--muted);
+      }
+      .topbar-spacer {
+        flex: 1 1 auto;
+      }
+      .topbar-actions {
+        display: inline-flex;
+        align-items: center;
+      }
+      .topbar-changelog {
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--control-bg);
+        border: 1px solid var(--stroke);
+        color: var(--text);
+        border-radius: 12px;
+        cursor: pointer;
+      }
+      .topbar-changelog:hover {
+        background: var(--control-bg-hover);
+      }
+      .topbar-changelog .qapp-shell-info-icon {
+        width: 20px;
+        height: 20px;
+      }
+      .topbar-changelog-popover {
+        position: absolute;
+        min-width: min(280px, calc(100vw - 32px));
+        max-width: min(420px, calc(100vw - 32px));
+        max-height: min(340px, calc(100vh - 120px));
+        background: var(--panel-strong);
+        border: 1px solid var(--stroke);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 10px;
+        display: grid;
+        gap: 10px;
+        z-index: 45;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+      }
+      .topbar-changelog-popover[hidden] {
+        display: none;
+      }
+      .topbar-changelog-popover-title {
+        margin: 0;
+        font-size: calc(12px * var(--text-scale));
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .topbar-changelog-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 8px;
+      }
+      .topbar-changelog-item {
+        border: 1px solid var(--stroke);
+        border-radius: 10px;
+        background: var(--input-bg);
+        padding: 8px 10px;
+        display: grid;
+        gap: 4px;
+      }
+      .topbar-changelog-item-version {
+        font-size: calc(12px * var(--text-scale));
+        font-weight: 700;
+        color: var(--text);
+      }
+      .topbar-changelog-item-summary {
+        font-size: calc(13px * var(--text-scale));
+        color: var(--muted);
+      }
+      .content-shell {
+        height: 100%;
+        min-height: 0;
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        overflow: hidden;
+        position: relative;
+      }
+      .qapp-left-sidebar-host {
+        position: relative;
+        align-self: stretch;
+        flex: 0 0 auto;
+        height: 100%;
+        width: 0;
+        min-height: 0;
+        overflow: visible;
+        z-index: 6;
+      }
+      .content-shell[data-qapp-left-sidebar-open='true'][data-qapp-left-sidebar-overlay='false'] .qapp-left-sidebar-host {
+        width: auto;
+      }
+      .content-shell[data-qapp-left-sidebar-open='true'][data-qapp-left-sidebar-overlay='true'] .qapp-left-sidebar-host,
+      .content-shell[data-qapp-left-sidebar-mode='mobile'] .qapp-left-sidebar-host {
+        width: 0;
+      }
+      .app-shell-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+      }
+      html[data-qdnes-boot-page='home'] [data-system-page='systems'] {
+        display: none;
+      }
+      html[data-qdnes-boot-page='systems'] [data-system-page='home'] {
+        display: none;
+      }
+      .app {
+        width: min(1200px, 100%);
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 32px 12px 56px;
+        position: relative;
+        z-index: 1;
+        animation: liftIn 0.6s ease-out;
+      }
+      .home-page {
+        width: min(1080px, 100%);
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 32px 12px 56px;
+        position: relative;
+        z-index: 1;
+        animation: liftIn 0.6s ease-out;
+        display: grid;
+        gap: 20px;
+      }
+      .home-hero {
+        background: linear-gradient(140deg, var(--home-hero-from), var(--home-hero-to));
+        border: 1px solid var(--stroke);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        padding: 26px 24px;
+      }
+      .home-eyebrow {
+        margin: 0 0 8px;
+        font-size: calc(12px * var(--text-scale));
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+      .home-title {
+        margin: 0;
+        font-size: calc(30px * var(--text-scale));
+        line-height: 1.1;
+        letter-spacing: 0.02em;
+      }
+      .home-intro {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: calc(15px * var(--text-scale));
+        max-width: 68ch;
+      }
+      .home-attribution {
+        margin: 14px 0 0;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--stroke);
+        background: var(--input-bg);
+        color: var(--muted);
+        font-size: calc(13px * var(--text-scale));
+        line-height: 1.5;
+      }
+      .home-attribution p {
+        margin: 0;
+      }
+      .home-attribution p + p {
+        margin-top: 8px;
+      }
+      .home-attribution a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0);
+      }
+      .home-attribution a:hover {
+        border-bottom-color: var(--accent-border);
+      }
+      .home-attribution a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .home-system-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .home-system-card {
+        background: var(--panel-strong);
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+      }
+      .home-system-card h2 {
+        margin: 0;
+        font-size: calc(16px * var(--text-scale));
+        letter-spacing: 0.02em;
+      }
+      .home-system-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .home-system-links.single {
+        grid-template-columns: 1fr;
+      }
+      .home-system-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        text-decoration: none;
+        border-radius: 10px;
+        border: 1px solid var(--input-border);
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: calc(13px * var(--text-scale));
+        font-weight: 600;
+        padding: 8px 10px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      }
+      .home-system-link:hover {
+        transform: translateY(-1px);
+        border-color: var(--accent-border);
+        box-shadow: var(--button-shadow);
+      }
+      .home-system-link:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      @keyframes liftIn {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 28px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .brand-logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        border: 1px solid var(--stroke);
+        box-shadow: var(--shadow);
+        background: var(--brand-logo-bg);
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: calc(28px * var(--text-scale));
+        letter-spacing: 0.02em;
+      }
+      .brand p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: calc(14px * var(--text-scale));
+      }
+      .status-strip {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .status-pill {
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: calc(12px * var(--text-scale));
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+        background: var(--status-pill-bg);
+      }
+      .status-idle {
+        color: var(--muted);
+      }
+      .status-loading {
+        color: var(--status-loading-text);
+        border-color: var(--status-loading-border);
+        background: var(--status-loading-bg);
+      }
+      .status-ready {
+        color: var(--status-ready-text);
+        border-color: var(--status-ready-border);
+        background: var(--status-ready-bg);
+      }
+      .status-error {
+        color: var(--status-error-text);
+        border-color: var(--status-error-border);
+        background: var(--status-error-bg);
+      }
+      .chip {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--stroke);
+        background: var(--chip-bg);
+        font-size: calc(12px * var(--text-scale));
+      }
+      .app-main {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+      }
+      .player-card {
+        background: var(--panel);
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid var(--stroke);
+        box-shadow: var(--shadow);
+      }
+      .player-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        color: var(--muted);
+        font-size: calc(13px * var(--text-scale));
+      }
+      .player-meta span {
+        display: block;
+      }
+      .player-meta strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .screen-frame {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--screen-border);
+        background: var(--screen-bg);
+        box-shadow: inset 0 0 0 1px var(--screen-inset-stroke);
+      }
+      #gameFrame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: var(--screen-bg);
+      }
+      .screen-placeholder {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+        color: var(--muted);
+        font-size: calc(14px * var(--text-scale));
+        background: radial-gradient(circle at 30% 20%, rgba(52, 199, 146, 0.18), transparent 55%),
+          radial-gradient(circle at 70% 80%, rgba(47, 225, 160, 0.15), transparent 55%);
+      }
+      .screen-placeholder-content {
+        display: grid;
+        gap: 12px;
+        justify-items: center;
+        max-width: 440px;
+      }
+      .screen-placeholder-title {
+        margin: 0;
+        color: var(--text);
+        font-size: calc(22px * var(--text-scale));
+        line-height: 1.15;
+      }
+      .screen-placeholder-body {
+        margin: 0;
+        line-height: 1.5;
+      }
+      .screen-placeholder-actions {
+        width: 100%;
+        max-width: 260px;
+      }
+      .screen-placeholder.hidden {
+        display: none;
+      }
+      .player-footer {
+        margin-top: 16px;
+        font-size: calc(13px * var(--text-scale));
+        color: var(--muted);
+      }
+      .control-panel {
+        display: grid;
+        gap: 16px;
+      }
+      .panel-block {
+        background: var(--panel-strong);
+        border-radius: 18px;
+        padding: 16px;
+        border: 1px solid var(--stroke);
+        box-shadow: var(--shadow);
+      }
+      .panel-block h2 {
+        margin: 0 0 12px;
+        font-size: calc(16px * var(--text-scale));
+      }
+      .field {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .field-hint {
+        margin: 0;
+        font-size: calc(12px * var(--text-scale));
+        color: var(--muted);
+      }
+      label {
+        font-size: calc(12px * var(--text-scale));
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      select,
+      button,
+      textarea {
+        font-family: 'Lexend', sans-serif;
+      }
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--input-border);
+        background: var(--input-bg);
+        color: var(--text);
+      }
+      select:disabled {
+        opacity: 0.6;
+      }
+      .button-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+      }
+      button {
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 600;
+        font-size: calc(14px * var(--text-scale));
+        color: var(--btn-primary-text);
+        background: linear-gradient(135deg, var(--accent), var(--btn-primary-accent-to));
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      button.secondary {
+        background: linear-gradient(135deg, var(--btn-secondary-from), var(--btn-secondary-to));
+        color: var(--btn-secondary-text);
+      }
+      button.ghost {
+        background: transparent;
+        border: 1px solid var(--ghost-border);
+        color: var(--text);
+      }
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--button-shadow);
+      }
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+        transform: none;
+        box-shadow: none;
+      }
+      .status-log {
+        width: 100%;
+        min-height: 140px;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid var(--status-log-border);
+        background: var(--status-log-bg);
+        color: var(--status-log-text);
+        font-size: calc(12px * var(--text-scale));
+        line-height: 1.5;
+        resize: vertical;
+      }
+      .hint {
+        margin: 12px 0 0;
+        font-size: calc(12px * var(--text-scale));
+        color: var(--muted);
+      }
+      .stack {
+        display: grid;
+        gap: 10px;
+      }
+      @media (max-width: 960px) {
+        .app {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+        .home-page {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+        .app-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .app-main {
+          grid-template-columns: 1fr;
+        }
+        .home-system-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 640px) {
+        .app {
+          padding-left: 8px;
+          padding-right: 8px;
+        }
+        .home-page {
+          padding-left: 8px;
+          padding-right: 8px;
+          gap: 14px;
+        }
+        .brand h1 {
+          font-size: calc(22px * var(--text-scale));
+        }
+        .home-title {
+          font-size: calc(24px * var(--text-scale));
+        }
+        .home-system-links {
+          grid-template-columns: 1fr;
+        }
+        .screen-frame {
+          aspect-ratio: 1 / 1;
+        }
+      }
+      [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar {
+        align-self: stretch;
+        display: block;
+        flex: 0 0 auto;
+        width: auto;
+        height: 100%;
+        max-width: var(--left-sidebar-max-width);
+        min-height: 0;
+      }
+      [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar:not(.qapp-lib-left-sidebar-open):not(.qapp-lib-left-sidebar-closing) {
+        max-width: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-items {
+        list-style: none;
+        margin: 0;
+        width: max-content;
+        min-width: var(--left-sidebar-min-width);
+        max-width: var(--left-sidebar-max-width);
+        height: 100%;
+        max-height: 100%;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 14px 10px;
+        display: grid;
+        align-content: start;
+        grid-auto-rows: min-content;
+        gap: 8px;
+        border-right: 1px solid var(--stroke);
+        background: var(--panel);
+        box-shadow: none;
+        backdrop-filter: blur(10px);
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item {
+        margin: 0;
+        padding: 0;
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button {
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 10px 12px;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--text);
+        font-size: calc(14px * var(--text-scale));
+        font-weight: 700;
+        font-family: 'Lexend', sans-serif;
+        text-align: left;
+        cursor: pointer;
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button:hover {
+        background: var(--sidebar-hover-bg);
+        border-color: var(--stroke);
+      }
+      [data-qapp-lib='left-sidebar']
+      .qapp-lib-left-sidebar-item-button[data-qapp-lib-sidebar-active='true'],
+      [data-qapp-lib='left-sidebar']
+      .qapp-lib-left-sidebar-item.qapp-lib-left-sidebar-item-active
+      .qapp-lib-left-sidebar-item-button {
+        background: var(--accent-soft);
+        border-color: var(--accent-border);
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button[data-qapp-lib-sidebar-item^='heading-'] {
+        padding: 8px 12px 6px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: calc(11px * var(--text-scale));
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: default;
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button[data-qapp-lib-sidebar-item^='heading-']:hover {
+        background: transparent;
+        border-color: transparent;
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button[data-qapp-lib-sidebar-item^='heading-']:disabled {
+        opacity: 1;
+      }
+      [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-label {
+        min-width: 0;
+        overflow: visible;
+        text-overflow: clip;
+        white-space: nowrap;
+      }
+      [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar-closing .qapp-lib-left-sidebar-items {
+        opacity: 0;
+        transform: translateX(-12px);
+      }
+      [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar-overlay-preview,
+      [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar-mobile {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 30;
+      }
+      [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar-overlay-preview .qapp-lib-left-sidebar-items,
+      [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar-mobile .qapp-lib-left-sidebar-items {
+        box-shadow: var(--shadow);
+      }
+      .qapp-topbar-host {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+      .qapp-topbar-host .qapp-lib-shell {
+        position: relative;
+        display: inline-flex;
+      }
+      .qapp-topbar-host .qapp-lib-top-bar {
+        display: inline-flex;
+        align-items: center;
+        gap: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      .qapp-topbar-host .qapp-lib-top-bar-left {
+        display: none;
+      }
+      .qapp-topbar-host .qapp-lib-top-bar-brand,
+      .qapp-topbar-host .qapp-shell-info-button {
+        display: none;
+      }
+      .qapp-topbar-host .qapp-lib-top-bar-right {
+        display: inline-flex;
+        align-items: center;
+      }
+      .qapp-topbar-host .qapp-shell-icon-button {
+        padding: 0;
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--control-bg);
+        border: 1px solid var(--stroke);
+        color: var(--text);
+        border-radius: 12px;
+        cursor: pointer;
+        font-family: 'Lexend', sans-serif;
+      }
+      .qapp-topbar-host .qapp-shell-icon-button:hover {
+        background: var(--control-bg-hover);
+      }
+      .qapp-topbar-host .qapp-shell-icon-button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+      .qapp-topbar-host .qapp-shell-info-icon {
+        width: 18px;
+        height: 18px;
+      }
+      .qapp-topbar-host .qapp-shell-hamburger {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .qapp-topbar-host .qapp-shell-hamburger > span {
+        display: block;
+        width: 14px;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+      .qapp-topbar-host .qapp-lib-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: min(320px, 85vw);
+        max-height: min(420px, calc(100vh - 140px));
+        background: var(--panel-strong);
+        border: 1px solid var(--stroke);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 10px;
+        display: grid;
+        gap: 10px;
+        z-index: 40;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+      }
+      .qapp-topbar-host .qapp-lib-menu[hidden] {
+        display: none;
+      }
+      .qapp-topbar-host .qapp-lib-error {
+        color: var(--danger);
+        font-size: calc(13px * var(--text-scale));
+      }
+      .qapp-topbar-host .qapp-lib-menu-section {
+        display: grid;
+        gap: 10px;
+      }
+      .qapp-topbar-host .qapp-lib-menu-section h4 {
+        margin: 0;
+        font-size: calc(12px * var(--text-scale));
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .qapp-topbar-host .qapp-lib-menu-section > div {
+        display: grid;
+        gap: 10px;
+      }
+      .qapp-topbar-host .qapp-lib-menu-section label {
+        display: grid;
+        gap: 6px;
+        font-weight: 700;
+        font-size: calc(13px * var(--text-scale));
+        font-family: 'Lexend', sans-serif;
+        color: var(--text);
+      }
+      .qapp-topbar-host .qapp-lib-menu-section select {
+        background: var(--input-bg);
+        border: 1px solid var(--stroke);
+        color: var(--text);
+        padding: 8px 10px;
+        border-radius: 10px;
+        outline: none;
+        font-weight: 700;
+        font-family: 'Lexend', sans-serif;
+      }
+      .qapp-topbar-host .qapp-lib-menu-section input[type='checkbox'] {
+        accent-color: var(--accent);
+      }
+      .qapp-topbar-host .qapp-shell-auth-identity {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 100%;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .qapp-topbar-host .qapp-shell-auth-avatar {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        border: 1px solid var(--stroke);
+        object-fit: cover;
+        flex: 0 0 auto;
+        background: var(--input-bg);
+      }
+      .qapp-topbar-host .qapp-shell-auth-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: min(220px, 60vw);
+        font-size: calc(13px * var(--text-scale));
+      }
+      .qapp-topbar-host .qapp-shell-auth-button {
+        border: 1px solid var(--stroke);
+        border-radius: 10px;
+        background: var(--control-bg);
+        color: var(--text);
+        padding: 8px 10px;
+        font-family: 'Lexend', sans-serif;
+        font-size: calc(13px * var(--text-scale));
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .qapp-topbar-host .qapp-shell-auth-button:hover {
+        background: var(--control-bg-hover);
+      }
+      .qapp-topbar-host .qapp-shell-auth-button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+      .qapp-topbar-host .qapp-lib-rating-summary {
+        font-size: calc(13px * var(--text-scale));
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .qapp-topbar-host .qapp-lib-rating-summary[data-qapp-lib-rating-pending='true'] {
+        color: var(--text);
+      }
+      .qapp-topbar-host .qapp-lib-rating-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .qapp-topbar-host .qapp-lib-rating-row button {
+        border: 1px solid var(--stroke);
+        border-radius: 10px;
+        background: var(--control-bg);
+        color: var(--text);
+        padding: 6px 10px;
+        font-family: 'Lexend', sans-serif;
+        font-size: calc(13px * var(--text-scale));
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .qapp-topbar-host .qapp-lib-rating-row button:hover {
+        background: var(--control-bg-hover);
+      }
+      .qapp-topbar-host .qapp-lib-rating-row button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+      .qapp-topbar-host .qapp-lib-menu-section label.qapp-topbar-inline-checkbox {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        width: fit-content;
+        white-space: nowrap;
+      }
+      .qapp-topbar-host .qapp-lib-menu-section label.qapp-topbar-inline-checkbox input[type='checkbox'] {
+        margin: 0;
+      }
+      .qdnes-status-strip {
+        justify-content: flex-end;
+        margin-bottom: 16px;
+      }
+    </style>
+    <script src="./qortium-qortal-bridge.js"></script>
+    <script>
+      function safeDecodeRouteSegment(value) {
+        if (typeof value !== 'string' || !value) {
+          return '';
+        }
+        try {
+          return decodeURIComponent(value);
+        } catch (error) {
+          return value;
+        }
+      }
+
+      function normalizeQdnBasePath(value) {
+        if (typeof value !== 'string' || !value) {
+          return '/';
+        }
+        var normalized = value.replace(/\s/g, '%20');
+        if (normalized.charAt(0) !== '/') {
+          normalized = '/' + normalized;
+        }
+        if (normalized.charAt(normalized.length - 1) !== '/') {
+          normalized += '/';
+        }
+        return normalized;
+      }
+
+      function getEncodedQdnBasePath() {
+        if (typeof window._qdnBase === 'string' && window._qdnBase) {
+          return normalizeQdnBasePath(window._qdnBase);
+        }
+        var baseTag = document.querySelector('base[href]');
+        if (baseTag) {
+          try {
+            var baseUrl = new URL(baseTag.getAttribute('href'), window.location.href);
+            return normalizeQdnBasePath(baseUrl.pathname);
+          } catch (error) {
+            console.warn('Unable to parse QDN base href:', error);
+          }
+        }
+        return normalizeQdnBasePath(window.location.pathname || '/');
+      }
+
+      function normalizeAppRelativePath(path) {
+        if (typeof path !== 'string' || !path) {
+          return '';
+        }
+        var normalized = path;
+        if (normalized.indexOf('?') !== -1) {
+          normalized = normalized.split('?')[0];
+        }
+        if (normalized.indexOf('#') !== -1) {
+          normalized = normalized.split('#')[0];
+        }
+        normalized = normalized.replace(/^\/+/, '').replace(/\/+$/, '');
+        if (normalized === 'index.html') {
+          return '';
+        }
+        return normalized;
+      }
+
+      function getCurrentAppRelativePath() {
+        if (typeof window._qdnPath === 'string' && window._qdnPath) {
+          return normalizeAppRelativePath(window._qdnPath);
+        }
+        var pathname = typeof window.location.pathname === 'string'
+          ? window.location.pathname
+          : '';
+        var basePath = getEncodedQdnBasePath();
+        if (pathname.indexOf(basePath) === 0) {
+          return normalizeAppRelativePath(pathname.slice(basePath.length));
+        }
+        if (pathname === basePath.replace(/\/$/, '')) {
+          return '';
+        }
+        return normalizeAppRelativePath(pathname);
+      }
+
+      function normalizeDeepLinkRouteType(value) {
+        if (typeof value !== 'string') {
+          return '';
+        }
+        var normalized = value.trim().toLowerCase();
+        if (normalized === 'rom') {
+          return 'ROM';
+        }
+        if (normalized === 'mod') {
+          return 'Mod';
+        }
+        return '';
+      }
+
+      function parseDeepLinkRoutePath(path) {
+        var normalizedPath = normalizeAppRelativePath(path);
+        if (!normalizedPath) {
+          return null;
+        }
+        var segments = normalizedPath.split('/').filter(Boolean);
+        if (segments.length < 3) {
+          return null;
+        }
+        var routeType = normalizeDeepLinkRouteType(segments[0]);
+        if (!routeType) {
+          return null;
+        }
+        var metadataName = safeDecodeRouteSegment(segments[1]);
+        var metadataIdentifier = safeDecodeRouteSegment(segments[2]);
+        if (!metadataName || !metadataIdentifier) {
+          return null;
+        }
+        return {
+          kind: 'deep-link',
+          routeType: routeType,
+          metadataName: metadataName,
+          metadataIdentifier: metadataIdentifier
+        };
+      }
+
+      var initialDeepLinkRoute = parseDeepLinkRoutePath(getCurrentAppRelativePath());
+      var initialHashForBoot = typeof window.location.hash === 'string'
+        ? window.location.hash.trim().toLowerCase()
+        : '';
+	      var initialBootPage = initialDeepLinkRoute
+	        ? 'systems'
+	        : ((!initialHashForBoot || initialHashForBoot === '#home') ? 'home' : 'systems');
+	      setVisiblePage(initialBootPage);
+
+	      function setVisiblePage(page) {
+	        document.documentElement.dataset.qdnesBootPage = page === 'systems' ? 'systems' : 'home';
+	      }
+
+      var userName = null;
+      var selectedGroupKey = '';
+      var selectedMetadatas = [];
+      var selectedRomFiles = [];
+      var modsByBaseKey = {};
+      var metadataCache = {};
+      var metadataSummaryCache = {};
+      var currentQdnSelection = null;
+      var currentBlobUrl = null;
+      var activeGameUrl = null;
+      var activeGameTitle = '';
+      var activeGameRomFilename = '';
+      var playerSupportsHotSwap = false;
+      var activePlayerCore = '';
+      var activePlayerSystem = '';
+      var hotSwapRequestSerial = 0;
+      var pendingHotSwapRequest = null;
+      var hotSwapFallbackTimer = 0;
+      var playerMessageBound = false;
+      var qdnRomLoadInFlight = false;
+      var runtimeFallbackUsed = false;
+      var HOT_SWAP_DISABLED_SYSTEMS = new Set(['scd', 'ps1', 'saturn']);
+      var QDN_RESOURCE_READY_STATUSES = new Set(['READY']);
+      var QDN_RESOURCE_ERROR_STATUSES = new Set([
+        'NOT_PUBLISHED',
+        'BUILD_FAILED',
+        'BLOCKED',
+        'UNSUPPORTED'
+      ]);
+      var CORE_RUNTIME_FALLBACKS = {
+        mednafen_psx_hw: 'pcsx_rearmed',
+        mednafen_saturn: 'yabasanshiro',
+        kronos: 'yabasanshiro'
+      };
+      var PLAYER_CORE_BUNDLE_RESOURCE = {
+        service: 'FILES',
+        name: 'QDNES',
+        identifier: 'cores',
+        pathPrefix: 'cores'
+      };
+      var PLAYER_PSX_BIOS_RESOURCE = {
+        service: 'FILE',
+        name: '7th Sage',
+        identifier: 'MMQXLtyUQzC4hQ-92kKll-HzcHydrHYT9LJ~-yCcRtUA2G9t377y-v1',
+        filepath: ''
+      };
+      var PLAYER_SEGA_CD_BIOS_RESOURCE = {
+        service: 'FILES',
+        name: 'QDNES',
+        identifier: 'cores',
+        pathPrefix: 'bios'
+      };
+      var PLAYER_SATURN_BIOS_RESOURCE = {
+        service: 'FILES',
+        name: 'QDNES',
+        identifier: 'cores',
+        pathPrefix: 'bios'
+      };
+
+      var gameFrame = null;
+      var currentRomLabel = null;
+      var statusLog = null;
+      var statusPill = null;
+      var screenPlaceholder = null;
+      var screenPlaceholderTitle = null;
+      var screenPlaceholderBody = null;
+      var screenPlaceholderActions = null;
+      var screenPlaceholderAction = null;
+      var pirateNintendoButton = null;
+      var coreSelect = null;
+      var coreChip = null;
+      var coreHint = null;
+      var localFileHint = null;
+      var romList = null;
+      var romVariantList = null;
+      var activeSystemId = 'nes';
+      var activeSystemConfig = null;
+      var libraryRequestSerial = 0;
+      var browserNavigationBound = false;
+      var SYSTEM_CONFIGS = {
+        nes: {
+          id: 'nes',
+          label: 'NES/Famicom',
+          qdnQueries: ['NTD;~1NES;~', 'NES'],
+          localAccept: '.nes',
+          localExtensions: ['nes'],
+          localHint: 'You can also drag and drop a .nes file into the window.',
+          defaultCore: 'fceumm',
+          cores: [
+            {
+              value: 'fceumm',
+              label: 'FCEUMM (balanced)',
+              hint: 'Balanced accuracy with strong mapper support.'
+            },
+            {
+              value: 'quicknes',
+              label: 'QuickNES (speed)',
+              hint: 'Speed-first core with lower accuracy and mapper coverage.'
+            },
+            {
+              value: 'nestopia',
+              label: 'Nestopia (accuracy)',
+              hint: 'High accuracy core that tends to be heavier on CPU.'
+            },
+            {
+              value: 'mesen',
+              label: 'Mesen (max accuracy)',
+              hint: 'Max accuracy core with the highest CPU cost.'
+            }
+          ]
+        },
+        gb: {
+          id: 'gb',
+          label: 'Game Boy',
+          qdnQueries: ['NTD;~GB;~'],
+          localAccept: '.gb,.dmg',
+          localExtensions: ['gb', 'dmg'],
+          localHint: 'You can also drag and drop a .gb or .dmg file into the window.',
+          defaultCore: 'gambatte',
+          cores: [
+            {
+              value: 'gambatte',
+              label: 'Gambatte (balanced)',
+              hint: 'Best all-around choice for classic GB titles: strong compatibility, low latency, and stable performance.'
+            },
+            {
+              value: 'sameboy',
+              label: 'SameBoy (accuracy)',
+              hint: 'Most hardware-faithful GB timing/audio behavior; use when you want maximum accuracy over speed.'
+            },
+            {
+              value: 'mgba',
+              label: 'mGBA (compatibility)',
+              hint: 'Great compatibility and a good cross-system choice if you also switch to GBC/GBA frequently.'
+            },
+            {
+              value: 'gearboy',
+              label: 'Gearboy (speed)',
+              hint: 'Fast lightweight GB core for lower-end devices, with slightly lower edge-case compatibility than accuracy-focused cores.'
+            },
+            {
+              value: 'vbam',
+              label: 'VBA-M (legacy fallback)',
+              hint: 'This build is currently unstable in this app (opens RetroArch menu instead of game); GB loading is disabled for now.',
+              disabled: true
+            },
+            {
+              value: 'vba_next',
+              label: 'VBA-Next (legacy speed)',
+              hint: 'This build is GBA-only for VBA-Next in this app; GB loading is disabled to avoid blank-screen starts.',
+              disabled: true
+            }
+          ]
+        },
+        gbc: {
+          id: 'gbc',
+          label: 'Game Boy Color',
+          qdnQueries: ['NTD;~GBC;~'],
+          localAccept: '.gbc,.gb',
+          localExtensions: ['gbc', 'gb'],
+          localHint: 'You can also drag and drop a .gbc or .gb file into the window.',
+          defaultCore: 'gambatte',
+          cores: [
+            {
+              value: 'gambatte',
+              label: 'Gambatte (balanced)',
+              hint: 'Best all-around choice for most GBC titles: strong compatibility, low latency, and reliable color behavior.'
+            },
+            {
+              value: 'sameboy',
+              label: 'SameBoy (accuracy)',
+              hint: 'Most hardware-faithful GBC timing/audio behavior; best for users prioritizing accuracy and consistency.'
+            },
+            {
+              value: 'mgba',
+              label: 'mGBA (compatibility)',
+              hint: 'Great compatibility and a good cross-system choice if you also switch between GB/GBC/GBA.'
+            },
+            {
+              value: 'gearboy',
+              label: 'Gearboy (speed)',
+              hint: 'Fast lightweight GBC core for lower-end devices, with slightly lower edge-case compatibility than accuracy-focused cores.'
+            },
+            {
+              value: 'vbam',
+              label: 'VBA-M (legacy fallback)',
+              hint: 'This build is currently unstable in this app (opens RetroArch menu instead of game); GBC loading is disabled for now.',
+              disabled: true
+            },
+            {
+              value: 'vba_next',
+              label: 'VBA-Next (legacy speed)',
+              hint: 'This build is GBA-only for VBA-Next in this app; GBC loading is disabled to avoid blank-screen starts.',
+              disabled: true
+            }
+          ]
+        },
+        snes: {
+          id: 'snes',
+          label: 'SNES/SFC',
+          qdnQueries: ['NTD;~SNES;~', 'SNES'],
+          localAccept: '.sfc,.smc,.swc,.fig,.bs,.st',
+          localExtensions: ['sfc', 'smc', 'swc', 'fig', 'bs', 'st'],
+          localHint: 'You can also drag and drop a .sfc, .smc, .swc, .fig, .bs, or .st file into the window.',
+          defaultCore: 'snes9x',
+          cores: [
+            {
+              value: 'snes9x',
+              label: 'Snes9x (balanced)',
+              hint: 'Balanced accuracy and performance for SNES/SFC.'
+            },
+            {
+              value: 'bsnes',
+              label: 'bsnes (max accuracy)',
+              hint: 'Highest accuracy option for SNES/SFC; usually heavier on CPU.'
+            }
+          ]
+        },
+        n64: {
+          id: 'n64',
+          label: 'Nintendo 64',
+          qdnQueries: ['NTD;~N64;~', 'N64'],
+          localAccept: '.n64,.v64,.z64,.ndd',
+          localExtensions: ['n64', 'v64', 'z64', 'ndd'],
+          localHint: 'You can also drag and drop a .n64, .v64, .z64, or .ndd file into the window.',
+          defaultCore: 'mupen64plus_next',
+          cores: [
+            {
+              value: 'mupen64plus_next',
+              label: 'Mupen64Plus-Next (balanced)',
+              hint: 'Balanced compatibility and performance for most N64 games.'
+            },
+            {
+              value: 'parallel_n64',
+              label: 'Parallel N64 (accuracy)',
+              hint: 'Higher accuracy N64 core with better rendering fidelity, usually heavier on CPU/GPU.'
+            }
+          ]
+        },
+        vb: {
+          id: 'vb',
+          label: 'Virtual Boy',
+          qdnQueries: ['NTD;~VRB;~'],
+          localAccept: '.vb,.vboy',
+          localExtensions: ['vb', 'vboy'],
+          localHint: 'You can also drag and drop a .vb or .vboy file into the window.',
+          defaultCore: 'beetle_vb',
+          cores: [
+            {
+              value: 'beetle_vb',
+              label: 'Beetle VB (balanced)',
+              hint: 'Balanced Virtual Boy core with strong compatibility and good overall accuracy.'
+            }
+          ]
+        },
+        nds: {
+          id: 'nds',
+          label: 'Nintendo DS',
+          qdnQueries: ['NTD;~NDS;~'],
+          localAccept: '.nds',
+          localExtensions: ['nds'],
+          localHint: 'You can also drag and drop a .nds file into the window.',
+          defaultCore: 'melonds',
+          cores: [
+            {
+              value: 'melonds',
+              label: 'melonDS (balanced)',
+              hint: 'Balanced NDS core with strong compatibility and good overall accuracy.'
+            },
+            {
+              value: 'desmume',
+              label: 'DeSmuME (compatibility)',
+              hint: 'Widely compatible NDS core with reliable game support across many titles.'
+            },
+            {
+              value: 'desmume2015',
+              label: 'DeSmuME 2015 (performance)',
+              hint: 'Lighter NDS variant tuned for lower-end devices, with some compatibility tradeoffs.'
+            }
+          ]
+        },
+        ps1: {
+          id: 'ps1',
+          label: 'PlayStation',
+          qdnQueries: ['SNY;~PS1;~'],
+          localAccept: '.chd,.cue,.bin,.img,.iso,.pbp,.m3u,.ccd,.toc,.zip',
+          localExtensions: ['chd', 'cue', 'bin', 'img', 'iso', 'pbp', 'm3u', 'ccd', 'toc', 'zip'],
+          localHint: 'You can also drag and drop a PS1 image file (.chd, .cue, .bin, .img, .iso, .pbp, .m3u, .ccd, .toc, or .zip) into the window.',
+          defaultCore: 'pcsx_rearmed',
+          cores: [
+            {
+              value: 'pcsx_rearmed',
+              label: 'PCSX-ReARMed (performance)',
+              hint: 'Fast and lightweight PS1 core with broad compatibility, best for lower-end devices.'
+            },
+            {
+              value: 'mednafen_psx_hw',
+              label: 'Beetle PSX HW (accuracy, BIOS)',
+              hint: 'Higher-accuracy PS1 core with improved rendering fidelity, usually heavier on CPU/GPU. Requires scph5501.bin BIOS (bundled or QDN fallback).'
+            }
+          ]
+        },
+        gba: {
+          id: 'gba',
+          label: 'Game Boy Advance',
+          qdnQueries: ['NTD;~GBA;~'],
+          localAccept: '.gba',
+          localExtensions: ['gba'],
+          localHint: 'You can also drag and drop a .gba file into the window.',
+          defaultCore: 'mgba',
+          cores: [
+            {
+              value: 'mgba',
+              label: 'mGBA (compatibility)',
+              hint: 'Best default for most GBA games: strongest compatibility with good accuracy and stable behavior.'
+            },
+            {
+              value: 'vbam',
+              label: 'VBA-M (balanced)',
+              hint: 'This build is currently unstable in this app (opens RetroArch menu instead of game); GBA loading is disabled for now.',
+              disabled: true
+            },
+            {
+              value: 'vba_next',
+              label: 'VBA-Next (speed)',
+              hint: 'Lower-CPU GBA option based on older VBA code; faster on weak hardware with somewhat lower edge-case accuracy.'
+            },
+            {
+              value: 'gpsp',
+              label: 'gpSP (performance)',
+              hint: 'Fastest GBA option for very low-end devices; highest performance, but more likely to hit game-specific compatibility quirks.'
+            }
+          ]
+        },
+        sms: {
+          id: 'sms',
+          label: 'Master System',
+          qdnQueries: ['SGA;~SMS;~'],
+          localAccept: '.sms',
+          localExtensions: ['sms'],
+          localHint: 'You can also drag and drop a .sms file into the window.',
+          defaultCore: 'smsplus',
+          cores: [
+            {
+              value: 'smsplus',
+              label: 'SMS Plus (performance)',
+              hint: 'Lightweight Sega 8-bit focused core optimized for Master System titles.'
+            },
+            {
+              value: 'picodrive',
+              label: 'PicoDrive (speed)',
+              hint: 'Fast Sega-focused core with Master System support and low CPU usage.'
+            }
+          ]
+        },
+        gen: {
+          id: 'gen',
+          label: 'Genesis/Mega Drive',
+          qdnQueries: ['SGA;~GEN;~'],
+          localAccept: '.md,.gen,.smd,.bin',
+          localExtensions: ['md', 'gen', 'smd', 'bin'],
+          localHint: 'You can also drag and drop a .md, .gen, .smd, or .bin file into the window.',
+          defaultCore: 'genesis_plus_gx',
+          cores: [
+            {
+              value: 'genesis_plus_gx',
+              label: 'Genesis Plus GX (balanced)',
+              hint: 'Balanced compatibility and accuracy for Genesis/Mega Drive titles.'
+            },
+            {
+              value: 'picodrive',
+              label: 'PicoDrive (speed)',
+              hint: 'Fast Genesis/Mega Drive core tuned for lower-end devices.'
+            }
+          ]
+        },
+        scd: {
+          id: 'scd',
+          label: 'Sega CD',
+          qdnQueries: ['SGA;~SCD;~'],
+          localAccept: '.chd,.cue,.iso,.bin,.m3u',
+          localExtensions: ['chd', 'cue', 'iso', 'bin', 'm3u'],
+          localHint: 'You can also drag and drop a Sega CD image file (.chd, .cue, .iso, .bin, or .m3u) into the window.',
+          defaultCore: 'picodrive',
+          cores: [
+            {
+              value: 'picodrive',
+              label: 'PicoDrive (speed)',
+              hint: 'Faster Sega CD option on lower-end devices. Requires Sega CD BIOS firmware and may be less accurate.'
+            },
+            {
+              value: 'genesis_plus_gx',
+              label: 'Genesis Plus GX (balanced)',
+              hint: 'Balanced compatibility and accuracy for Sega CD titles. Requires Sega CD BIOS firmware.'
+            }
+          ]
+        },
+        s32x: {
+          id: 's32x',
+          label: 'Sega 32X',
+          qdnQueries: ['SGA;~32X;~'],
+          localAccept: '.32x,.bin,.md,.smd,.gen,.chd,.cue,.iso',
+          localExtensions: ['32x', 'bin', 'md', 'smd', 'gen', 'chd', 'cue', 'iso'],
+          localHint: 'You can also drag and drop a Sega 32X image file (.32x, .bin, .md, .smd, .gen, .chd, .cue, or .iso) into the window.',
+          defaultCore: 'picodrive',
+          cores: [
+            {
+              value: 'picodrive',
+              label: 'PicoDrive (speed)',
+              hint: 'Fast Sega 32X core with good compatibility and low CPU usage.'
+            }
+          ]
+        },
+        saturn: {
+          id: 'saturn',
+          label: 'Sega Saturn',
+          qdnQueries: ['SGA;~SAT;~'],
+          localAccept: '.chd,.cue,.iso,.ccd,.mds,.zip,.m3u',
+          localExtensions: ['chd', 'cue', 'iso', 'ccd', 'mds', 'zip', 'm3u'],
+          localHint: 'You can also drag and drop a Saturn image file (.chd, .cue, .iso, .ccd, .mds, .zip, or .m3u) into the window.',
+          defaultCore: 'yabause',
+          cores: [
+            {
+              value: 'yabause',
+              label: 'Yabause (balanced)',
+              hint: 'Balanced Saturn core with optional HLE BIOS fallback; usually the safest baseline in web builds.'
+            },
+            {
+              value: 'mednafen_saturn',
+              label: 'Beetle Saturn (accuracy)',
+              hint: 'Highest-accuracy Saturn option with strong timing fidelity; requires real Saturn BIOS firmware.'
+            },
+            {
+              value: 'kronos',
+              label: 'Kronos (compatibility)',
+              hint: 'Compatibility-focused Saturn core with broader 3D coverage in many titles; can fall back to HLE BIOS mode.'
+            },
+            {
+              value: 'yabasanshiro',
+              label: 'YabaSanshiro (performance)',
+              hint: 'Performance-focused Saturn core tuned for speed on weaker hardware; can fall back to HLE BIOS mode.'
+            }
+          ]
+        },
+        gg: {
+          id: 'gg',
+          label: 'Game Gear',
+          qdnQueries: ['SGA;~GG;~'],
+          localAccept: '.gg',
+          localExtensions: ['gg'],
+          localHint: 'You can also drag and drop a .gg file into the window.',
+          defaultCore: 'smsplus',
+          cores: [
+            {
+              value: 'smsplus',
+              label: 'SMS Plus (performance)',
+              hint: 'Lightweight Sega 8-bit focused core with Game Gear support.'
+            },
+            {
+              value: 'picodrive',
+              label: 'PicoDrive (speed)',
+              hint: 'Fast Sega-focused core; Game Gear compatibility can vary by title.'
+            }
+          ]
+        }
+      };
+      window.qdnesAuthState = {
+        account: null,
+        names: [],
+        selectedName: null
+      };
+      window.__qdnesPendingSystemId = 'nes';
+
+      function normalizeSystemId(value) {
+        if (typeof value !== 'string') {
+          return 'nes';
+        }
+        var normalized = value.trim().toLowerCase();
+        if (!normalized) {
+          return 'nes';
+        }
+        if (Object.prototype.hasOwnProperty.call(SYSTEM_CONFIGS, normalized)) {
+          return normalized;
+        }
+        return 'nes';
+      }
+
+      function normalizeReportedSystemId(value) {
+        if (typeof value !== 'string') {
+          return '';
+        }
+        var normalized = value.trim().toLowerCase();
+        if (!normalized) {
+          return '';
+        }
+        if (Object.prototype.hasOwnProperty.call(SYSTEM_CONFIGS, normalized)) {
+          return normalized;
+        }
+        return '';
+      }
+
+      function isHotSwapAllowedForSystem(systemId) {
+        return !HOT_SWAP_DISABLED_SYSTEMS.has(normalizeSystemId(systemId));
+      }
+
+      function getSystemConfig(systemId) {
+        var normalized = normalizeSystemId(systemId);
+        return SYSTEM_CONFIGS[normalized] || SYSTEM_CONFIGS.nes;
+      }
+
+      function getActiveSystemConfig() {
+        if (!activeSystemConfig) {
+          activeSystemConfig = getSystemConfig(activeSystemId);
+        }
+        return activeSystemConfig;
+      }
+
+      function readHashRouteState() {
+        var hash = typeof window.location.hash === 'string' ? window.location.hash.trim() : '';
+        if (!hash || hash.toLowerCase() === '#home') {
+          return {
+            kind: 'home',
+            systemId: 'home'
+          };
+        }
+        return {
+          kind: 'system',
+          systemId: normalizeSystemId(hash.replace(/^#/, ''))
+        };
+      }
+
+      function readQdnesRouteState() {
+        var deepLink = parseDeepLinkRoutePath(getCurrentAppRelativePath());
+        if (deepLink) {
+          var params = new URLSearchParams(window.location.search || '');
+          var storedRouteState = window.__qdnesRouteState;
+          var resolvedSystemId = '';
+          if (storedRouteState &&
+              storedRouteState.kind === 'deep-link' &&
+              storedRouteState.routeType === deepLink.routeType &&
+              storedRouteState.metadataName === deepLink.metadataName &&
+              storedRouteState.metadataIdentifier === deepLink.metadataIdentifier &&
+              storedRouteState.systemId) {
+            resolvedSystemId = storedRouteState.systemId;
+          }
+          if (!resolvedSystemId) {
+            resolvedSystemId = window.__qdnesResolvedRouteSystemId || window.__qdnesPendingSystemId || 'nes';
+          }
+          deepLink.systemId = normalizeSystemId(resolvedSystemId);
+          deepLink.filePublisher = safeDecodeRouteSegment(params.get('filePublisher') || '');
+          deepLink.fileIdentifier = safeDecodeRouteSegment(params.get('fileIdentifier') || '');
+          deepLink.core = safeDecodeRouteSegment(params.get('core') || '');
+          return deepLink;
+        }
+        return readHashRouteState();
+      }
+
+      function setStoredQdnesRouteState(routeState) {
+        window.__qdnesRouteState = routeState;
+        return routeState;
+      }
+
+      function clearQdnesRouteSearchParams(params) {
+        params.delete('filePublisher');
+        params.delete('fileIdentifier');
+        params.delete('core');
+      }
+
+      function buildQdnesUrlFromRouteState(routeState) {
+        var state = routeState && typeof routeState === 'object'
+          ? routeState
+          : { kind: 'home', systemId: 'home' };
+        var basePath = getEncodedQdnBasePath();
+        var relativePath = '';
+        var hash = '';
+        var params = new URLSearchParams(window.location.search || '');
+        clearQdnesRouteSearchParams(params);
+
+        if (state.kind === 'deep-link') {
+          relativePath = String(state.routeType || 'ROM') + '/' +
+            encodeURIComponent(String(state.metadataName || '')) + '/' +
+            encodeURIComponent(String(state.metadataIdentifier || ''));
+          if (state.fileIdentifier) {
+            params.set('fileIdentifier', state.fileIdentifier);
+            if (state.filePublisher) {
+              params.set('filePublisher', state.filePublisher);
+            }
+          }
+          if (state.core) {
+            params.set('core', state.core);
+          }
+        } else if (state.kind === 'system') {
+          hash = '#' + normalizeSystemId(state.systemId);
+        } else {
+          hash = '#home';
+        }
+
+        var search = params.toString();
+        return basePath + relativePath + (search ? '?' + search : '') + hash;
+      }
+
+      function commitQdnesRouteState(routeState, historyMode) {
+        var mode = historyMode === 'replace' ? 'replace' : 'push';
+        var state = routeState && typeof routeState === 'object'
+          ? routeState
+          : readHashRouteState();
+        var targetUrl = buildQdnesUrlFromRouteState(state);
+        var currentUrl = (window.location.pathname || '/') +
+          (window.location.search || '') +
+          (window.location.hash || '');
+
+        if (state.kind === 'deep-link') {
+          window.__qdnesResolvedRouteSystemId = normalizeSystemId(state.systemId || 'nes');
+        } else {
+          window.__qdnesResolvedRouteSystemId = '';
+        }
+
+        if (currentUrl !== targetUrl) {
+          window.history[mode + 'State']({}, '', targetUrl);
+        }
+        return setStoredQdnesRouteState(readQdnesRouteState());
+      }
+
+      function syncSystemRoute(systemId, historyMode) {
+        return commitQdnesRouteState({
+          kind: 'system',
+          systemId: normalizeSystemId(systemId)
+        }, historyMode);
+      }
+
+      function syncHomeRoute(historyMode) {
+        return commitQdnesRouteState({
+          kind: 'home',
+          systemId: 'home'
+        }, historyMode);
+      }
+
+      function syncDeepLinkRoute(selection, historyMode) {
+        if (!selection || !selection.routeType || !selection.metadataName || !selection.metadataIdentifier) {
+          return syncSystemRoute(activeSystemId, historyMode);
+        }
+        var normalizedSystemId = normalizeSystemId(selection.systemId || activeSystemId);
+        var defaultCore = getSystemConfig(normalizedSystemId).defaultCore;
+        return commitQdnesRouteState({
+          kind: 'deep-link',
+          routeType: selection.routeType,
+          metadataName: selection.metadataName,
+          metadataIdentifier: selection.metadataIdentifier,
+          filePublisher: selection.isDefaultFile ? '' : (selection.filePublisher || ''),
+          fileIdentifier: selection.isDefaultFile ? '' : (selection.fileIdentifier || ''),
+          core: selection.core && selection.core !== defaultCore ? selection.core : '',
+          systemId: normalizedSystemId
+        }, historyMode);
+      }
+
+      window.__qdnesResolvedRouteSystemId = '';
+      window.__qdnesRouteApi = {
+        readState: function() {
+          return setStoredQdnesRouteState(readQdnesRouteState());
+        },
+        syncSystemRoute: syncSystemRoute,
+        syncHomeRoute: syncHomeRoute,
+        syncDeepLinkRoute: syncDeepLinkRoute,
+        commitRouteState: commitQdnesRouteState,
+        getEncodedBasePath: getEncodedQdnBasePath
+      };
+      setStoredQdnesRouteState(readQdnesRouteState());
+
+      function readSystemFromHash() {
+        var hash = typeof window.location.hash === 'string' ? window.location.hash : '';
+        return normalizeSystemId(hash.replace(/^#/, ''));
+      }
+
+      async function startApp() {
+        gameFrame = document.getElementById('gameFrame');
+        currentRomLabel = document.getElementById('currentRom');
+        statusLog = document.getElementById('statusLog');
+        statusPill = document.getElementById('statusPill');
+        screenPlaceholder = document.getElementById('screenPlaceholder');
+        screenPlaceholderTitle = document.getElementById('screenPlaceholderTitle');
+        screenPlaceholderBody = document.getElementById('screenPlaceholderBody');
+        screenPlaceholderActions = document.getElementById('screenPlaceholderActions');
+        screenPlaceholderAction = document.getElementById('screenPlaceholderAction');
+        pirateNintendoButton = document.getElementById('pirateNintendoButton');
+        coreSelect = document.getElementById('coreSelect');
+        coreChip = document.getElementById('coreChip');
+        coreHint = document.getElementById('coreHint');
+        localFileHint = document.getElementById('localFileHint');
+        romList = document.getElementById('romList');
+        romVariantList = document.getElementById('romVariantList');
+        var identifier = getQdnIdentifier();
+        applyFontFace(identifier);
+
+	        initUi();
+	        bindMenuButton();
+	        bindHomeSystemButtons();
+	        bindChangelogButton();
+	        bindQortalNewTabLinks();
+	        bindScreenPlaceholderAction();
+	        bindPirateNintendoButton();
+        if (coreSelect) {
+          coreSelect.onchange = updateCoreUi;
+        }
+        var initialRoute = window.__qdnesRouteApi && typeof window.__qdnesRouteApi.readState === 'function'
+          ? window.__qdnesRouteApi.readState()
+          : readHashRouteState();
+	        var initialSystemId = initialRoute.kind === 'system'
+	          ? normalizeSystemId(initialRoute.systemId)
+	          : normalizeSystemId(window.__qdnesPendingSystemId || 'nes');
+	        setActiveSystem(initialSystemId, {
+	          reloadLibrary: false,
+	          showPage: initialRoute.kind !== 'home'
+	        });
+        if (initialRoute.kind === 'deep-link') {
+          if (await bootstrapDeepLinkRoute(initialRoute, 'replace')) {
+            void populateRomListFromQDN();
+          }
+        } else if (initialRoute.kind === 'system') {
+          await populateRomListFromQDN();
+        }
+        if (romList) {
+          romList.onchange = loadRomVariants;
+        }
+        if (romVariantList) {
+          romVariantList.onchange = updatePirateNintendoButtonState;
+        }
+        document.getElementById('selectRomButton').onclick = selectRom;
+        document.getElementById('loadROMButton').onclick = loadRom;
+        if (!playerMessageBound) {
+          window.addEventListener('message', handlePlayerMessage);
+          playerMessageBound = true;
+        }
+	        if (!browserNavigationBound) {
+	        window.addEventListener('popstate', function() {
+	          void handleRouteNavigationChange();
+	        });
+	        window.addEventListener('hashchange', function() {
+	          void handleRouteNavigationChange();
+	        });
+	        browserNavigationBound = true;
+	      }
+
+        gameFrame.addEventListener('load', function() {
+          if (activeGameUrl) {
+            setStatus('Running', 'ready');
+          }
+        });
+      }
+
+      function bindHomeSystemButtons() {
+        var buttons = document.querySelectorAll('[data-home-system]');
+        for (var i = 0; i < buttons.length; i++) {
+          var button = buttons[i];
+          if (!button || button.dataset.homeBound === 'true') {
+            continue;
+          }
+          button.dataset.homeBound = 'true';
+          button.addEventListener('click', function(event) {
+            event.preventDefault();
+            var target = event.currentTarget;
+            if (!target || typeof target.getAttribute !== 'function') {
+              return;
+            }
+            var systemId = String(target.getAttribute('data-home-system') || '').trim().toLowerCase();
+            if (!systemId || !Object.prototype.hasOwnProperty.call(SYSTEM_CONFIGS, systemId)) {
+              return;
+            }
+	            selectQdnesSystem(systemId, { syncHash: true });
+	          });
+	        }
+	      }
+
+	      function bindQortalNewTabLinks() {
+	      }
+
+	      function bindChangelogButton() {
+	        var button = document.getElementById('changelogButton');
+	        var popover = document.getElementById('changelogPopover');
+	        if (!button || !popover || button.dataset.changelogBound === 'true') {
+	          return;
+	        }
+	        button.dataset.changelogBound = 'true';
+	        button.addEventListener('click', function(event) {
+	          event.preventDefault();
+	          event.stopPropagation();
+	          var nextHidden = !popover.hidden;
+	          popover.hidden = nextHidden;
+	          button.setAttribute('aria-expanded', String(!nextHidden));
+	        });
+	        document.addEventListener('click', function(event) {
+	          if (popover.hidden) {
+	            return;
+	          }
+	          var target = event.target;
+	          if (popover.contains(target) || button.contains(target)) {
+	            return;
+	          }
+	          popover.hidden = true;
+	          button.setAttribute('aria-expanded', 'false');
+	        });
+	        document.addEventListener('keydown', function(event) {
+	          if (event.key === 'Escape' && !popover.hidden) {
+	            popover.hidden = true;
+	            button.setAttribute('aria-expanded', 'false');
+	            button.focus();
+	          }
+	        });
+	      }
+
+      function bindMenuButton() {
+        var button = document.getElementById('menuButton');
+        if (!button || button.dataset.menuBound === 'true') {
+          return;
+        }
+	        button.dataset.menuBound = 'true';
+	        button.addEventListener('click', function() {
+	          clearCurrentGameState('None loaded');
+	          clearCurrentQdnSelection();
+	          resetPlayerCapabilityState();
+          if (gameFrame) {
+            gameFrame.src = buildPlayerUrl('', '', '', '');
+	          }
+	          showIdlePlaceholder();
+	          setVisiblePage('home');
+	          syncHomeRoute('push');
+	        });
+	      }
+
+      function bindScreenPlaceholderAction() {
+        if (!screenPlaceholderAction || screenPlaceholderAction.dataset.placeholderBound === 'true') {
+          return;
+        }
+        screenPlaceholderAction.dataset.placeholderBound = 'true';
+        screenPlaceholderAction.addEventListener('click', function(event) {
+          event.preventDefault();
+          if (typeof window.qdnesSelectSystem === 'function') {
+            window.qdnesSelectSystem('home', {
+              syncHash: true,
+              reloadLibrary: false
+            });
+            return;
+          }
+          if (window.__qdnesRouteApi && typeof window.__qdnesRouteApi.syncHomeRoute === 'function') {
+            window.__qdnesRouteApi.syncHomeRoute('push');
+            return;
+          }
+          if (window.location.hash !== '#home') {
+            window.location.hash = '#home';
+          }
+        });
+      }
+
+      function bindPirateNintendoButton() {
+        if (!pirateNintendoButton) {
+          return;
+        }
+        pirateNintendoButton.hidden = true;
+        pirateNintendoButton.disabled = true;
+      }
+
+      function getQortiumQortalBridge() {
+        if (window.qortiumQortal && typeof window.qortiumQortal === 'object') {
+          return window.qortiumQortal;
+        }
+        throw new Error('Qortium Qortal bridge is unavailable.');
+      }
+
+      async function fetchQortalResourceStatus(service, publisher, identifier, build) {
+        var safeIdentifier = identifier != null && identifier !== '' ? String(identifier) : '';
+        return getQortiumQortalBridge().getResourceStatus({
+          service: service,
+          name: publisher,
+          identifier: safeIdentifier,
+          build: build
+        });
+      }
+
+      async function getQortalResourceUrl(service, publisher, identifier, filepath) {
+        return getQortiumQortalBridge().getResourceUrl({
+          service: service,
+          name: publisher,
+          identifier: identifier,
+          path: filepath || ''
+        });
+      }
+
+      async function fetchQortalResourceContent(service, publisher, identifier, options) {
+        var request = Object.assign({}, options || {}, {
+          service: service,
+          name: publisher,
+          identifier: identifier
+        });
+        return getQortiumQortalBridge().fetchResourceContent(request);
+      }
+
+      async function openQortalLinkInNewTab(qortalLink) {
+        void qortalLink;
+      }
+
+      function initUi() {
+        setStatus('Idle', 'idle');
+        showIdlePlaceholder();
+        putMessage('Ready. Select a ROM from Qortal or load a local file.');
+      }
+
+      function setStatus(text, state) {
+        statusPill.textContent = text;
+        statusPill.className = 'status-pill status-' + state;
+      }
+
+      function putMessage(str) {
+        if (!statusLog) {
+          return;
+        }
+        statusLog.value += str + '\n';
+        statusLog.scrollTop = statusLog.scrollHeight;
+      }
+
+      function appendToLastLogLine(suffix) {
+        if (!statusLog || !suffix) {
+          return;
+        }
+        var lines = (statusLog.value || '').split('\n');
+        while (lines.length > 0 && lines[lines.length - 1] === '') {
+          lines.pop();
+        }
+        if (lines.length === 0) {
+          lines.push(String(suffix));
+        } else {
+          lines[lines.length - 1] += String(suffix);
+        }
+        statusLog.value = lines.join('\n') + '\n';
+        statusLog.scrollTop = statusLog.scrollHeight;
+      }
+
+      function clearStatusLog() {
+        if (statusLog) {
+          statusLog.value = '';
+        }
+      }
+
+      function showIdlePlaceholder() {
+        if (!screenPlaceholder) {
+          return;
+        }
+        screenPlaceholder.classList.remove('hidden');
+        if (screenPlaceholderTitle) {
+          screenPlaceholderTitle.textContent = '';
+          screenPlaceholderTitle.hidden = true;
+        }
+        if (screenPlaceholderBody) {
+          screenPlaceholderBody.textContent = 'Select a ROM from Qortal or load a local file to start.';
+        }
+        if (screenPlaceholderActions) {
+          screenPlaceholderActions.hidden = true;
+        }
+        if (currentRomLabel && !activeGameUrl) {
+          currentRomLabel.textContent = 'None loaded';
+        }
+      }
+
+      function hideScreenPlaceholder() {
+        if (!screenPlaceholder) {
+          return;
+        }
+        screenPlaceholder.classList.add('hidden');
+      }
+
+      function clearSelectedPirateNintendoTarget() {
+        if (romVariantList) {
+          romVariantList.selectedIndex = -1;
+        }
+        updatePirateNintendoButtonState();
+      }
+
+      function clearCurrentGameState(nextLabel) {
+        if (currentBlobUrl) {
+          URL.revokeObjectURL(currentBlobUrl);
+          currentBlobUrl = null;
+        }
+        activeGameUrl = '';
+        activeGameTitle = '';
+        activeGameRomFilename = '';
+        runtimeFallbackUsed = false;
+        if (currentRomLabel && typeof nextLabel === 'string' && nextLabel) {
+          currentRomLabel.textContent = nextLabel;
+        }
+      }
+
+      function showLinkErrorPlaceholder(title, body) {
+        clearCurrentGameState('Unsupported link');
+        clearCurrentQdnSelection();
+        clearSelectedPirateNintendoTarget();
+        resetPlayerCapabilityState();
+        if (gameFrame) {
+          gameFrame.src = buildPlayerUrl('', '', '', '');
+        }
+        setStatus('Unsupported', 'error');
+        if (screenPlaceholderTitle) {
+          screenPlaceholderTitle.textContent = title || 'Unsupported System';
+          screenPlaceholderTitle.hidden = false;
+        }
+        if (screenPlaceholderBody) {
+          screenPlaceholderBody.textContent = body || 'This linked ROM uses a system Emulator does not support yet.';
+        }
+        if (screenPlaceholderActions) {
+          screenPlaceholderActions.hidden = false;
+        }
+        if (screenPlaceholder) {
+          screenPlaceholder.classList.remove('hidden');
+        }
+        putMessage((title || 'Unsupported System') + ': ' + (body || 'This linked ROM uses a system Emulator does not support yet.'));
+      }
+
+      function getSelectedRomVariantInfo() {
+        if (!romVariantList) {
+          return null;
+        }
+        var selectedOption = romVariantList.selectedOptions && romVariantList.selectedOptions[0]
+          ? romVariantList.selectedOptions[0]
+          : null;
+        if (!selectedOption || !selectedOption.value) {
+          return null;
+        }
+        try {
+          return JSON.parse(selectedOption.value);
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function normalizePirateNintendoEntryTarget(source) {
+        var target = source && typeof source === 'object' ? source : null;
+        if (!target) {
+          return null;
+        }
+        var routeType = normalizeDeepLinkRouteType(target.routeType || '');
+        var metadataName = typeof target.metadataName === 'string' ? target.metadataName.trim() : '';
+        var metadataIdentifier = typeof target.metadataIdentifier === 'string' ? target.metadataIdentifier.trim() : '';
+        if (!routeType || !metadataName || !metadataIdentifier) {
+          return null;
+        }
+        return {
+          routeType: routeType,
+          metadataName: metadataName,
+          metadataIdentifier: metadataIdentifier
+        };
+      }
+
+      function resolvePirateNintendoEntryTarget() {
+        return normalizePirateNintendoEntryTarget(getSelectedRomVariantInfo()) ||
+          normalizePirateNintendoEntryTarget(currentQdnSelection);
+      }
+
+      function buildPirateNintendoQortalLink(target) {
+        var normalizedTarget = normalizePirateNintendoEntryTarget(target);
+        if (!normalizedTarget) {
+          return '';
+        }
+        return 'qortal://APP/Pirate%20Nintendo/' +
+          encodeURIComponent(normalizedTarget.routeType) + '/' +
+          encodeURIComponent(normalizedTarget.metadataName) + '/' +
+          encodeURIComponent(normalizedTarget.metadataIdentifier);
+      }
+
+      function updatePirateNintendoButtonState() {
+        if (!pirateNintendoButton) {
+          return;
+        }
+        var target = resolvePirateNintendoEntryTarget();
+        var enabled = Boolean(target);
+        pirateNintendoButton.disabled = !enabled;
+        pirateNintendoButton.title = enabled
+          ? 'Qortal library entry selected'
+          : 'Select a Qortal ROM or mod';
+      }
+
+      function getQdnIdentifier() {
+        if (typeof window._qdnIdentifier === 'string' && window._qdnIdentifier && window._qdnIdentifier !== 'default') {
+          return window._qdnIdentifier;
+        }
+        return '';
+      }
+
+      function applyFontFace(identifier) {
+        if (!identifier) {
+          return;
+        }
+        var styleId = 'qdn-font-face';
+        var style = document.getElementById(styleId);
+        var fontUrl = 'Lexend-Regular.ttf?identifier=' + encodeURIComponent(identifier);
+        var css = "@font-face { font-family: 'Lexend'; src: url('" + fontUrl + "'); }";
+        if (style) {
+          style.textContent = css;
+          return;
+        }
+        style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = css;
+        document.head.appendChild(style);
+      }
+
+      function renderCoreOptions(systemConfig) {
+        if (!coreSelect || !systemConfig) {
+          return;
+        }
+        var previousValue = coreSelect.value;
+        var firstEnabledCore = '';
+        coreSelect.innerHTML = '';
+        systemConfig.cores.forEach(function(core) {
+          var option = document.createElement('option');
+          option.value = core.value;
+          option.text = core.label;
+          option.dataset.hint = core.hint || '';
+          option.disabled = Boolean(core.disabled);
+          coreSelect.appendChild(option);
+          if (!option.disabled && !firstEnabledCore) {
+            firstEnabledCore = core.value;
+          }
+        });
+        var keepPrevious = systemConfig.cores.some(function(core) {
+          return core.value === previousValue && !core.disabled;
+        });
+        var nextValue = keepPrevious ? previousValue : systemConfig.defaultCore;
+        var validNext = systemConfig.cores.some(function(core) {
+          return core.value === nextValue && !core.disabled;
+        });
+        if (!validNext) {
+          nextValue = firstEnabledCore;
+        }
+        if (nextValue) {
+          coreSelect.value = nextValue;
+        }
+        updateCoreUi();
+      }
+
+	      function setActiveSystem(systemId, options) {
+	        var normalizedId = normalizeSystemId(systemId);
+	        var settings = options || {};
+	        var shouldReloadLibrary = settings.reloadLibrary !== false;
+	        window.__qdnesPendingSystemId = normalizedId;
+	        activeSystemId = normalizedId;
+	        activeSystemConfig = getSystemConfig(normalizedId);
+	        document.documentElement.dataset.qdnesSystem = normalizedId;
+	        if (settings.showPage !== false) {
+	          setVisiblePage('systems');
+	        }
+
+        renderCoreOptions(activeSystemConfig);
+        if (!activeGameUrl) {
+          showIdlePlaceholder();
+        }
+        if (localFileHint) {
+          localFileHint.textContent = activeSystemConfig.localHint;
+        }
+        if (romList) {
+          romList.innerHTML = '';
+          var loadingOption = document.createElement('option');
+          loadingOption.value = '';
+          loadingOption.text = 'Loading ' + activeSystemConfig.label + ' titles...';
+          romList.appendChild(loadingOption);
+        }
+        resetRomVariantList();
+        modsByBaseKey = {};
+
+	        if (shouldReloadLibrary) {
+	          void populateRomListFromQDN();
+	        }
+	      }
+
+	      function selectQdnesSystem(systemId, options) {
+	        var settings = options || {};
+	        var normalizedRaw = typeof systemId === 'string' ? systemId.trim().toLowerCase() : '';
+	        var historyMode = settings.historyMode === 'replace' ? 'replace' : 'push';
+	        if (!normalizedRaw || normalizedRaw === 'home') {
+	          setVisiblePage('home');
+	          if (settings.syncHash) {
+	            syncHomeRoute(historyMode);
+	          }
+	          return;
+	        }
+	        var normalizedId = normalizeSystemId(normalizedRaw);
+	        setActiveSystem(normalizedId, {
+	          reloadLibrary: settings.reloadLibrary,
+	          showPage: true
+	        });
+	        if (settings.syncHash) {
+	          syncSystemRoute(normalizedId, historyMode);
+	        }
+	      }
+
+	      window.qdnesSelectSystem = selectQdnesSystem;
+
+      window.setQdnesSystem = function(systemId, options) {
+        var settings = options || {};
+        var appReady = Boolean(coreSelect && statusPill && romList);
+        setActiveSystem(systemId, {
+          reloadLibrary: settings.reloadLibrary === false ? false : appReady
+        });
+      };
+
+      function getSelectedCore() {
+        if (coreSelect && coreSelect.value) {
+          return coreSelect.value;
+        }
+        return getActiveSystemConfig().defaultCore;
+      }
+
+      function setSelectedCore(coreValue) {
+        if (!coreSelect || typeof coreValue !== 'string' || !coreValue) {
+          return false;
+        }
+        for (var i = 0; i < coreSelect.options.length; i++) {
+          if (coreSelect.options[i].value === coreValue) {
+            coreSelect.value = coreValue;
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function setLoadedCoreChip(coreValue) {
+        if (!coreChip || typeof coreValue !== 'string' || !coreValue) {
+          return;
+        }
+        coreChip.textContent = 'Core: ' + coreValue;
+      }
+
+      function updateCoreUi() {
+        if (!coreSelect) {
+          return;
+        }
+        var option = coreSelect.options[coreSelect.selectedIndex];
+        var fallbackCore = getActiveSystemConfig().defaultCore;
+        var coreValue = option && option.value ? option.value : fallbackCore;
+        if (coreHint) {
+          coreHint.textContent = option && option.dataset.hint ? option.dataset.hint : '';
+        }
+      }
+
+      function buildPlayerUrl(gameUrl, title, forcedCore, romFilename) {
+        var params = new URLSearchParams();
+        if (gameUrl) {
+          params.set('game', gameUrl);
+        }
+        params.set('core', forcedCore || getSelectedCore());
+        params.set('system', activeSystemId);
+        params.set('coreBundleService', PLAYER_CORE_BUNDLE_RESOURCE.service);
+        params.set('coreBundleName', PLAYER_CORE_BUNDLE_RESOURCE.name);
+        params.set('coreBundleIdentifier', PLAYER_CORE_BUNDLE_RESOURCE.identifier);
+        params.set('coreBundlePathPrefix', PLAYER_CORE_BUNDLE_RESOURCE.pathPrefix);
+        params.set('psxBiosService', PLAYER_PSX_BIOS_RESOURCE.service);
+        params.set('psxBiosName', PLAYER_PSX_BIOS_RESOURCE.name);
+        params.set('psxBiosIdentifier', PLAYER_PSX_BIOS_RESOURCE.identifier);
+        params.set('psxBiosFilepath', PLAYER_PSX_BIOS_RESOURCE.filepath);
+        params.set('scdBiosService', PLAYER_SEGA_CD_BIOS_RESOURCE.service);
+        params.set('scdBiosName', PLAYER_SEGA_CD_BIOS_RESOURCE.name);
+        params.set('scdBiosIdentifier', PLAYER_SEGA_CD_BIOS_RESOURCE.identifier);
+        params.set('scdBiosPathPrefix', PLAYER_SEGA_CD_BIOS_RESOURCE.pathPrefix);
+        params.set('saturnBiosService', PLAYER_SATURN_BIOS_RESOURCE.service);
+        params.set('saturnBiosName', PLAYER_SATURN_BIOS_RESOURCE.name);
+        params.set('saturnBiosIdentifier', PLAYER_SATURN_BIOS_RESOURCE.identifier);
+        params.set('saturnBiosPathPrefix', PLAYER_SATURN_BIOS_RESOURCE.pathPrefix);
+        var identifier = getQdnIdentifier();
+        if (identifier) {
+          params.set('identifier', identifier);
+        }
+        if (title) {
+          params.set('title', title);
+        }
+        if (romFilename) {
+          params.set('romFilename', romFilename);
+        }
+        return 'player.html?' + params.toString();
+      }
+
+      function clearHotSwapFallbackTimer() {
+        if (hotSwapFallbackTimer) {
+          clearTimeout(hotSwapFallbackTimer);
+          hotSwapFallbackTimer = 0;
+        }
+      }
+
+      function resetPlayerCapabilityState() {
+        clearHotSwapFallbackTimer();
+        pendingHotSwapRequest = null;
+        playerSupportsHotSwap = false;
+        activePlayerCore = '';
+        activePlayerSystem = '';
+      }
+
+      function reloadPlayerFrame(gameUrl, title, forcedCore, romFilename) {
+        resetPlayerCapabilityState();
+        gameFrame.src = buildPlayerUrl(gameUrl, title, forcedCore, romFilename);
+      }
+
+      function canHotSwapInPlayer(coreValue, systemId) {
+        var normalizedSystemId = normalizeSystemId(systemId);
+        return Boolean(
+          gameFrame &&
+          gameFrame.contentWindow &&
+          playerSupportsHotSwap &&
+          activePlayerCore === coreValue &&
+          activePlayerSystem === normalizedSystemId &&
+          isHotSwapAllowedForSystem(normalizedSystemId) &&
+          !pendingHotSwapRequest
+        );
+      }
+
+      function requestPlayerHotSwap(gameUrl, title, coreValue, systemId, romFilename) {
+        var normalizedSystemId = normalizeSystemId(systemId);
+        var requestId = String(++hotSwapRequestSerial);
+        pendingHotSwapRequest = {
+          id: requestId,
+          core: coreValue,
+          system: normalizedSystemId,
+          gameUrl: gameUrl,
+          romFilename: romFilename || '',
+          title: title || ''
+        };
+        clearHotSwapFallbackTimer();
+        hotSwapFallbackTimer = setTimeout(function() {
+          if (!pendingHotSwapRequest || pendingHotSwapRequest.id !== requestId) {
+            return;
+          }
+          var fallback = pendingHotSwapRequest;
+          pendingHotSwapRequest = null;
+          putMessage('Hot-swap timed out. Reloading player frame...');
+          reloadPlayerFrame(fallback.gameUrl, fallback.title, '', fallback.romFilename);
+        }, 5000);
+
+        try {
+          gameFrame.contentWindow.postMessage({
+            type: 'qdnes-player-load-game',
+            requestId: requestId,
+            core: coreValue,
+            system: normalizedSystemId,
+            game: gameUrl,
+            romFilename: romFilename || '',
+            title: title || ''
+          }, '*');
+          putMessage('Loading ROM without reloading core...');
+        } catch (error) {
+          console.warn('Failed to post hot-swap request to player frame:', error);
+          pendingHotSwapRequest = null;
+          clearHotSwapFallbackTimer();
+          reloadPlayerFrame(gameUrl, title, '', romFilename);
+        }
+      }
+
+      function shouldFallbackFromPlayerStatus(message) {
+        if (typeof message !== 'string' || !message) {
+          return false;
+        }
+        var normalized = message.toLowerCase();
+        if (normalized.indexOf('core startup detail: failed to start game') !== -1) {
+          return true;
+        }
+        if (normalized.indexOf('core startup detail: aborted(undefined)') !== -1) {
+          return true;
+        }
+        if (normalized.indexOf('startup appears stalled. last known state: runtime reported failedtostart.') !== -1) {
+          return true;
+        }
+        if (normalized.indexOf('startup appears stalled. last known state: runtime initialized, waiting for game start.') !== -1) {
+          return true;
+        }
+        if (normalized.indexOf('core startup detail: failed to load content') !== -1) {
+          return true;
+        }
+        return false;
+      }
+
+      function maybeFallbackAfterCoreStartupFailure(message) {
+        if (!shouldFallbackFromPlayerStatus(message)) {
+          return false;
+        }
+        if (runtimeFallbackUsed) {
+          return false;
+        }
+        var sourceCore = activePlayerCore || getSelectedCore();
+        var fallbackCore = CORE_RUNTIME_FALLBACKS[sourceCore];
+        if (!fallbackCore || !activeGameUrl) {
+          return false;
+        }
+        runtimeFallbackUsed = true;
+        putMessage('Core "' + sourceCore + '" failed to start here. Retrying with "' + fallbackCore + '"...');
+        if (setSelectedCore(fallbackCore)) {
+          updateCoreUi();
+          if (currentQdnSelection) {
+            currentQdnSelection.core = fallbackCore;
+            syncCurrentQdnSelectionRoute('replace');
+          }
+        }
+        setStatus('Loading', 'loading');
+        reloadPlayerFrame(activeGameUrl, activeGameTitle, fallbackCore, activeGameRomFilename);
+        return true;
+      }
+
+      function handlePlayerMessage(event) {
+        if (!gameFrame || event.source !== gameFrame.contentWindow) {
+          return;
+        }
+        var data = event.data;
+        if (!data || typeof data !== 'object') {
+          return;
+        }
+
+        if (data.type === 'qdnes-player-status') {
+          if (typeof data.message === 'string' && data.message) {
+            putMessage(data.message);
+            if (maybeFallbackAfterCoreStartupFailure(data.message)) {
+              return;
+            }
+          }
+          return;
+        }
+
+        if (data.type === 'qdnes-player-error') {
+          var errorMessage = typeof data.message === 'string' && data.message
+            ? data.message
+            : 'Player frame failed to initialize.';
+          putMessage(errorMessage);
+          if (maybeFallbackAfterCoreStartupFailure('Core startup detail: ' + errorMessage)) {
+            return;
+          }
+          setStatus('Error', 'error');
+          return;
+        }
+
+        if (data.type === 'qdnes-player-ready') {
+          playerSupportsHotSwap = Boolean(data.hotSwap);
+          activePlayerCore = typeof data.core === 'string' ? data.core : '';
+          activePlayerSystem = normalizeReportedSystemId(data.system);
+          return;
+        }
+
+        if (data.type === 'qdnes-player-started') {
+          if (typeof data.core === 'string' && data.core) {
+            activePlayerCore = data.core;
+            setLoadedCoreChip(data.core);
+            if (currentQdnSelection) {
+              currentQdnSelection.core = data.core;
+              syncCurrentQdnSelectionRoute('replace');
+            }
+          }
+          activePlayerSystem = normalizeReportedSystemId(data.system);
+          if (activeGameUrl) {
+            setStatus('Running', 'ready');
+          }
+          return;
+        }
+
+        if (data.type !== 'qdnes-player-load-result') {
+          return;
+        }
+        if (!pendingHotSwapRequest || pendingHotSwapRequest.id !== String(data.requestId || '')) {
+          return;
+        }
+
+        var request = pendingHotSwapRequest;
+        pendingHotSwapRequest = null;
+        clearHotSwapFallbackTimer();
+
+        if (data.ok) {
+          activePlayerCore = request.core;
+          activePlayerSystem = request.system;
+          activeGameTitle = request.title || activeGameTitle;
+          activeGameRomFilename = request.romFilename || activeGameRomFilename;
+          setLoadedCoreChip(request.core);
+          if (currentQdnSelection) {
+            currentQdnSelection.core = request.core;
+            syncCurrentQdnSelectionRoute('replace');
+          }
+          if (activeGameUrl) {
+            setStatus('Running', 'ready');
+          }
+          return;
+        }
+
+        var reason = typeof data.reason === 'string' && data.reason ? data.reason : 'unknown reason';
+        putMessage('Hot-swap unavailable (' + reason + '). Reloading player frame...');
+        reloadPlayerFrame(request.gameUrl, request.title, '', request.romFilename);
+      }
+
+      function launchEmulator(gameUrl, title, isBlob, romFilename) {
+        if (!gameUrl) {
+          setStatus('Error', 'error');
+          return;
+        }
+        if (currentBlobUrl && (!isBlob || currentBlobUrl !== gameUrl)) {
+          URL.revokeObjectURL(currentBlobUrl);
+          currentBlobUrl = null;
+        }
+        if (isBlob) {
+          currentBlobUrl = gameUrl;
+        }
+        activeGameUrl = gameUrl;
+        activeGameTitle = title || 'Unknown ROM';
+        activeGameRomFilename = typeof romFilename === 'string' && romFilename
+          ? romFilename
+          : activeGameTitle;
+        currentRomLabel.textContent = activeGameTitle;
+        hideScreenPlaceholder();
+        setStatus('Loading', 'loading');
+        runtimeFallbackUsed = false;
+        var selectedCore = getSelectedCore();
+        var selectedSystemId = normalizeSystemId(activeSystemId);
+        if (canHotSwapInPlayer(selectedCore, selectedSystemId)) {
+          requestPlayerHotSwap(gameUrl, title, selectedCore, selectedSystemId, activeGameRomFilename);
+          return;
+        }
+        reloadPlayerFrame(gameUrl, title, '', activeGameRomFilename);
+      }
+
+      function launchFromBuffer(buffer, title) {
+        clearCurrentQdnSelection();
+        clearSelectedPirateNintendoTarget();
+        syncSystemRoute(activeSystemId, 'push');
+        var blob = new Blob([buffer], { type: 'application/octet-stream' });
+        var blobUrl = URL.createObjectURL(blob);
+        launchEmulator(blobUrl, title, true, title);
+      }
+
+      async function searchMetadataResourcesForQueries(queries) {
+        var merged = [];
+        var seen = {};
+        var lastError = null;
+        for (var i = 0; i < queries.length; i++) {
+          var query = queries[i];
+          if (!query) {
+            continue;
+          }
+          try {
+            var payload = await getQortiumQortalBridge().searchResources({
+              service: 'METADATA',
+              query: query,
+              includeMetadata: true,
+              mode: 'ALL',
+              limit: 200,
+              offset: 0,
+              reverse: true,
+              excludeBlocked: true
+            });
+            var items = Array.isArray(payload) ? payload : (payload && payload.items ? payload.items : []);
+            items.forEach(function(resource) {
+              if (!resource || !resource.name || !resource.identifier) {
+                return;
+              }
+              var key = resource.name + '|' + resource.identifier;
+              if (seen[key]) {
+                return;
+              }
+              seen[key] = true;
+              cacheMetadataSummary(resource.name, resource.identifier, resource.metadata || {});
+              merged.push(resource);
+            });
+          } catch (error) {
+            lastError = error;
+            console.warn('Failed Qortal metadata search for query:', query, error);
+          }
+        }
+        if (merged.length === 0 && lastError) {
+          throw lastError;
+        }
+        return merged;
+      }
+
+      async function populateRomListFromQDN() {
+        var requestId = ++libraryRequestSerial;
+        var systemConfig = getActiveSystemConfig();
+        var validationLogStarted = false;
+        var validationLogCompleted = false;
+        try {
+          var resources = await searchMetadataResourcesForQueries(systemConfig.qdnQueries || []);
+          if (requestId !== libraryRequestSerial) {
+            return;
+          }
+          var romListElement = romList || document.getElementById('romList');
+          if (!romListElement) {
+            return;
+          }
+          var splitResources = splitResourcesByMods(resources);
+          setStatus('Loading', 'loading');
+          putMessage('Validating ' + systemConfig.label + ' Qortal library...');
+          validationLogStarted = true;
+          var validBaseResources = await filterResourcesWithPlayableRoms(splitResources.base, extractRomFiles);
+          var validModResources = await filterResourcesWithPlayableRoms(splitResources.mods, extractModRomFiles);
+          if (requestId !== libraryRequestSerial) {
+            if (validationLogStarted && !validationLogCompleted) {
+              appendToLastLogLine(' canceled.');
+            }
+            return;
+          }
+          modsByBaseKey = buildModsIndex(validModResources);
+          var groupedResources = groupResourcesByTitle(validBaseResources);
+          var preserveSelection = currentQdnSelection &&
+            normalizeSystemId(currentQdnSelection.systemId) === normalizeSystemId(activeSystemId)
+            ? currentQdnSelection
+            : null;
+
+          romListElement.innerHTML = '';
+
+          var emptyOption = document.createElement('option');
+          emptyOption.value = '';
+          emptyOption.text = groupedResources.length > 0
+            ? 'Select ' + systemConfig.label + ' title (' + groupedResources.length + ' available)'
+            : 'No ' + systemConfig.label + ' titles found (0)';
+          romListElement.appendChild(emptyOption);
+
+          var matchedGroupIndex = -1;
+          groupedResources.forEach(function(group) {
+            var option = document.createElement('option');
+            option.value = JSON.stringify({
+              key: group.key,
+              title: group.title,
+              entries: group.entries
+            });
+            option.text = group.title;
+            romListElement.appendChild(option);
+            if (preserveSelection && group.key === preserveSelection.groupKey) {
+              matchedGroupIndex = romListElement.options.length - 1;
+            }
+          });
+          if (matchedGroupIndex >= 0) {
+            romListElement.selectedIndex = matchedGroupIndex;
+            selectedGroupKey = preserveSelection.groupKey;
+          } else {
+            resetRomVariantList();
+            selectedGroupKey = '';
+          }
+          appendToLastLogLine(' done.');
+          validationLogCompleted = true;
+          setStatus('Idle', 'idle');
+          if (matchedGroupIndex >= 0 && preserveSelection) {
+            await loadRomVariants(preserveSelection);
+          }
+        } catch (error) {
+          if (requestId !== libraryRequestSerial) {
+            if (validationLogStarted && !validationLogCompleted) {
+              appendToLastLogLine(' canceled.');
+            }
+            return;
+          }
+          console.error('Error populating ROM list from Qortal:', error);
+          if (validationLogStarted && !validationLogCompleted) {
+            appendToLastLogLine(' failed.');
+          }
+          setStatus('Error', 'error');
+          putMessage('Failed to fetch Qortal ROM list for ' + systemConfig.label + '.');
+        }
+      }
+
+      function getResourceTitle(resource) {
+        if (!resource) {
+          return '';
+        }
+        if (resource.metadata && resource.metadata.title) {
+          return resource.metadata.title;
+        }
+        if (resource.identifier) {
+          return resource.identifier;
+        }
+        return '';
+      }
+
+      function getMetadataCacheKey(name, identifier) {
+        return name + '|' + identifier;
+      }
+
+      function cacheMetadataSummary(name, identifier, summary) {
+        if (!name || !identifier) {
+          return {
+            title: '',
+            description: ''
+          };
+        }
+        var cacheKey = getMetadataCacheKey(name, identifier);
+        var existing = metadataSummaryCache[cacheKey] || {
+          title: '',
+          description: ''
+        };
+        var nextSummary = {
+          title: summary && summary.title ? summary.title : existing.title,
+          description: summary && summary.description ? summary.description : existing.description
+        };
+        metadataSummaryCache[cacheKey] = nextSummary;
+        return nextSummary;
+      }
+
+      function getCachedMetadataSummary(name, identifier) {
+        if (!name || !identifier) {
+          return null;
+        }
+        return metadataSummaryCache[getMetadataCacheKey(name, identifier)] || null;
+      }
+
+      async function fetchMetadataResourceSummary(name, identifier) {
+        var cachedSummary = getCachedMetadataSummary(name, identifier);
+        if (cachedSummary && (cachedSummary.title || cachedSummary.description)) {
+          return cachedSummary;
+        }
+        var payload = await getQortiumQortalBridge().searchResources({
+          service: 'METADATA',
+          name: name,
+          identifier: identifier,
+          includeMetadata: true,
+          limit: 10,
+          offset: 0,
+          reverse: true
+        });
+        var items = Array.isArray(payload) ? payload : (payload && payload.items ? payload.items : []);
+        for (var i = 0; i < items.length; i++) {
+          var resource = items[i];
+          if (!resource || resource.name !== name || resource.identifier !== identifier) {
+            continue;
+          }
+          return cacheMetadataSummary(name, identifier, resource.metadata || {});
+        }
+        return cacheMetadataSummary(name, identifier, {});
+      }
+
+      function parseDescriptionTokens(description) {
+        if (!description || typeof description !== 'string') {
+          return [];
+        }
+        return description.split(';~').map(function(token) {
+          return token.trim();
+        }).filter(function(token) {
+          return token.length > 0;
+        });
+      }
+
+      function isModDescription(description) {
+        var tokens = parseDescriptionTokens(description);
+        return tokens.some(function(token) {
+          return token.toLowerCase() === 'rmhk';
+        });
+      }
+
+      function getModBaseTitle(description) {
+        var tokens = parseDescriptionTokens(description);
+        for (var i = 0; i < tokens.length; i++) {
+          if (tokens[i].toLowerCase() === 'rmhk' && i + 1 < tokens.length) {
+            return tokens[i + 1];
+          }
+        }
+        return '';
+      }
+
+      function normalizeTitle(title) {
+        if (!title) {
+          return '';
+        }
+        return title.trim().toLowerCase();
+      }
+
+      function setCurrentQdnSelection(selection) {
+        currentQdnSelection = selection && typeof selection === 'object' ? selection : null;
+        window.__qdnesCurrentQdnSelection = currentQdnSelection;
+        updatePirateNintendoButtonState();
+      }
+
+      function clearCurrentQdnSelection() {
+        setCurrentQdnSelection(null);
+      }
+
+      function createQdnSelection(details) {
+        var source = details && typeof details === 'object' ? details : {};
+        return {
+          systemId: normalizeSystemId(source.systemId || activeSystemId),
+          groupKey: source.groupKey || '',
+          routeType: normalizeDeepLinkRouteType(source.routeType) || 'ROM',
+          metadataName: source.metadataName || '',
+          metadataIdentifier: source.metadataIdentifier || '',
+          filePublisher: source.filePublisher || '',
+          fileIdentifier: source.fileIdentifier || '',
+          filename: source.filename || '',
+          title: source.title || '',
+          isDefaultFile: Boolean(source.isDefaultFile),
+          core: source.core || ''
+        };
+      }
+
+      function extractRouteCandidateFiles(metadata, routeType) {
+        if (!metadata || !Array.isArray(metadata.fileReferences)) {
+          return [];
+        }
+        var normalizedRouteType = normalizeDeepLinkRouteType(routeType) || 'ROM';
+        return metadata.fileReferences.filter(function(ref) {
+          if (!ref) {
+            return false;
+          }
+          var label = (ref.label || '').toLowerCase();
+          var service = (ref.service || '').toUpperCase();
+          if (service && service !== 'FILE') {
+            return false;
+          }
+          if (normalizedRouteType === 'Mod') {
+            return label === 'prom' || label === 'rom';
+          }
+          return label === 'rom';
+        });
+      }
+
+      function inferSystemIdFromDescription(description) {
+        if (!description || typeof description !== 'string') {
+          return '';
+        }
+        var normalizedDescription = description.toLowerCase();
+        var systemIds = Object.keys(SYSTEM_CONFIGS);
+        for (var i = 0; i < systemIds.length; i++) {
+          var systemId = systemIds[i];
+          var queries = SYSTEM_CONFIGS[systemId] && Array.isArray(SYSTEM_CONFIGS[systemId].qdnQueries)
+            ? SYSTEM_CONFIGS[systemId].qdnQueries
+            : [];
+          for (var j = 0; j < queries.length; j++) {
+            var query = queries[j];
+            if (typeof query !== 'string' || query.indexOf(';~') === -1) {
+              continue;
+            }
+            if (normalizedDescription.indexOf(query.toLowerCase()) !== -1) {
+              return systemId;
+            }
+          }
+        }
+        return '';
+      }
+
+      function analyzeDeepLinkSystemFromCandidateFiles(fileReferences) {
+        var matches = {};
+        fileReferences.forEach(function(ref) {
+          var extension = getFileReferenceExtension(ref);
+          if (!extension) {
+            return;
+          }
+          Object.keys(SYSTEM_CONFIGS).forEach(function(systemId) {
+            var config = SYSTEM_CONFIGS[systemId];
+            if (config && Array.isArray(config.localExtensions) &&
+                config.localExtensions.indexOf(extension) !== -1) {
+              matches[systemId] = true;
+            }
+          });
+        });
+        var matchedSystemIds = Object.keys(matches);
+        if (matchedSystemIds.length === 1) {
+          return {
+            status: 'supported',
+            systemId: matchedSystemIds[0]
+          };
+        }
+        if (matchedSystemIds.length > 1) {
+          return {
+            status: 'ambiguous'
+          };
+        }
+        return {
+          status: 'unsupported'
+        };
+      }
+
+      function analyzeDeepLinkSystem(metadata, routeType) {
+        var candidateFiles = extractRouteCandidateFiles(metadata, routeType);
+        var fromDescription = inferSystemIdFromDescription(metadata && metadata.description ? metadata.description : '');
+        if (fromDescription) {
+          return {
+            status: 'supported',
+            systemId: fromDescription,
+            candidateFiles: candidateFiles
+          };
+        }
+        if (candidateFiles.length === 0) {
+          return {
+            status: 'missing-candidates',
+            candidateFiles: candidateFiles
+          };
+        }
+        var fromCandidateFiles = analyzeDeepLinkSystemFromCandidateFiles(candidateFiles);
+        fromCandidateFiles.candidateFiles = candidateFiles;
+        return fromCandidateFiles;
+      }
+
+      function findDefaultPlayableFile(fileEntries) {
+        if (!Array.isArray(fileEntries) || fileEntries.length === 0) {
+          return null;
+        }
+        var defaultFile = fileEntries.find(function(ref) {
+          return ref && ref.isDefault && !ref.isMod;
+        });
+        if (defaultFile) {
+          return defaultFile;
+        }
+        defaultFile = fileEntries.find(function(ref) {
+          return ref && ref.isDefault;
+        });
+        return defaultFile || fileEntries[0] || null;
+      }
+
+      function findRequestedPlayableFile(fileEntries, filePublisher, fileIdentifier) {
+        if (!Array.isArray(fileEntries) || !fileIdentifier) {
+          return null;
+        }
+        var exactMatch = fileEntries.find(function(ref) {
+          if (!ref || ref.identifier !== fileIdentifier) {
+            return false;
+          }
+          if (filePublisher) {
+            return ref.publisher === filePublisher;
+          }
+          return true;
+        });
+        if (exactMatch) {
+          return exactMatch;
+        }
+        if (!filePublisher) {
+          var matches = fileEntries.filter(function(ref) {
+            return ref && ref.identifier === fileIdentifier;
+          });
+          if (matches.length === 1) {
+            return matches[0];
+          }
+        }
+        return null;
+      }
+
+      function findMatchingSelectedRomFile(fileEntries, selection) {
+        if (!Array.isArray(fileEntries) || !selection || typeof selection !== 'object') {
+          return null;
+        }
+        return fileEntries.find(function(ref) {
+          return ref &&
+            ref.identifier === (selection.fileIdentifier || '') &&
+            ref.publisher === (selection.filePublisher || '') &&
+            ref.metadataName === (selection.metadataName || '') &&
+            ref.metadataIdentifier === (selection.metadataIdentifier || '') &&
+            (ref.routeType || 'ROM') === (selection.routeType || 'ROM');
+        }) || null;
+      }
+
+      function sortRomFileEntries(entries) {
+        entries.sort(function(a, b) {
+          var modA = a && a.isMod ? 1 : 0;
+          var modB = b && b.isMod ? 1 : 0;
+          if (modA !== modB) {
+            return modA - modB;
+          }
+          if (modA && modB) {
+            var modTitleA = a && a.modTitle ? a.modTitle : '';
+            var modTitleB = b && b.modTitle ? b.modTitle : '';
+            var modCompare = modTitleA.localeCompare(modTitleB, undefined, { sensitivity: 'base' });
+            if (modCompare !== 0) {
+              return modCompare;
+            }
+          }
+          var nameA = a && a.filename ? a.filename : '';
+          var nameB = b && b.filename ? b.filename : '';
+          var nameCompare = nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+          if (nameCompare !== 0) {
+            return nameCompare;
+          }
+          var publisherA = a && a.publisher ? a.publisher : '';
+          var publisherB = b && b.publisher ? b.publisher : '';
+          return publisherA.localeCompare(publisherB, undefined, { sensitivity: 'base' });
+        });
+      }
+
+      function buildRomVariantOptionValue(ref) {
+        return JSON.stringify({
+          identifier: ref.identifier,
+          service: ref.service || 'FILE',
+          name: ref.publisher,
+          filename: ref.filename || '',
+          routeType: ref.routeType || 'ROM',
+          metadataName: ref.metadataName || ref.publisher || '',
+          metadataIdentifier: ref.metadataIdentifier || '',
+          isDefault: Boolean(ref.isDefault)
+        });
+      }
+
+      function formatRomVariantOptionLabel(ref, groupInfo) {
+        var showPublisher = Boolean(groupInfo && Array.isArray(groupInfo.entries) && groupInfo.entries.length > 1);
+        var headerCount = selectedRomFiles.reduce(function(count, item) {
+          return count + (item && item.isDefault ? 1 : 0);
+        }, 0);
+        var showDefaultBadge = selectedRomFiles.length > 1 && headerCount === 1;
+        var label = ref.filename || ref.identifier;
+        if (ref.isMod) {
+          var modLabel = ref.modTitle || ref.filename || 'Mod';
+          label = 'Mod: ' + modLabel;
+        }
+        var fileSize = formatFileSize(ref.sizeBytes);
+        if (fileSize) {
+          label += ' (' + fileSize + ')';
+        }
+        if (ref.isMod) {
+          if (ref.publisher) {
+            label += ' (' + ref.publisher + ')';
+          }
+        } else if (showPublisher && ref.publisher) {
+          label += ' (' + ref.publisher + ')';
+        }
+        if (showDefaultBadge && ref.isDefault) {
+          label += ' (default)';
+        }
+        return label;
+      }
+
+      function renderSelectedRomFiles(groupInfo, preferredFile) {
+        var list = document.getElementById('romVariantList');
+        if (!list) {
+          return;
+        }
+        list.innerHTML = '';
+        if (!Array.isArray(selectedRomFiles) || selectedRomFiles.length === 0) {
+          var placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.text = 'Select ROM file';
+          list.appendChild(placeholder);
+          list.disabled = true;
+          updatePirateNintendoButtonState();
+          return;
+        }
+
+        var preferredIndex = -1;
+        selectedRomFiles.forEach(function(ref, index) {
+          var option = document.createElement('option');
+          option.value = buildRomVariantOptionValue(ref);
+          option.text = formatRomVariantOptionLabel(ref, groupInfo);
+          list.appendChild(option);
+          if (preferredFile &&
+              ref.identifier === preferredFile.identifier &&
+              ref.publisher === preferredFile.publisher &&
+              ref.metadataName === preferredFile.metadataName &&
+              ref.metadataIdentifier === preferredFile.metadataIdentifier) {
+            preferredIndex = index;
+          }
+        });
+
+        list.disabled = false;
+        if (preferredIndex >= 0) {
+          list.selectedIndex = preferredIndex;
+          updatePirateNintendoButtonState();
+          return;
+        }
+        var defaultIndex = selectedRomFiles.findIndex(function(ref) {
+          return ref && ref.isDefault && !ref.isMod;
+        });
+        if (defaultIndex < 0) {
+          defaultIndex = selectedRomFiles.findIndex(function(ref) {
+            return ref && ref.isDefault;
+          });
+        }
+        list.selectedIndex = defaultIndex >= 0 ? defaultIndex : 0;
+        updatePirateNintendoButtonState();
+      }
+
+      function seedCurrentRomSelection(groupInfo, metadataList, romFiles, selectedFile) {
+        if (!romList) {
+          return;
+        }
+        selectedMetadatas = Array.isArray(metadataList) ? metadataList.slice() : [];
+        selectedRomFiles = Array.isArray(romFiles) ? romFiles.slice() : [];
+        sortRomFileEntries(selectedRomFiles);
+        selectedGroupKey = groupInfo && groupInfo.key ? groupInfo.key : '';
+
+        romList.innerHTML = '';
+        var option = document.createElement('option');
+        option.value = JSON.stringify(groupInfo || null);
+        option.text = groupInfo && groupInfo.title ? groupInfo.title : 'Selected title';
+        romList.appendChild(option);
+        romList.selectedIndex = 0;
+        renderSelectedRomFiles(groupInfo, selectedFile);
+      }
+
+      function splitResourcesByMods(resources) {
+        var base = [];
+        var mods = [];
+        resources.forEach(function(resource) {
+          var description = resource && resource.metadata ? resource.metadata.description : '';
+          if (isModDescription(description)) {
+            mods.push(resource);
+          } else {
+            base.push(resource);
+          }
+        });
+        return { base: base, mods: mods };
+      }
+
+      function buildModsIndex(resources) {
+        var index = {};
+        resources.forEach(function(resource) {
+          if (!resource || !resource.name || !resource.identifier) {
+            return;
+          }
+          var description = resource.metadata ? resource.metadata.description : '';
+          var baseTitle = getModBaseTitle(description);
+          if (!baseTitle) {
+            return;
+          }
+          var baseKey = normalizeTitle(baseTitle);
+          if (!baseKey) {
+            return;
+          }
+          if (!index[baseKey]) {
+            index[baseKey] = [];
+          }
+          index[baseKey].push({
+            name: resource.name,
+            identifier: resource.identifier,
+            title: getResourceTitle(resource),
+            description: description
+          });
+        });
+
+        Object.keys(index).forEach(function(key) {
+          index[key].sort(function(a, b) {
+            var titleA = a && a.title ? a.title : '';
+            var titleB = b && b.title ? b.title : '';
+            var titleCompare = titleA.localeCompare(titleB, undefined, { sensitivity: 'base' });
+            if (titleCompare !== 0) {
+              return titleCompare;
+            }
+            var nameA = a && a.name ? a.name : '';
+            var nameB = b && b.name ? b.name : '';
+            return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+          });
+        });
+        return index;
+      }
+
+      async function filterResourcesWithPlayableRoms(resources, extractor) {
+        var playable = [];
+        var batchSize = 6;
+        for (var i = 0; i < resources.length; i += batchSize) {
+          var batch = resources.slice(i, i + batchSize);
+          var batchResults = await Promise.all(batch.map(async function(resource) {
+            if (!resource || !resource.name || !resource.identifier) {
+              return null;
+            }
+            try {
+              var metadata = await fetchPirateMetadata(resource.name, resource.identifier);
+              var files = extractor(metadata);
+              if (files.length > 0) {
+                return resource;
+              }
+            } catch (error) {
+              console.warn('Error validating ROM metadata for', resource.name, resource.identifier, error);
+            }
+            return null;
+          }));
+          batchResults.forEach(function(result) {
+            if (result) {
+              playable.push(result);
+            }
+          });
+        }
+        return playable;
+      }
+
+      function groupResourcesByTitle(resources) {
+        var groups = {};
+        resources.forEach(function(resource) {
+          if (!resource || !resource.name || !resource.identifier) {
+            return;
+          }
+          var title = getResourceTitle(resource);
+          if (!title) {
+            return;
+          }
+          var key = normalizeTitle(title);
+          if (!key) {
+            return;
+          }
+          if (!groups[key]) {
+            groups[key] = {
+              key: key,
+              title: title,
+              entries: []
+            };
+          }
+          groups[key].entries.push({
+            name: resource.name,
+            identifier: resource.identifier
+          });
+        });
+
+        var grouped = [];
+        Object.keys(groups).forEach(function(key) {
+          var group = groups[key];
+          group.entries.sort(function(a, b) {
+            var nameA = a && a.name ? a.name : '';
+            var nameB = b && b.name ? b.name : '';
+            var nameCompare = nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+            if (nameCompare !== 0) {
+              return nameCompare;
+            }
+            var idA = a && a.identifier ? a.identifier : '';
+            var idB = b && b.identifier ? b.identifier : '';
+            return idA.localeCompare(idB, undefined, { sensitivity: 'base' });
+          });
+          grouped.push(group);
+        });
+
+        grouped.sort(function(a, b) {
+          var titleA = a && a.title ? a.title : '';
+          var titleB = b && b.title ? b.title : '';
+          return titleA.localeCompare(titleB, undefined, { sensitivity: 'base' });
+        });
+        return grouped;
+      }
+
+      function resetRomVariantList() {
+        var list = document.getElementById('romVariantList');
+        list.innerHTML = '';
+        var placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.text = 'Select ROM file';
+        list.appendChild(placeholder);
+        list.disabled = true;
+        selectedGroupKey = '';
+        selectedMetadatas = [];
+        selectedRomFiles = [];
+        updatePirateNintendoButtonState();
+      }
+
+      function getSelectedRomGroup() {
+        var selectedOption = document.getElementById('romList').selectedOptions[0];
+        if (!selectedOption || !selectedOption.value) {
+          return null;
+        }
+        try {
+          return JSON.parse(selectedOption.value);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function decodeBase64JsonPayload(payload) {
+        var cleaned = payload.trim();
+        try {
+          var wrapper = JSON.parse(cleaned);
+          if (wrapper && wrapper.data) {
+            cleaned = wrapper.data;
+          }
+        } catch (e) {
+          // Not a JSON wrapper, treat as raw base64.
+        }
+        cleaned = cleaned.replace(/\s/g, '');
+        var binary = atob(cleaned);
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        if (typeof TextDecoder !== 'undefined') {
+          return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+        }
+        var text = '';
+        for (var j = 0; j < bytes.length; j++) {
+          text += String.fromCharCode(bytes[j]);
+        }
+        return JSON.parse(text);
+      }
+
+      async function fetchPirateMetadata(name, identifier) {
+        var cacheKey = getMetadataCacheKey(name, identifier);
+        if (metadataCache[cacheKey]) {
+          return metadataCache[cacheKey];
+        }
+        var payload = await fetchQortalResourceContent('METADATA', name, identifier, {
+          encoding: 'base64',
+          maxBytes: 5 * 1024 * 1024
+        });
+        var metadata = decodeBase64JsonPayload(payload);
+        var slimMetadata = {
+          fileReferences: metadata && metadata.fileReferences ? metadata.fileReferences : [],
+          title: metadata && metadata.title ? metadata.title : '',
+          description: metadata && metadata.description ? metadata.description : ''
+        };
+        if (!slimMetadata.title || !slimMetadata.description) {
+          try {
+            var metadataSummary = await fetchMetadataResourceSummary(name, identifier);
+            if (!slimMetadata.title && metadataSummary && metadataSummary.title) {
+              slimMetadata.title = metadataSummary.title;
+            }
+            if (!slimMetadata.description && metadataSummary && metadataSummary.description) {
+              slimMetadata.description = metadataSummary.description;
+            }
+          } catch (error) {
+            console.warn('Failed to fetch metadata summary for', name, identifier, error);
+          }
+        }
+        cacheMetadataSummary(name, identifier, slimMetadata);
+        metadataCache[cacheKey] = slimMetadata;
+        return slimMetadata;
+      }
+
+      function getFileReferenceExtension(ref) {
+        if (!ref || typeof ref !== 'object') {
+          return '';
+        }
+        var value = '';
+        if (typeof ref.filename === 'string' && ref.filename) {
+          value = ref.filename;
+        } else if (typeof ref.identifier === 'string' && ref.identifier) {
+          value = ref.identifier;
+        }
+        if (!value) {
+          return '';
+        }
+        var parts = value.toLowerCase().split('.');
+        if (parts.length < 2) {
+          return '';
+        }
+        return parts.pop() || '';
+      }
+
+      function isSystemFileReference(ref) {
+        var extension = getFileReferenceExtension(ref);
+        if (!extension) {
+          return false;
+        }
+        return getActiveSystemConfig().localExtensions.indexOf(extension) !== -1;
+      }
+
+      function extractRomFiles(metadata) {
+        if (!metadata || !Array.isArray(metadata.fileReferences)) {
+          return [];
+        }
+        return metadata.fileReferences.filter(function(ref) {
+          if (!ref) {
+            return false;
+          }
+          var label = (ref.label || '').toLowerCase();
+          var service = (ref.service || '').toUpperCase();
+          return label === 'rom' &&
+            (service === 'FILE' || service === '') &&
+            isSystemFileReference(ref);
+        });
+      }
+
+      function extractModRomFiles(metadata) {
+        if (!metadata || !Array.isArray(metadata.fileReferences)) {
+          return [];
+        }
+        return metadata.fileReferences.filter(function(ref) {
+          if (!ref) {
+            return false;
+          }
+          var label = (ref.label || '').toLowerCase();
+          var service = (ref.service || '').toUpperCase();
+          return (label === 'prom' || label === 'rom') &&
+            (service === 'FILE' || service === '') &&
+            isSystemFileReference(ref);
+        });
+      }
+
+      function normalizeFileSizeBytes(rawSize) {
+        if (typeof rawSize === 'number' && isFinite(rawSize) && rawSize >= 0) {
+          return rawSize;
+        }
+        if (typeof rawSize === 'string') {
+          var parsed = Number(rawSize);
+          if (isFinite(parsed) && parsed >= 0) {
+            return parsed;
+          }
+        }
+        return null;
+      }
+
+      function formatFileSize(bytes) {
+        if (typeof bytes !== 'number' || !isFinite(bytes) || bytes < 0) {
+          return '';
+        }
+        var units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        var value = bytes;
+        var unitIndex = 0;
+        while (value >= 1024 && unitIndex < units.length - 1) {
+          value /= 1024;
+          unitIndex += 1;
+        }
+        if (unitIndex === 0) {
+          return String(Math.round(value)) + ' ' + units[unitIndex];
+        }
+        if (value < 10) {
+          var oneDecimal = Number(value.toFixed(1));
+          if (oneDecimal >= 10) {
+            return String(Math.round(oneDecimal)) + ' ' + units[unitIndex];
+          }
+          return oneDecimal.toFixed(1) + ' ' + units[unitIndex];
+        }
+        return String(Math.round(value)) + ' ' + units[unitIndex];
+      }
+
+      function getLinkedDisplayTitle(metadata, routeType) {
+        if (normalizeDeepLinkRouteType(routeType) === 'Mod') {
+          var baseTitle = getModBaseTitle(metadata && metadata.description ? metadata.description : '');
+          if (baseTitle) {
+            return baseTitle;
+          }
+        }
+        if (metadata && metadata.title) {
+          return metadata.title;
+        }
+        return 'Qortal ROM';
+      }
+
+      function buildRomFileEntryFromReference(ref, metadata, metadataName, metadataIdentifier, routeType) {
+        var normalizedRouteType = normalizeDeepLinkRouteType(routeType) || 'ROM';
+        return {
+          identifier: ref.identifier,
+          service: ref.service || 'FILE',
+          filename: ref.filename || ref.identifier,
+          sizeBytes: normalizeFileSizeBytes(ref.size),
+          isHeader: ref.isHeader,
+          isDefault: Boolean(ref.isHeader),
+          publisher: metadataName,
+          routeType: normalizedRouteType,
+          metadataName: metadataName,
+          metadataIdentifier: metadataIdentifier,
+          isMod: normalizedRouteType === 'Mod',
+          modTitle: normalizedRouteType === 'Mod' && metadata && metadata.title ? metadata.title : ''
+        };
+      }
+
+      function syncCurrentQdnSelectionRoute(historyMode) {
+        if (!currentQdnSelection) {
+          syncSystemRoute(activeSystemId, historyMode);
+          return;
+        }
+        var nextSelection = createQdnSelection({
+          systemId: currentQdnSelection.systemId,
+          groupKey: currentQdnSelection.groupKey,
+          routeType: currentQdnSelection.routeType,
+          metadataName: currentQdnSelection.metadataName,
+          metadataIdentifier: currentQdnSelection.metadataIdentifier,
+          filePublisher: currentQdnSelection.filePublisher,
+          fileIdentifier: currentQdnSelection.fileIdentifier,
+          filename: currentQdnSelection.filename,
+          title: currentQdnSelection.title,
+          isDefaultFile: currentQdnSelection.isDefaultFile,
+          core: getSelectedCore()
+        });
+        setCurrentQdnSelection(nextSelection);
+        syncDeepLinkRoute(nextSelection, historyMode);
+      }
+
+      async function bootstrapDeepLinkRoute(routeState, historyMode) {
+        if (!routeState || routeState.kind !== 'deep-link') {
+          return false;
+        }
+        try {
+          clearStatusLog();
+          setStatus('Loading', 'loading');
+          putMessage('Resolving linked library entry...');
+
+          var metadata = await fetchPirateMetadata(routeState.metadataName, routeState.metadataIdentifier);
+          var systemAnalysis = analyzeDeepLinkSystem(metadata, routeState.routeType);
+          var inferredSystemId = systemAnalysis.systemId || '';
+          if (systemAnalysis.status === 'unsupported') {
+            showLinkErrorPlaceholder(
+              'Unsupported System',
+              'This linked ROM uses a system Emulator does not support yet.'
+            );
+            return false;
+          }
+          if (systemAnalysis.status === 'ambiguous') {
+            showLinkErrorPlaceholder(
+              'System Could Not Be Identified',
+              'Emulator could not tell which supported system this linked ROM belongs to.'
+            );
+            return false;
+          }
+          if (systemAnalysis.status === 'missing-candidates') {
+            throw new Error('No playable ROM files were found for this linked entry.');
+          }
+          if (!inferredSystemId) {
+            throw new Error('Unable to determine which system this linked ROM belongs to.');
+          }
+
+          if (typeof window.qdnesSelectSystem === 'function') {
+            window.qdnesSelectSystem(inferredSystemId, {
+              syncHash: false,
+              reloadLibrary: false
+            });
+          } else {
+            setActiveSystem(inferredSystemId, { reloadLibrary: false });
+          }
+
+          window.__qdnesResolvedRouteSystemId = normalizeSystemId(inferredSystemId);
+          setStoredQdnesRouteState(readQdnesRouteState());
+
+          if (!routeState.core || !setSelectedCore(routeState.core)) {
+            setSelectedCore(getSystemConfig(inferredSystemId).defaultCore);
+          }
+          updateCoreUi();
+
+          var playableReferences = normalizeDeepLinkRouteType(routeState.routeType) === 'Mod'
+            ? extractModRomFiles(metadata)
+            : extractRomFiles(metadata);
+          if (playableReferences.length === 0) {
+            throw new Error('No playable ROM files were found for this linked entry.');
+          }
+
+          var fileEntries = playableReferences.map(function(ref) {
+            return buildRomFileEntryFromReference(
+              ref,
+              metadata,
+              routeState.metadataName,
+              routeState.metadataIdentifier,
+              routeState.routeType
+            );
+          });
+          sortRomFileEntries(fileEntries);
+
+          var selectedFile = findRequestedPlayableFile(
+            fileEntries,
+            routeState.filePublisher,
+            routeState.fileIdentifier
+          ) || findDefaultPlayableFile(fileEntries);
+          if (!selectedFile) {
+            throw new Error('No launchable ROM file matched this link.');
+          }
+
+          var displayTitle = getLinkedDisplayTitle(metadata, routeState.routeType);
+          var groupInfo = {
+            key: normalizeTitle(displayTitle),
+            title: displayTitle,
+            entries: [{
+              name: routeState.metadataName,
+              identifier: routeState.metadataIdentifier
+            }]
+          };
+
+          seedCurrentRomSelection(groupInfo, [metadata], fileEntries, selectedFile);
+          setCurrentQdnSelection(createQdnSelection({
+            systemId: inferredSystemId,
+            groupKey: groupInfo.key,
+            routeType: routeState.routeType,
+            metadataName: routeState.metadataName,
+            metadataIdentifier: routeState.metadataIdentifier,
+            filePublisher: selectedFile.publisher,
+            fileIdentifier: selectedFile.identifier,
+            filename: selectedFile.filename,
+            title: displayTitle,
+            isDefaultFile: Boolean(selectedFile.isDefault),
+            core: getSelectedCore()
+          }));
+
+          clearStatusLog();
+          setStatus('Loading', 'loading');
+          await ensureQdnRomReady(selectedFile.service || 'FILE', selectedFile.publisher, selectedFile.identifier);
+
+          var url = await getQortalResourceUrl(
+            selectedFile.service || 'FILE',
+            selectedFile.publisher,
+            selectedFile.identifier
+          );
+
+          putMessage('Loading ROM from Qortal...');
+          launchEmulator(url, displayTitle, false, selectedFile.filename || '');
+          syncCurrentQdnSelectionRoute(historyMode || 'replace');
+          return true;
+        } catch (error) {
+          console.error('Failed to open linked library route:', error);
+          setStatus('Error', 'error');
+          putMessage('Failed to open linked ROM.');
+          if (error && error.message) {
+            putMessage(error.message);
+          }
+          return false;
+        }
+      }
+
+      async function handleRouteNavigationChange() {
+        var routeState = window.__qdnesRouteApi && typeof window.__qdnesRouteApi.readState === 'function'
+          ? window.__qdnesRouteApi.readState()
+          : readQdnesRouteState();
+	        if (routeState.kind !== 'deep-link') {
+	          window.__qdnesResolvedRouteSystemId = '';
+	          setStoredQdnesRouteState(routeState);
+	          if (routeState.kind === 'system') {
+	            setActiveSystem(routeState.systemId, {
+	              reloadLibrary: true,
+	              showPage: true
+	            });
+	          } else {
+	            setVisiblePage('home');
+	          }
+	          return;
+	        }
+        if (await bootstrapDeepLinkRoute(routeState, 'replace')) {
+          void populateRomListFromQDN();
+        }
+      }
+
+      async function loadRomVariants(preferredSelection) {
+        resetRomVariantList();
+        var groupInfo = getSelectedRomGroup();
+        if (!groupInfo || !Array.isArray(groupInfo.entries) || groupInfo.entries.length === 0) {
+          selectedGroupKey = '';
+          return null;
+        }
+        selectedGroupKey = groupInfo.key || normalizeTitle(groupInfo.title);
+        var qdnMetadataLogStarted = false;
+        var qdnMetadataLogCompleted = false;
+        var modMetadataLogStarted = false;
+        var modMetadataLogCompleted = false;
+        try {
+          setStatus('Loading', 'loading');
+          putMessage('Loading Qortal metadata...');
+          qdnMetadataLogStarted = true;
+          var metadataResults = await Promise.all(groupInfo.entries.map(function(entry) {
+            if (!entry || !entry.name || !entry.identifier) {
+              return null;
+            }
+            return fetchPirateMetadata(entry.name, entry.identifier)
+              .then(function(metadata) {
+                return {
+                  entry: entry,
+                  metadata: metadata
+                };
+              })
+              .catch(function(error) {
+                console.warn('Error loading Qortal metadata for', entry.name, entry.identifier, error);
+                return null;
+              });
+          }));
+
+          var validResults = metadataResults.filter(function(result) {
+            return result && result.metadata;
+          });
+          selectedMetadatas = validResults.map(function(result) {
+            return result.metadata;
+          });
+          appendToLastLogLine(' done.');
+          qdnMetadataLogCompleted = true;
+          if (validResults.length === 0) {
+            putMessage('No metadata found for this title.');
+            setStatus('Idle', 'idle');
+            return null;
+          }
+          if (validResults.length < groupInfo.entries.length) {
+            putMessage('Some versions could not be loaded.');
+          }
+
+          selectedRomFiles = [];
+          var seen = {};
+          validResults.forEach(function(result) {
+            var files = extractRomFiles(result.metadata);
+            files.forEach(function(ref) {
+              var service = ref.service || 'FILE';
+              var identifier = ref.identifier;
+              if (!identifier) {
+                return;
+              }
+              var publisher = result.entry.name;
+              var fileKey = publisher + '|' + service + '|' + identifier;
+              if (seen[fileKey]) {
+                return;
+              }
+              seen[fileKey] = true;
+              selectedRomFiles.push({
+                identifier: identifier,
+                service: service,
+                filename: ref.filename || ref.identifier,
+                sizeBytes: normalizeFileSizeBytes(ref.size),
+                isHeader: ref.isHeader,
+                isDefault: Boolean(ref.isHeader),
+                publisher: publisher,
+                routeType: 'ROM',
+                metadataName: result.entry.name,
+                metadataIdentifier: result.entry.identifier
+              });
+            });
+          });
+
+          var modsForTitle = modsByBaseKey[selectedGroupKey] || [];
+          if (modsForTitle.length > 0) {
+            putMessage('Loading mod metadata...');
+            modMetadataLogStarted = true;
+          }
+          var modResults = await Promise.all(modsForTitle.map(function(entry) {
+            return fetchPirateMetadata(entry.name, entry.identifier)
+              .then(function(metadata) {
+                return {
+                  entry: entry,
+                  metadata: metadata
+                };
+              })
+              .catch(function(error) {
+                console.warn('Error loading mod metadata for', entry.name, entry.identifier, error);
+                return null;
+              });
+          }));
+          if (modMetadataLogStarted) {
+            appendToLastLogLine(' done.');
+            modMetadataLogCompleted = true;
+          }
+
+          modResults.filter(function(result) {
+            return result && result.metadata;
+          }).forEach(function(result) {
+            var files = extractModRomFiles(result.metadata);
+            files.forEach(function(ref) {
+              var service = ref.service || 'FILE';
+              var identifier = ref.identifier;
+              if (!identifier) {
+                return;
+              }
+              var publisher = result.entry.name;
+              var fileKey = publisher + '|' + service + '|' + identifier;
+              if (seen[fileKey]) {
+                return;
+              }
+              seen[fileKey] = true;
+              selectedRomFiles.push({
+                identifier: identifier,
+                service: service,
+                filename: ref.filename || ref.identifier,
+                sizeBytes: normalizeFileSizeBytes(ref.size),
+                isHeader: ref.isHeader,
+                isDefault: Boolean(ref.isHeader),
+                publisher: publisher,
+                isMod: true,
+                modTitle: result.entry.title,
+                routeType: 'Mod',
+                metadataName: result.entry.name,
+                metadataIdentifier: result.entry.identifier
+              });
+            });
+          });
+
+          if (selectedRomFiles.length === 0) {
+            putMessage('No ROM files found in metadata.');
+            setStatus('Idle', 'idle');
+            return null;
+          }
+          sortRomFileEntries(selectedRomFiles);
+          var preferredFile = findMatchingSelectedRomFile(selectedRomFiles, preferredSelection);
+          var selectedFile = preferredFile || findDefaultPlayableFile(selectedRomFiles);
+          renderSelectedRomFiles(groupInfo, selectedFile);
+          setStatus('Idle', 'idle');
+          return selectedFile;
+        } catch (error) {
+          console.error('Error loading Qortal metadata:', error);
+          if (modMetadataLogStarted && !modMetadataLogCompleted) {
+            appendToLastLogLine(' failed.');
+          } else if (qdnMetadataLogStarted && !qdnMetadataLogCompleted) {
+            appendToLastLogLine(' failed.');
+          }
+          setStatus('Error', 'error');
+          putMessage('Failed to load Qortal metadata.');
+          return null;
+        }
+      }
+
+      function getDisplayTitle(resourceInfo) {
+        if (resourceInfo && resourceInfo.title) {
+          return resourceInfo.title;
+        }
+        if (selectedMetadatas.length > 0 && selectedMetadatas[0].title) {
+          return selectedMetadatas[0].title;
+        }
+        return 'Qortal ROM';
+      }
+
+      function getFileExtension(fileName) {
+        if (typeof fileName !== 'string') {
+          return '';
+        }
+        var parts = fileName.toLowerCase().split('.');
+        if (parts.length < 2) {
+          return '';
+        }
+        return parts.pop() || '';
+      }
+
+      function isLocalFileSupported(fileName) {
+        var extension = getFileExtension(fileName);
+        if (!extension) {
+          return false;
+        }
+        var config = getActiveSystemConfig();
+        return config.localExtensions.indexOf(extension) !== -1;
+      }
+
+      function getLocalFileTypesHint() {
+        var config = getActiveSystemConfig();
+        return config.localExtensions.map(function(ext) {
+          return '.' + ext;
+        }).join(', ');
+      }
+
+      function waitMs(durationMs) {
+        return new Promise(function(resolve) {
+          setTimeout(resolve, durationMs);
+        });
+      }
+
+      function readQdnStatusCode(statusPayload) {
+        if (typeof statusPayload === 'string') {
+          return statusPayload.trim().toUpperCase();
+        }
+        if (!statusPayload || typeof statusPayload !== 'object') {
+          return '';
+        }
+        if (typeof statusPayload.status === 'string') {
+          return statusPayload.status.trim().toUpperCase();
+        }
+        if (typeof statusPayload.id === 'string') {
+          return statusPayload.id.trim().toUpperCase();
+        }
+        return '';
+      }
+
+      function readQdnStatusPercent(statusPayload) {
+        if (!statusPayload || typeof statusPayload !== 'object') {
+          return null;
+        }
+        if (typeof statusPayload.percentLoaded === 'number' &&
+            isFinite(statusPayload.percentLoaded)) {
+          var rawPercent = statusPayload.percentLoaded;
+          return Math.max(0, Math.min(100, Math.round(rawPercent)));
+        }
+        var local = Number(statusPayload.localChunkCount);
+        var total = Number(statusPayload.totalChunkCount);
+        if (!isFinite(local) || !isFinite(total) || total <= 0) {
+          return null;
+        }
+        var percent = Math.round((local / total) * 100);
+        return Math.max(0, Math.min(100, percent));
+      }
+
+      function describeQdnStatus(statusPayload) {
+        var statusCode = readQdnStatusCode(statusPayload);
+        var percent = readQdnStatusPercent(statusPayload);
+        var percentBucket = null;
+        if (typeof percent === 'number' && isFinite(percent)) {
+          if (percent >= 100) {
+            percentBucket = 100;
+          } else if (percent > 0) {
+            percentBucket = Math.floor(percent / 10) * 10;
+          } else {
+            percentBucket = 0;
+          }
+        }
+        var percentText = percentBucket === null ? '' : ' (' + percentBucket + '%)';
+        var message = 'Preparing Qortal resource...';
+        if (statusCode === 'DOWNLOADING') {
+          message = 'Downloading ROM from Qortal' + percentText + '...';
+        } else if (statusCode === 'DOWNLOADED') {
+          message = 'Download finished, preparing file...';
+        } else if (statusCode === 'BUILDING') {
+          message = 'Building ROM file' + percentText + '...';
+        } else if (statusCode === 'PUBLISHED') {
+          message = 'Fetching ROM from Qortal...';
+        } else if (statusCode === 'MISSING_DATA') {
+          message = 'Missing data, retrying download...';
+        } else if (statusCode === 'READY') {
+          message = 'Qortal download ready.';
+        } else if (statusCode === 'NOT_PUBLISHED') {
+          message = 'ROM is not published on QDN.';
+        } else if (statusCode === 'BUILD_FAILED') {
+          message = 'Qortal build failed for this ROM.';
+        } else if (statusCode === 'BLOCKED') {
+          message = 'This ROM is blocked on QDN.';
+        } else if (statusCode === 'UNSUPPORTED') {
+          message = 'This ROM format is unsupported by QDN.';
+        } else if (statusCode) {
+          message = 'Qortal status: ' + statusCode + '.';
+        }
+        return {
+          statusCode: statusCode,
+          message: message,
+          ready: QDN_RESOURCE_READY_STATUSES.has(statusCode),
+          failed: QDN_RESOURCE_ERROR_STATUSES.has(statusCode),
+          delayMs: statusCode === 'MISSING_DATA' ? 8000 : 2500
+        };
+      }
+
+      async function ensureQdnRomReady(service, publisher, identifier) {
+        if (!service || !publisher || !identifier) {
+          throw new Error('Missing Qortal resource information.');
+        }
+        var startedAt = Date.now();
+        var timeoutMs = 4 * 60 * 1000;
+        var lastStatusMessage = '';
+        putMessage('Preparing Qortal download...');
+        while ((Date.now() - startedAt) < timeoutMs) {
+          var statusPayload;
+          try {
+            statusPayload = await fetchQortalResourceStatus(service, publisher, identifier, true);
+          } catch (error) {
+            throw new Error('Unable to check Qortal resource status: ' + (error && error.message ? error.message : error));
+          }
+          var statusInfo = describeQdnStatus(statusPayload);
+          if (statusInfo.message && statusInfo.message !== lastStatusMessage) {
+            putMessage(statusInfo.message);
+            lastStatusMessage = statusInfo.message;
+          }
+          if (statusInfo.ready) {
+            return;
+          }
+          if (statusInfo.failed) {
+            throw new Error(statusInfo.message);
+          }
+          await waitMs(statusInfo.delayMs);
+        }
+        throw new Error('Timed out waiting for Qortal download to complete.');
+      }
+
+      function selectRom() {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = getActiveSystemConfig().localAccept;
+
+        input.onchange = function(event) {
+          var file = event.target.files[0];
+          if (!file) {
+            return;
+          }
+          if (!isLocalFileSupported(file.name)) {
+            alert('Unsupported file type for ' + getActiveSystemConfig().label + '. Expected: ' + getLocalFileTypesHint());
+            return;
+          }
+          var reader = new FileReader();
+
+          reader.onload = function(e) {
+            putMessage('Loaded local ROM: ' + file.name);
+            launchFromBuffer(e.target.result, file.name);
+          };
+
+          reader.onerror = function() {
+            putMessage('Failed to load ROM.');
+            setStatus('Error', 'error');
+          };
+
+          reader.readAsArrayBuffer(file);
+
+          putMessage('Loading ROM from local file...');
+          setStatus('Loading', 'loading');
+        };
+
+        input.click();
+      }
+
+      async function authenticate() {
+        window.qdnesAuthState = {
+          account: null,
+          names: [],
+          selectedName: null
+        };
+        return null;
+      }
+
+      function loadRom() {
+        return loadRomFromQDN();
+      }
+
+      async function loadRomFromQDN() {
+        if (qdnRomLoadInFlight) {
+          putMessage('ROM load already in progress...');
+          return;
+        }
+        qdnRomLoadInFlight = true;
+        try {
+          var groupInfo = getSelectedRomGroup();
+          if (!groupInfo) {
+            alert('Please select a ROM to load.');
+            return;
+          }
+          var groupKey = groupInfo.key || normalizeTitle(groupInfo.title);
+          if (!selectedGroupKey ||
+              selectedGroupKey !== groupKey ||
+              selectedRomFiles.length === 0) {
+            await loadRomVariants();
+          }
+          var variantOption = document.getElementById('romVariantList').selectedOptions[0];
+          if (!variantOption || !variantOption.value) {
+            alert('Please select a ROM file to load.');
+            return;
+          }
+          var fileInfo = JSON.parse(variantOption.value);
+          var service = fileInfo.service || 'FILE';
+          var publisher = fileInfo.name || '';
+          if (!publisher && groupInfo.entries && groupInfo.entries.length > 0) {
+            publisher = groupInfo.entries[0].name || '';
+          }
+          if (!publisher) {
+            alert('Missing publisher information for this ROM.');
+            return;
+          }
+
+          clearStatusLog();
+          setStatus('Loading', 'loading');
+          await ensureQdnRomReady(service, publisher, fileInfo.identifier);
+
+          var url = await getQortalResourceUrl(service, publisher, fileInfo.identifier);
+          var romFilename = typeof fileInfo.filename === 'string' ? fileInfo.filename : '';
+          var displayTitle = getDisplayTitle(groupInfo);
+          setCurrentQdnSelection(createQdnSelection({
+            systemId: activeSystemId,
+            groupKey: groupInfo.key || normalizeTitle(groupInfo.title),
+            routeType: fileInfo.routeType || 'ROM',
+            metadataName: fileInfo.metadataName || publisher,
+            metadataIdentifier: fileInfo.metadataIdentifier || (groupInfo.entries && groupInfo.entries[0] ? groupInfo.entries[0].identifier : ''),
+            filePublisher: publisher,
+            fileIdentifier: fileInfo.identifier,
+            filename: romFilename,
+            title: displayTitle,
+            isDefaultFile: Boolean(fileInfo.isDefault),
+            core: getSelectedCore()
+          }));
+
+          putMessage('Loading ROM from Qortal...');
+          launchEmulator(url, displayTitle, false, romFilename);
+          syncCurrentQdnSelectionRoute('push');
+        } catch (error) {
+          console.error('Failed to load ROM from Qortal:', error);
+          setStatus('Error', 'error');
+          putMessage('Failed to load ROM from Qortal.');
+          if (error && error.message) {
+            putMessage(error.message);
+          }
+          alert('Failed to load ROM from Qortal. Check status log for details.');
+        } finally {
+          qdnRomLoadInFlight = false;
+        }
+      }
+
+      function dragOverHandler(e) {
+        e.preventDefault();
+      }
+
+      function dropHandler(e) {
+        e.preventDefault();
+        if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files[0]) {
+          return;
+        }
+        var file = e.dataTransfer.files[0];
+        if (!isLocalFileSupported(file.name)) {
+          alert('Unsupported file type for ' + getActiveSystemConfig().label + '. Expected: ' + getLocalFileTypesHint());
+          return;
+        }
+        var reader = new FileReader();
+
+        reader.onload = function(event) {
+          putMessage('Loaded dropped ROM: ' + file.name);
+          launchFromBuffer(event.target.result, file.name);
+        };
+
+        reader.onerror = function() {
+          putMessage('Failed to load dropped ROM.');
+          setStatus('Error', 'error');
+        };
+
+        reader.readAsArrayBuffer(file);
+
+        putMessage('Loading ROM from drop...');
+        setStatus('Loading', 'loading');
+      }
+
+      window.addEventListener('drop', dropHandler, false);
+      window.addEventListener('dragover', dragOverHandler, false);
+    </script>
+  </head>
+  <body onload="startApp()">
+    <div id="app">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <button id="menuButton" class="menu-button" type="button" aria-label="Menu" title="Menu">
+            <span class="menu-button-line" aria-hidden="true"></span>
+            <span class="menu-button-line" aria-hidden="true"></span>
+            <span class="menu-button-line" aria-hidden="true"></span>
+          </button>
+          <div class="brand-meta">
+            <strong class="brand-title">Emulator</strong>
+            <span id="brand-version" class="brand-version">v0.1.0</span>
+          </div>
+	          <button id="changelogButton" class="topbar-changelog" type="button" aria-label="Changelog" title="Changelog" aria-expanded="false" aria-controls="changelogPopover">
+	            <svg
+	              class="qapp-shell-info-icon"
+	              aria-hidden="true"
+              viewBox="0 0 24 24"
+              focusable="false"
+            >
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+              <circle cx="12" cy="8.25" r="1.05" fill="currentColor"></circle>
+              <path
+                d="M12 11.2v5.2"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+	              ></path>
+	            </svg>
+	          </button>
+	          <div id="changelogPopover" class="topbar-changelog-popover" role="dialog" aria-label="Changelog" hidden>
+	            <p class="topbar-changelog-popover-title">Changelog</p>
+	            <ul class="topbar-changelog-list">
+	              <li class="topbar-changelog-item">
+	                <span class="topbar-changelog-item-version">v0.1.0</span>
+	                <span class="topbar-changelog-item-summary">Initial Qortium Emulator port with Qortal bridge support.</span>
+	              </li>
+	            </ul>
+	          </div>
+	        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+          <div id="qapp-topbar-host" class="qapp-topbar-host"></div>
+        </div>
+      </header>
+      <div id="content-shell" class="content-shell">
+        <aside id="qapp-left-sidebar-host" class="qapp-left-sidebar-host"></aside>
+        <div class="app-shell-main">
+        <section class="home-page" data-system-page="home">
+          <section class="home-hero">
+            <p class="home-eyebrow">Emulator</p>
+            <h1 class="home-title">Retro Systems Hub</h1>
+            <p class="home-intro">
+              Choose a system to browse Qortal releases and launch games with the best available core options for your environment.
+            </p>
+            <div class="home-attribution">
+              <p>
+                Game metadata and ROM references are read from Qortal through Qortium Home.
+              </p>
+              <p>
+                Special thanks to the community for sharing content, and to Seth for related development work.
+              </p>
+            </div>
+          </section>
+          <div class="home-system-grid">
+            <article class="home-system-card">
+              <h2>Nintendo</h2>
+              <div class="home-system-links">
+                <button type="button" class="home-system-link" data-home-system="nes">NES/Famicom</button>
+                <button type="button" class="home-system-link" data-home-system="gb">Game Boy</button>
+                <button type="button" class="home-system-link" data-home-system="snes">SNES/SFC</button>
+                <button type="button" class="home-system-link" data-home-system="vb">Virtual Boy</button>
+                <button type="button" class="home-system-link" data-home-system="n64">Nintendo 64</button>
+                <button type="button" class="home-system-link" data-home-system="gbc">Game Boy Color</button>
+                <button type="button" class="home-system-link" data-home-system="gba">Game Boy Advance</button>
+                <button type="button" class="home-system-link" data-home-system="nds">Nintendo DS</button>
+              </div>
+            </article>
+            <article class="home-system-card">
+              <h2>Sega</h2>
+              <div class="home-system-links">
+                <button type="button" class="home-system-link" data-home-system="sms">Master System</button>
+                <button type="button" class="home-system-link" data-home-system="gen">Genesis/Mega Drive</button>
+                <button type="button" class="home-system-link" data-home-system="gg">Game Gear</button>
+                <button type="button" class="home-system-link" data-home-system="scd">Sega CD</button>
+                <button type="button" class="home-system-link" data-home-system="s32x">Sega 32X</button>
+                <button type="button" class="home-system-link" data-home-system="saturn">Sega Saturn</button>
+              </div>
+            </article>
+            <article class="home-system-card">
+              <h2>Sony</h2>
+              <div class="home-system-links single">
+                <button type="button" class="home-system-link" data-home-system="ps1">PlayStation</button>
+              </div>
+            </article>
+          </div>
+        </section>
+        <div class="app" data-system-page="systems">
+        <div class="status-strip qdnes-status-strip">
+          <div class="status-pill status-idle" id="statusPill">Idle</div>
+          <div class="chip" id="coreChip">Core: fceumm</div>
+        </div>
+
+      <main class="app-main">
+        <section class="player-card">
+          <div class="player-meta">
+            <span>ROM</span>
+            <strong id="currentRom">None loaded</strong>
+          </div>
+          <div class="screen-frame">
+            <iframe id="gameFrame" title="Emulator Player" allow="autoplay; fullscreen"></iframe>
+            <div class="screen-placeholder" id="screenPlaceholder">
+              <div class="screen-placeholder-content">
+                <h2 class="screen-placeholder-title" id="screenPlaceholderTitle" hidden></h2>
+                <p class="screen-placeholder-body" id="screenPlaceholderBody">Select a ROM from Qortal or load a local file to start.</p>
+                <div class="screen-placeholder-actions" id="screenPlaceholderActions" hidden>
+                  <button type="button" class="secondary" id="screenPlaceholderAction">Browse Supported Systems</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="player-footer">
+            Use the EmulatorJS menu for controls, save states, and fullscreen.
+          </div>
+        </section>
+
+        <aside class="control-panel">
+          <div class="panel-block">
+            <h2>Load ROM</h2>
+            <div class="field">
+              <label for="coreSelect">Emulator core</label>
+              <select id="coreSelect"></select>
+              <p class="field-hint" id="coreHint"></p>
+            </div>
+            <div class="field">
+              <label for="romList">Qortal library</label>
+              <select id="romList">
+                <option value=""></option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="romVariantList">ROM file</label>
+              <select id="romVariantList" disabled>
+                <option value="">Select ROM file</option>
+              </select>
+            </div>
+            <div class="button-row">
+              <button id="loadROMButton">Load ROM</button>
+              <button id="selectRomButton" class="secondary">Select Local</button>
+            </div>
+            <p id="localFileHint" class="hint">You can also drag and drop a .nes file into the window.</p>
+          </div>
+
+          <div class="panel-block">
+            <h2>Status</h2>
+            <textarea id="statusLog" class="status-log" readonly="readonly"></textarea>
+          </div>
+        </aside>
+      </main>
+      </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

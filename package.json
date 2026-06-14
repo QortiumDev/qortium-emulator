@@ -1,0 +1,16 @@
+{
+  "name": "qortium-emulator",
+  "version": "0.1.0",
+  "private": true,
+  "license": "0BSD",
+  "description": "A Qortium QDN app that launches EmulatorJS against Qortal-hosted game resources.",
+  "type": "module",
+  "scripts": {
+    "build": "scripts/build-dist.sh",
+    "check": "node --check qortium-qortal-bridge.js && node --check scripts/publish-qdn.mjs",
+    "dev": "python3 -m http.server 5178",
+    "preview": "python3 -m http.server 4178 --directory dist",
+    "qdn:package": "scripts/package-dist.sh",
+    "qdn:publish": "node scripts/publish-qdn.mjs"
+  }
+}

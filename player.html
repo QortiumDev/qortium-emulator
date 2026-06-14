@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Emulator Player</title>
+    <style>
+      @font-face {
+        font-family: 'Lexend';
+        src: url('Lexend-Regular.ttf');
+      }
+      :root {
+        color-scheme: dark;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #06080f;
+        font-family: 'Lexend', sans-serif;
+      }
+      #game {
+        width: 100%;
+        height: 100%;
+      }
+      .placeholder {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #c8d1f0;
+        letter-spacing: 0.02em;
+        font-size: 14px;
+        background: radial-gradient(circle at top, rgba(47, 225, 160, 0.12), transparent 60%),
+          radial-gradient(circle at bottom, rgba(52, 199, 146, 0.18), transparent 55%);
+      }
+      .hidden {
+        display: none;
+      }
+      .frame {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div id="game"></div>
+      <div id="placeholder" class="placeholder">Select a ROM in Emulator to begin.</div>
+    </div>
+    <script src="./qortium-qortal-bridge.js"></script>
+    <script>
+      (function() {
+        var params = new URLSearchParams(window.location.search);
+        var gameUrl = params.get('game');
+        var requestedCore = params.get('core') || 'fceumm';
+        var requestedSystem = '';
+        var coreBundleService = (params.get('coreBundleService') || 'FILES').toUpperCase();
+        var coreBundleName = params.get('coreBundleName') || 'QDNES';
+        var coreBundleIdentifier = params.get('coreBundleIdentifier') || 'cores';
+        var coreBundlePathPrefix = normalizeBundlePathPrefix(params.get('coreBundlePathPrefix') || 'cores');
+        var requestedRomFilename = '';
+        var psxBiosService = (params.get('psxBiosService') || 'FILE').toUpperCase();
+        var psxBiosName = params.get('psxBiosName') || '7th Sage';
+        var psxBiosIdentifier = params.get('psxBiosIdentifier') || 'MMQXLtyUQzC4hQ-92kKll-HzcHydrHYT9LJ~-yCcRtUA2G9t377y-v1';
+        var psxBiosFilepath = normalizeOptionalFilepath(params.get('psxBiosFilepath') || '');
+        var scdBiosService = (params.get('scdBiosService') || 'FILES').toUpperCase();
+        var scdBiosName = params.get('scdBiosName') || 'QDNES';
+        var scdBiosIdentifier = params.get('scdBiosIdentifier') || 'cores';
+        var scdBiosPathPrefix = normalizeBundlePathPrefix(params.get('scdBiosPathPrefix') || 'bios');
+        var saturnBiosService = (params.get('saturnBiosService') || 'FILES').toUpperCase();
+        var saturnBiosName = params.get('saturnBiosName') || 'QDNES';
+        var saturnBiosIdentifier = params.get('saturnBiosIdentifier') || 'cores';
+        var saturnBiosPathPrefix = normalizeBundlePathPrefix(params.get('saturnBiosPathPrefix') || 'bios');
+        var retroarchSystemBaseDirs = [
+          '/home/web_user/.config/retroarch/system/',
+          '/home/web_user/.config/retroarch/userdata/system/',
+          '/home/web_user/retroarch/userdata/system/',
+          '/home/web_user/retroarch/system/',
+          'system/',
+          ''
+        ];
+        var psxBiosFilenames = [
+          'scph5501.bin',
+          'SCPH5501.bin',
+          'SCPH-5501.bin'
+        ];
+        var segaCdBiosFilenames = [
+          'bios_CD_U.bin',
+          'bios_CD_E.bin',
+          'bios_CD_J.bin',
+          'bios_cd_u.bin',
+          'bios_cd_e.bin',
+          'bios_cd_j.bin'
+        ];
+        var saturnBiosFilenames = [
+          'saturn_bios.bin',
+          'SATURN_BIOS.BIN',
+          'mpr-17933.bin',
+          'MPR-17933.BIN',
+          'sega_101.bin',
+          'SEGA_101.BIN'
+        ];
+        var psxBiosTargetPaths = buildPsxBiosTargetPaths(retroarchSystemBaseDirs, psxBiosFilenames);
+        // Installed means core assets are actually present in this repo build.
+        var HOT_SWAP_DISABLED_SYSTEMS = {
+          scd: true,
+          ps1: true,
+          saturn: true
+        };
+        var KNOWN_SYSTEM_IDS = {
+          nes: true,
+          gb: true,
+          gbc: true,
+          snes: true,
+          n64: true,
+          vb: true,
+          nds: true,
+          ps1: true,
+          gba: true,
+          sms: true,
+          gen: true,
+          scd: true,
+          s32x: true,
+          saturn: true,
+          gg: true
+        };
+        requestedSystem = normalizeSystemId(params.get('system') || '');
+        requestedRomFilename = sanitizeRomFilename(params.get('romFilename') || '');
+
+        var installedCores = {
+          fceumm: true,
+          quicknes: true,
+          nestopia: true,
+          mesen: true,
+          snes9x: true,
+          bsnes: true,
+          beetle_vb: true,
+          gambatte: true,
+          mgba: true,
+          vbam: true,
+          vba_next: true,
+          gpsp: true,
+          sameboy: true,
+          gearboy: true,
+          mupen64plus_next: true,
+          parallel_n64: true,
+          melonds: true,
+          desmume: true,
+          desmume2015: true,
+          genesis_plus_gx: true,
+          smsplus: true,
+          picodrive: true,
+          yabause: true,
+          mednafen_saturn: true,
+          kronos: true,
+          yabasanshiro: true,
+          pcsx_rearmed: true,
+          mednafen_psx_hw: true
+        };
+        var coresWithDedicatedThreadAssets = {
+          mednafen_psx_hw: true,
+          mednafen_saturn: true,
+          kronos: true,
+          yabasanshiro: true
+        };
+        var biosRequirementsByCore = {
+          mednafen_psx_hw: {
+            filename: 'scph5501.bin',
+            bundledPath: 'data/bios/scph5501.bin',
+            targetPaths: psxBiosTargetPaths
+          }
+        };
+        var segaCdBiosRequiredCores = {
+          genesis_plus_gx: true,
+          picodrive: true
+        };
+        var saturnHleBiosOptionByCore = {
+          yabause: 'yabause_force_hle_bios',
+          yabasanshiro: 'yabasanshiro_force_hle_bios',
+          kronos: 'kronos_force_hle_bios'
+        };
+        var saturnRealBiosRequiredCores = {
+          mednafen_saturn: true
+        };
+        var core = requireInstalledCore(requestedCore, installedCores);
+        var gameTitle = params.get('title') || '';
+        var identifier = params.get('identifier') || '';
+        if (!identifier && typeof window._qdnIdentifier === 'string') {
+          identifier = window._qdnIdentifier;
+        }
+        if (identifier === 'default') {
+          identifier = '';
+        }
+        applyFontFace(identifier);
+        var identifierQuery = identifier ? '?identifier=' + encodeURIComponent(identifier) : '';
+        var placeholder = document.getElementById('placeholder');
+        var activeCore = core;
+        var activeSystem = requestedSystem;
+        var activeGameUrl = gameUrl;
+        var activeGameTitle = gameTitle;
+        var activeRomFilename = requestedRomFilename;
+        var hotReloadInFlight = false;
+        var hotSwapEnabled = false;
+        var lastPostedStatusMessage = '';
+        var diagnosticsInstalled = false;
+        var lastDiagnosticMessage = '';
+        var startupDiagnosticCount = 0;
+        var startupWatchdogTimerShort = 0;
+        var startupWatchdogTimerLong = 0;
+        var graphicsSupport = detectGraphicsSupport();
+
+        function postToHost(type, payload) {
+          if (!window.parent || window.parent === window) {
+            return;
+          }
+          var message = Object.assign({ type: type }, payload || {});
+          window.parent.postMessage(message, '*');
+        }
+
+        function postLoadResult(requestId, ok, reason) {
+          postToHost('qdnes-player-load-result', {
+            requestId: requestId || '',
+            ok: Boolean(ok),
+            reason: reason || ''
+          });
+        }
+
+        function normalizeSystemId(value) {
+          if (typeof value !== 'string') {
+            return '';
+          }
+          var normalized = value.trim().toLowerCase();
+          if (!normalized) {
+            return '';
+          }
+          if (!Object.prototype.hasOwnProperty.call(KNOWN_SYSTEM_IDS, normalized)) {
+            return '';
+          }
+          return normalized;
+        }
+
+        function isHotSwapAllowedForSystem(systemId) {
+          if (!systemId) {
+            return false;
+          }
+          return !Object.prototype.hasOwnProperty.call(HOT_SWAP_DISABLED_SYSTEMS, systemId);
+        }
+
+        function sanitizeRomFilename(value) {
+          if (typeof value !== 'string') {
+            return '';
+          }
+          var normalized = value.trim().replace(/\\/g, '/');
+          if (!normalized) {
+            return '';
+          }
+          var parts = normalized.split('/');
+          var basename = parts[parts.length - 1] || '';
+          if (!basename) {
+            return '';
+          }
+          var invalidChars = /[#<$+%>!`&*'|{}\/\\?"=@:^\r\n]/gi;
+          return basename.replace(invalidChars, '').trim();
+        }
+
+        function postStatusMessage(message) {
+          if (typeof message !== 'string') {
+            return;
+          }
+          var normalized = message.trim();
+          if (!normalized || normalized === lastPostedStatusMessage) {
+            return;
+          }
+          lastPostedStatusMessage = normalized;
+          postToHost('qdnes-player-status', {
+            message: normalized
+          });
+        }
+
+        function postErrorMessage(message, code) {
+          postToHost('qdnes-player-error', {
+            code: code || 'player-init-failed',
+            message: message || 'Unknown player error'
+          });
+        }
+
+        function clearStartupWatchdogTimers() {
+          if (startupWatchdogTimerShort) {
+            clearTimeout(startupWatchdogTimerShort);
+            startupWatchdogTimerShort = 0;
+          }
+          if (startupWatchdogTimerLong) {
+            clearTimeout(startupWatchdogTimerLong);
+            startupWatchdogTimerLong = 0;
+          }
+        }
+
+        function describeEmulatorRuntimeState() {
+          if (!window.EJS_emulator) {
+            return 'loader/runtime not initialized yet';
+          }
+          if (window.EJS_emulator.failedToStart) {
+            return 'runtime reported failedToStart';
+          }
+          if (window.EJS_emulator.started || hotSwapEnabled) {
+            return 'game started';
+          }
+          if (window.EJS_emulator.Module) {
+            return 'runtime initialized, waiting for game start';
+          }
+          return 'runtime still loading';
+        }
+
+        function armStartupWatchdogTimers() {
+          clearStartupWatchdogTimers();
+          startupWatchdogTimerShort = setTimeout(function() {
+            if (hotSwapEnabled) {
+              return;
+            }
+            postStatusMessage('Startup still in progress (' + describeEmulatorRuntimeState() + ').');
+          }, 12000);
+          startupWatchdogTimerLong = setTimeout(function() {
+            if (hotSwapEnabled) {
+              return;
+            }
+            postStatusMessage('Startup appears stalled. Last known state: ' + describeEmulatorRuntimeState() + '.');
+          }, 30000);
+        }
+
+        function detectGraphicsSupport() {
+          var support = {
+            webgl1: false,
+            webgl2: false
+          };
+          var canvasWebgl2 = null;
+          var canvasWebgl1 = null;
+          try {
+            canvasWebgl2 = document.createElement('canvas');
+            canvasWebgl1 = document.createElement('canvas');
+          } catch (error) {
+            return support;
+          }
+          if (!canvasWebgl2 || !canvasWebgl1 || typeof canvasWebgl2.getContext !== 'function' || typeof canvasWebgl1.getContext !== 'function') {
+            return support;
+          }
+          try {
+            support.webgl2 = Boolean(canvasWebgl2.getContext('webgl2'));
+          } catch (error) {
+            support.webgl2 = false;
+          }
+          try {
+            support.webgl1 = Boolean(canvasWebgl1.getContext('webgl') || canvasWebgl1.getContext('experimental-webgl'));
+          } catch (error) {
+            support.webgl1 = false;
+          }
+          return support;
+        }
+
+        function toErrorMessage(error, fallback) {
+          if (typeof error === 'string' && error.trim()) {
+            return error.trim();
+          }
+          if (error && typeof error.message === 'string' && error.message.trim()) {
+            return error.message.trim();
+          }
+          if (error && typeof error.reason === 'string' && error.reason.trim()) {
+            return error.reason.trim();
+          }
+          return fallback || 'Unknown error';
+        }
+
+        function formatReloadFailureReason(error) {
+          var message = '';
+          if (typeof error === 'string') {
+            message = error;
+          } else if (error && typeof error.message === 'string') {
+            message = error.message;
+          } else if (error && typeof error.reason === 'string') {
+            message = error.reason;
+          } else if (error && typeof error.toString === 'function') {
+            message = String(error);
+          }
+
+          if (typeof message !== 'string') {
+            return 'reload-failed';
+          }
+
+          message = message.replace(/\s+/g, ' ').trim();
+          if (!message || message === '[object Object]') {
+            return 'reload-failed';
+          }
+          if (message.length > 140) {
+            message = message.slice(0, 137) + '...';
+          }
+          return 'reload-failed: ' + message;
+        }
+
+        function handleLoadGameRequest(data) {
+          if (!data || typeof data !== 'object') {
+            return;
+          }
+          var requestId = String(data.requestId || '');
+          if (!requestId) {
+            return;
+          }
+          if (data.core !== activeCore) {
+            postLoadResult(requestId, false, 'core-mismatch');
+            return;
+          }
+          var requestedSystemId = normalizeSystemId(data.system);
+          if (!requestedSystemId || requestedSystemId !== activeSystem) {
+            postLoadResult(requestId, false, 'system-mismatch');
+            return;
+          }
+          if (!isHotSwapAllowedForSystem(activeSystem)) {
+            postLoadResult(requestId, false, 'system-reload-required');
+            return;
+          }
+          if (hotReloadInFlight) {
+            postLoadResult(requestId, false, 'busy');
+            return;
+          }
+          if (!hotSwapEnabled) {
+            postLoadResult(requestId, false, 'emulator-not-started');
+            return;
+          }
+          if (!window.EJS_emulator || typeof window.EJS_emulator.qdnesReloadGame !== 'function') {
+            postLoadResult(requestId, false, 'emulator-not-ready');
+            return;
+          }
+          var nextGameUrl = typeof data.game === 'string' ? data.game : '';
+          if (!nextGameUrl) {
+            postLoadResult(requestId, false, 'missing-game');
+            return;
+          }
+          var nextTitle = typeof data.title === 'string' ? data.title : '';
+          var nextRomFilename = sanitizeRomFilename(data.romFilename);
+          hotReloadInFlight = true;
+          window.EJS_emulator.qdnesReloadGame(nextGameUrl, nextTitle, nextRomFilename)
+            .then(function() {
+              activeGameUrl = nextGameUrl;
+              activeGameTitle = nextTitle;
+              activeRomFilename = nextRomFilename || activeRomFilename;
+              if (nextTitle) {
+                document.title = 'Emulator - ' + nextTitle;
+              }
+              postLoadResult(requestId, true, '');
+            })
+            .catch(function(error) {
+              console.warn('Emulator hot reload failed:', error);
+              postLoadResult(requestId, false, formatReloadFailureReason(error));
+            })
+            .finally(function() {
+              hotReloadInFlight = false;
+            });
+        }
+
+        window.addEventListener('message', function(event) {
+          var data = event && event.data;
+          if (!data || typeof data !== 'object' || data.type !== 'qdnes-player-load-game') {
+            return;
+          }
+          handleLoadGameRequest(data);
+        });
+        startup();
+
+        async function startup() {
+          if (!gameUrl) {
+            postToHost('qdnes-player-ready', {
+              core: '',
+              system: activeSystem,
+              hotSwap: false
+            });
+            return;
+          }
+
+          if (!core) {
+            placeholder.textContent = 'Unsupported core requested. Choose an installed core in Emulator.';
+            postToHost('qdnes-player-ready', {
+              core: '',
+              system: activeSystem,
+              hotSwap: false
+            });
+            return;
+          }
+
+          placeholder.classList.add('hidden');
+          postStatusMessage('Graphics support: WebGL2=' + (graphicsSupport.webgl2 ? 'yes' : 'no') + ', WebGL1=' + (graphicsSupport.webgl1 ? 'yes' : 'no') + '.');
+          overrideVersionFetch();
+          installStartupDiagnostics();
+
+          try {
+            var coreMode = await resolveCoreAssetMode(core);
+            var biosAssetConfig = await resolveBiosAssetConfig(core, activeSystem);
+            window.EJS_paths = await buildEjsPaths(coreMode === 'external');
+            configureEmulatorGlobals(biosAssetConfig);
+            postStatusMessage('Injecting emulator loader...');
+            armStartupWatchdogTimers();
+            injectLoaderScript();
+          } catch (error) {
+            handleStartupFailure(toErrorMessage(error, 'Unable to initialize player.'));
+          }
+        }
+
+        function overrideVersionFetch() {
+          var originalFetch = window.fetch ? window.fetch.bind(window) : null;
+          if (!originalFetch) {
+            return;
+          }
+          window.fetch = function(resource, init) {
+            var url = '';
+            if (typeof resource === 'string') {
+              url = resource;
+            } else if (resource && typeof resource.url === 'string') {
+              url = resource.url;
+            }
+            if (url === 'https://cdn.emulatorjs.org/stable/data/version.json') {
+              var body = JSON.stringify({ version: '4.2.3', current_version: '4.2.3' });
+              return Promise.resolve(new Response(body, {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+              }));
+            }
+            return originalFetch(resource, init);
+          };
+        }
+
+        function installStartupDiagnostics() {
+          if (diagnosticsInstalled || !window.console) {
+            return;
+          }
+          diagnosticsInstalled = true;
+
+          if (typeof window.console.warn === 'function') {
+            var originalWarn = window.console.warn.bind(window.console);
+            window.console.warn = function() {
+              relayDiagnosticArguments(arguments);
+              return originalWarn.apply(window.console, arguments);
+            };
+          }
+
+          if (typeof window.console.error === 'function') {
+            var originalError = window.console.error.bind(window.console);
+            window.console.error = function() {
+              relayDiagnosticArguments(arguments);
+              return originalError.apply(window.console, arguments);
+            };
+          }
+
+          window.addEventListener('error', function(event) {
+            var details = event && event.error ? toErrorMessage(event.error, '') : '';
+            var fallback = event && typeof event.message === 'string' ? event.message : 'window error';
+            relayDiagnosticMessage('Window error: ' + (details || fallback));
+          });
+
+          window.addEventListener('unhandledrejection', function(event) {
+            var reason = event ? event.reason : '';
+            relayDiagnosticMessage('Unhandled rejection: ' + toErrorMessage(reason, 'unknown rejection'));
+          });
+        }
+
+        function relayDiagnosticArguments(argsLike) {
+          var args = [];
+          if (argsLike && typeof argsLike.length === 'number') {
+            for (var i = 0; i < argsLike.length; i++) {
+              args.push(argsLike[i]);
+            }
+          }
+          var message = formatDiagnosticArgs(args);
+          relayDiagnosticMessage(message);
+        }
+
+        function relayDiagnosticMessage(message) {
+          if (typeof message !== 'string') {
+            return;
+          }
+          var normalized = message.replace(/\s+/g, ' ').trim();
+          if (!normalized || normalized === lastDiagnosticMessage) {
+            return;
+          }
+          if (hotSwapEnabled) {
+            return;
+          }
+          if (startupDiagnosticCount >= 30) {
+            return;
+          }
+          startupDiagnosticCount++;
+          lastDiagnosticMessage = normalized;
+          if (normalized.length > 260) {
+            normalized = normalized.slice(0, 257) + '...';
+          }
+          postStatusMessage('Core startup detail: ' + normalized);
+        }
+
+        function formatDiagnosticArgs(args) {
+          if (!Array.isArray(args) || args.length === 0) {
+            return '';
+          }
+
+          var parts = [];
+          for (var i = 0; i < args.length; i++) {
+            var value = args[i];
+            if (typeof value === 'string') {
+              parts.push(value);
+              continue;
+            }
+            if (value && typeof value.message === 'string') {
+              parts.push(value.message);
+              continue;
+            }
+            if (value && typeof value.stack === 'string') {
+              parts.push(value.stack);
+              continue;
+            }
+            if (typeof value === 'number' || typeof value === 'boolean') {
+              parts.push(String(value));
+            }
+          }
+
+          return parts.join(' ');
+        }
+
+        function getEjsControlScheme(systemId) {
+          switch (normalizeSystemId(systemId)) {
+            case 'nes':
+              return 'nes';
+            case 'gb':
+            case 'gbc':
+              return 'gb';
+            case 'snes':
+              return 'snes';
+            case 'n64':
+              return 'n64';
+            case 'vb':
+              return 'vb';
+            case 'nds':
+              return 'nds';
+            case 'ps1':
+              return 'psx';
+            case 'gba':
+              return 'gba';
+            case 'sms':
+              return 'segaMS';
+            case 'gen':
+              return 'segaMD';
+            case 'scd':
+              return 'segaCD';
+            case 's32x':
+              return 'sega32x';
+            case 'saturn':
+              return 'segaSaturn';
+            case 'gg':
+              return 'segaGG';
+            default:
+              return '';
+          }
+        }
+
+        function configureEmulatorGlobals(biosAssetConfig) {
+          window.EJS_player = '#game';
+          window.EJS_core = core;
+          window.EJS_gameUrl = gameUrl;
+          // Multi-system Sega cores need an explicit control scheme or EmulatorJS
+          // falls back to the first matching system, which is often Master System.
+          var controlScheme = getEjsControlScheme(activeSystem);
+          if (controlScheme) {
+            window.EJS_controlScheme = controlScheme;
+          } else {
+            delete window.EJS_controlScheme;
+          }
+          var runtimeGameName = activeRomFilename || gameTitle;
+          if (runtimeGameName) {
+            window.EJS_gameName = runtimeGameName;
+          }
+          if (gameTitle) {
+            document.title = 'Emulator - ' + gameTitle;
+          } else if (runtimeGameName) {
+            document.title = 'Emulator - ' + runtimeGameName;
+          }
+          window.EJS_pathtodata = 'data/';
+          window.EJS_startOnLoaded = true;
+          window.EJS_language = 'en-US';
+          window.EJS_disableAutoLang = false;
+          window.EJS_backgroundColor = '#06080f';
+          window.EJS_color = '#2fe1a0';
+          if (core === 'mednafen_psx_hw') {
+            var useSoftwarePsxRenderer = !graphicsSupport.webgl2;
+            var useThreadedPsxCore = typeof window.SharedArrayBuffer === 'function';
+            // Avoid stale IndexedDB core blobs when switching Beetle PSX HW assets/sources.
+            window.EJS_disableDatabases = true;
+            // Ignore sticky per-game settings while we force known-safe startup options.
+            window.EJS_disableLocalStorage = true;
+            window.EJS_threads = useThreadedPsxCore;
+            window.EJS_defaultOptions = Object.assign({}, window.EJS_defaultOptions || {}, {
+              ejs_threads: useThreadedPsxCore ? 'enabled' : 'disabled',
+              // Prefer hardware renderer on WebGL2-capable clients; fallback to software otherwise.
+              webgl2Enabled: useSoftwarePsxRenderer ? 'disabled' : 'enabled',
+              // Force OpenGL hardware backend in web clients to avoid unsupported backend auto-selection.
+              beetle_psx_hw_renderer: useSoftwarePsxRenderer ? 'software' : 'hardware_gl',
+              beetle_psx_hw_renderer_software_fb: useSoftwarePsxRenderer ? 'enabled' : 'disabled',
+              beetle_psx_hw_filter: 'nearest',
+              beetle_psx_hw_internal_resolution: '1x(native)',
+              beetle_psx_hw_skip_bios: 'disabled'
+            });
+            postStatusMessage(
+              'Applying Beetle PSX HW compatibility mode (' +
+              (useSoftwarePsxRenderer ? 'software renderer' : 'hardware renderer') +
+              ', ' + (useThreadedPsxCore ? 'threaded' : 'non-threaded') + ')...'
+            );
+          }
+          if (core === 'mednafen_saturn') {
+            // Keep Beetle Saturn on non-threaded startup in Hub webviews for more predictable initialization.
+            window.EJS_threads = false;
+            window.EJS_defaultOptions = Object.assign({}, window.EJS_defaultOptions || {}, {
+              ejs_threads: 'disabled'
+            });
+            postStatusMessage('Applying Beetle Saturn compatibility mode (non-threaded)...');
+          }
+          var saturnHleOptionKey = saturnHleBiosOptionByCore[core];
+          if (saturnHleOptionKey) {
+            var forceSaturnHle = Boolean(
+              biosAssetConfig &&
+              typeof biosAssetConfig === 'object' &&
+              biosAssetConfig.saturnForceHle
+            );
+            // Saturn GL paths are less stable in some embedded webviews when pthread mode is enabled.
+            window.EJS_threads = false;
+            var saturnOptions = {
+              ejs_threads: 'disabled'
+            };
+            saturnOptions[saturnHleOptionKey] = forceSaturnHle ? 'enabled' : 'disabled';
+            window.EJS_defaultOptions = Object.assign({}, window.EJS_defaultOptions || {}, saturnOptions);
+            postStatusMessage(
+              'Applying ' + core + ' compatibility mode (' +
+              (forceSaturnHle ? 'HLE BIOS' : 'real BIOS') +
+              ', non-threaded)...'
+            );
+          }
+          if (biosAssetConfig) {
+            var biosMappings = [];
+            if (Array.isArray(biosAssetConfig.mappings)) {
+              biosMappings = biosAssetConfig.mappings;
+            } else if (biosAssetConfig.sourceUrl &&
+                Array.isArray(biosAssetConfig.targetPaths) &&
+                biosAssetConfig.targetPaths.length > 0) {
+              biosMappings = [{
+                sourceUrl: biosAssetConfig.sourceUrl,
+                targetPaths: biosAssetConfig.targetPaths.slice()
+              }];
+            }
+            if (biosMappings.length > 0) {
+              var externalFiles = {};
+              if (window.EJS_externalFiles && typeof window.EJS_externalFiles === 'object') {
+                for (var existingPath in window.EJS_externalFiles) {
+                  if (Object.prototype.hasOwnProperty.call(window.EJS_externalFiles, existingPath)) {
+                    externalFiles[existingPath] = window.EJS_externalFiles[existingPath];
+                  }
+                }
+              }
+              for (var i = 0; i < biosMappings.length; i++) {
+                var mapping = biosMappings[i];
+                if (!mapping || typeof mapping.sourceUrl !== 'string' || !mapping.sourceUrl) {
+                  continue;
+                }
+                var targetPaths = Array.isArray(mapping.targetPaths) ? mapping.targetPaths : [];
+                for (var j = 0; j < targetPaths.length; j++) {
+                  var targetPath = targetPaths[j];
+                  if (typeof targetPath === 'string' && targetPath.trim()) {
+                    externalFiles[targetPath] = mapping.sourceUrl;
+                  }
+                }
+              }
+              window.EJS_externalFiles = externalFiles;
+            }
+          }
+          window.EJS_ready = function() {
+            postStatusMessage('Emulator runtime ready. Waiting for game start...');
+            postToHost('qdnes-player-ready', {
+              core: activeCore,
+              system: activeSystem,
+              hotSwap: hotSwapEnabled
+            });
+          };
+          window.EJS_onGameStart = function() {
+            hotSwapEnabled = isHotSwapAllowedForSystem(activeSystem);
+            clearStartupWatchdogTimers();
+            postStatusMessage('Game started.');
+            postToHost('qdnes-player-ready', {
+              core: activeCore,
+              system: activeSystem,
+              hotSwap: hotSwapEnabled
+            });
+            postToHost('qdnes-player-started', {
+              core: activeCore,
+              system: activeSystem
+            });
+          };
+        }
+
+        function injectLoaderScript() {
+          var script = document.createElement('script');
+          script.src = withIdentifier('data/loader.js');
+          script.onload = function() {
+            postStatusMessage('Loader script loaded. Initializing emulator runtime...');
+          };
+          script.onerror = function() {
+            handleStartupFailure('Failed to load emulator loader script.');
+          };
+          document.body.appendChild(script);
+        }
+
+        function withIdentifier(path) {
+          return path + identifierQuery;
+        }
+
+        function getQortiumQortalBridge() {
+          if (window.qortiumQortal && typeof window.qortiumQortal === 'object') {
+            return window.qortiumQortal;
+          }
+          throw new Error('Qortium Qortal bridge is unavailable.');
+        }
+
+        async function buildArbitraryResourceUrl(service, name, identifierValue, filepath) {
+          return getQortiumQortalBridge().getResourceUrl({
+            service: service,
+            name: name,
+            identifier: identifierValue || '',
+            path: normalizeOptionalFilepath(filepath)
+          });
+        }
+
+        async function buildArbitraryFilepathUrl(service, name, identifierValue, filepath) {
+          return buildArbitraryResourceUrl(service, name, identifierValue, filepath);
+        }
+
+        async function bundledCoreAssetsAvailable(coreId) {
+          var requiredFiles = [
+            'data/cores/' + coreId + '-wasm.data',
+            'data/cores/' + coreId + '-legacy-wasm.data',
+            'data/cores/reports/' + coreId + '.json'
+          ];
+
+          for (var i = 0; i < requiredFiles.length; i++) {
+            var exists = await localAssetExists(requiredFiles[i]);
+            if (!exists) {
+              return false;
+            }
+          }
+
+          return true;
+        }
+
+        function buildExternalCorePath(coreId, kind) {
+          if (kind === 'report') {
+            return coreBundlePathPrefix + '/reports/' + coreId + '.json';
+          }
+          if (kind === 'legacy') {
+            return coreBundlePathPrefix + '/' + coreId + '-legacy-wasm.data';
+          }
+          return coreBundlePathPrefix + '/' + coreId + '-wasm.data';
+        }
+
+        async function externalCoreAssetsAvailable(coreId) {
+          var requiredPaths = [
+            buildExternalCorePath(coreId, 'modern'),
+            buildExternalCorePath(coreId, 'legacy'),
+            buildExternalCorePath(coreId, 'report')
+          ];
+
+          for (var i = 0; i < requiredPaths.length; i++) {
+            var exists = await arbitraryAssetExists(requiredPaths[i]);
+            if (!exists) {
+              return false;
+            }
+          }
+
+          return true;
+        }
+
+        async function arbitraryAssetExists(filepath) {
+          var url = await buildArbitraryFilepathUrl(coreBundleService, coreBundleName, coreBundleIdentifier, filepath);
+          return urlAssetExists(url);
+        }
+
+        async function localAssetExists(path) {
+          if (typeof window.fetch !== 'function') {
+            return false;
+          }
+
+          return urlAssetExists(withIdentifier(path));
+        }
+
+        async function urlAssetExists(url) {
+          try {
+            var headResponse = await fetch(url, {
+              method: 'HEAD',
+              cache: 'no-store'
+            });
+            if (headResponse.ok) {
+              return !isHtmlFallbackResponse(headResponse);
+            }
+            if (headResponse.status !== 405 && headResponse.status !== 501) {
+              return false;
+            }
+          } catch (error) {
+            // Continue with ranged GET fallback.
+          }
+
+          try {
+            var getResponse = await fetch(url, {
+              method: 'GET',
+              cache: 'no-store',
+              headers: {
+                'Range': 'bytes=0-0'
+              }
+            });
+            if (!getResponse.ok && getResponse.status !== 206) {
+              return false;
+            }
+            return !isHtmlFallbackResponse(getResponse);
+          } catch (error) {
+            return false;
+          }
+        }
+
+        function isHtmlFallbackResponse(response) {
+          if (!response || typeof response.headers.get !== 'function') {
+            return false;
+          }
+          var contentType = response.headers.get('content-type');
+          if (typeof contentType !== 'string') {
+            return false;
+          }
+          return contentType.toLowerCase().indexOf('text/html') !== -1;
+        }
+
+        function readQdnStatusCode(statusPayload) {
+          if (typeof statusPayload === 'string') {
+            return statusPayload.trim().toUpperCase();
+          }
+          if (!statusPayload || typeof statusPayload !== 'object') {
+            return '';
+          }
+          if (typeof statusPayload.status === 'string') {
+            return statusPayload.status.trim().toUpperCase();
+          }
+          if (typeof statusPayload.id === 'string') {
+            return statusPayload.id.trim().toUpperCase();
+          }
+          return '';
+        }
+
+        function normalizeBundlePathPrefix(prefix) {
+          var raw = typeof prefix === 'string' ? prefix : '';
+          raw = raw.replace(/\\/g, '/');
+          raw = raw.replace(/^\/+/, '');
+          raw = raw.replace(/\/+$/, '');
+          if (!raw) {
+            return 'cores';
+          }
+          return raw;
+        }
+
+        function normalizeOptionalFilepath(filepath) {
+          var raw = typeof filepath === 'string' ? filepath : '';
+          raw = raw.replace(/\\/g, '/');
+          raw = raw.replace(/^\/+/, '');
+          return raw.trim();
+        }
+
+        function buildPsxBiosTargetPaths(baseDirs, filenames) {
+          var result = [];
+          var seen = {};
+
+          if (!Array.isArray(baseDirs) || !Array.isArray(filenames)) {
+            return result;
+          }
+
+          for (var i = 0; i < baseDirs.length; i++) {
+            var baseDir = typeof baseDirs[i] === 'string' ? baseDirs[i] : '';
+            baseDir = baseDir.replace(/\\/g, '/');
+
+            for (var j = 0; j < filenames.length; j++) {
+              var filename = typeof filenames[j] === 'string' ? filenames[j].trim() : '';
+              if (!filename) {
+                continue;
+              }
+
+              var fullPath = baseDir ? baseDir + filename : filename;
+              fullPath = fullPath.replace(/\/{2,}/g, '/');
+              if (baseDir.indexOf('/') === 0 && fullPath.indexOf('/') !== 0) {
+                fullPath = '/' + fullPath;
+              }
+              if (Object.prototype.hasOwnProperty.call(seen, fullPath)) {
+                continue;
+              }
+              seen[fullPath] = true;
+              result.push(fullPath);
+            }
+          }
+
+          return result;
+        }
+
+        function readQdnStatusPercent(statusPayload) {
+          if (!statusPayload || typeof statusPayload !== 'object') {
+            return null;
+          }
+
+          if (typeof statusPayload.percentLoaded === 'number' && isFinite(statusPayload.percentLoaded)) {
+            var rawPercent = statusPayload.percentLoaded;
+            return Math.max(0, Math.min(100, Math.round(rawPercent)));
+          }
+
+          var local = Number(statusPayload.localChunkCount);
+          var total = Number(statusPayload.totalChunkCount);
+          if (!isFinite(local) || !isFinite(total) || total <= 0) {
+            return null;
+          }
+
+          var percent = Math.round((local / total) * 100);
+          return Math.max(0, Math.min(100, percent));
+        }
+
+        function describeCoreBundleStatus(statusPayload) {
+          var statusCode = readQdnStatusCode(statusPayload);
+          var percent = readQdnStatusPercent(statusPayload);
+          var percentBucket = null;
+          if (typeof percent === 'number' && isFinite(percent)) {
+            if (percent >= 100) {
+              percentBucket = 100;
+            } else if (percent > 0) {
+              percentBucket = Math.floor(percent / 10) * 10;
+            } else {
+              percentBucket = 0;
+            }
+          }
+          var percentText = percentBucket === null ? '' : ' (' + percentBucket + '%)';
+          var message = 'Preparing external core bundle...';
+
+          if (statusCode === 'DOWNLOADING') {
+            message = 'Downloading external core bundle' + percentText + '...';
+          } else if (statusCode === 'DOWNLOADED') {
+            message = 'External core bundle downloaded, preparing files...';
+          } else if (statusCode === 'BUILDING') {
+            message = 'Building external core bundle' + percentText + '...';
+          } else if (statusCode === 'PUBLISHED') {
+            message = 'Fetching external core bundle from Qortal...';
+          } else if (statusCode === 'MISSING_DATA') {
+            message = 'External core bundle missing data, retrying...';
+          } else if (statusCode === 'READY') {
+            message = 'External core bundle is ready.';
+          } else if (statusCode === 'NOT_PUBLISHED') {
+            message = 'External core bundle is not published.';
+          } else if (statusCode === 'BUILD_FAILED') {
+            message = 'Failed to build external core bundle.';
+          } else if (statusCode === 'BLOCKED') {
+            message = 'External core bundle is blocked on Qortal.';
+          } else if (statusCode === 'UNSUPPORTED') {
+            message = 'External core bundle format is unsupported.';
+          } else if (statusCode) {
+            message = 'External core bundle status: ' + statusCode + '.';
+          }
+
+          return {
+            statusCode: statusCode,
+            message: message,
+            ready: statusCode === 'READY',
+            failed: statusCode === 'NOT_PUBLISHED' || statusCode === 'BUILD_FAILED' || statusCode === 'BLOCKED' || statusCode === 'UNSUPPORTED',
+            delayMs: statusCode === 'MISSING_DATA' ? 8000 : 2500
+          };
+        }
+
+        async function getExternalCoreBundleStatus() {
+          return getExternalResourceStatus(coreBundleService, coreBundleName, coreBundleIdentifier);
+        }
+
+        async function getExternalPsxBiosStatus() {
+          return getExternalResourceStatus(psxBiosService, psxBiosName, psxBiosIdentifier);
+        }
+
+        async function getExternalSegaCdBiosStatus() {
+          return getExternalResourceStatus(scdBiosService, scdBiosName, scdBiosIdentifier);
+        }
+
+        async function getExternalSaturnBiosStatus() {
+          return getExternalResourceStatus(saturnBiosService, saturnBiosName, saturnBiosIdentifier);
+        }
+
+        async function getExternalResourceStatus(service, name, identifierValue) {
+          return getQortiumQortalBridge().getResourceStatus({
+            service: service,
+            name: name,
+            identifier: identifierValue || '',
+            build: true
+          });
+        }
+
+        function describeExternalPsxBiosStatus(statusPayload) {
+          var statusCode = readQdnStatusCode(statusPayload);
+          var percent = readQdnStatusPercent(statusPayload);
+          var percentBucket = null;
+          if (typeof percent === 'number' && isFinite(percent)) {
+            if (percent >= 100) {
+              percentBucket = 100;
+            } else if (percent > 0) {
+              percentBucket = Math.floor(percent / 10) * 10;
+            } else {
+              percentBucket = 0;
+            }
+          }
+          var percentText = percentBucket === null ? '' : ' (' + percentBucket + '%)';
+          var message = 'Preparing external PS1 BIOS resource...';
+
+          if (statusCode === 'DOWNLOADING') {
+            message = 'Downloading external PS1 BIOS resource' + percentText + '...';
+          } else if (statusCode === 'DOWNLOADED') {
+            message = 'External PS1 BIOS resource downloaded, preparing files...';
+          } else if (statusCode === 'BUILDING') {
+            message = 'Building external PS1 BIOS resource' + percentText + '...';
+          } else if (statusCode === 'PUBLISHED') {
+            message = 'Fetching external PS1 BIOS resource from Qortal...';
+          } else if (statusCode === 'MISSING_DATA') {
+            message = 'External PS1 BIOS resource missing data, retrying...';
+          } else if (statusCode === 'READY') {
+            message = 'External PS1 BIOS resource is ready.';
+          } else if (statusCode === 'NOT_PUBLISHED') {
+            message = 'External PS1 BIOS resource is not published.';
+          } else if (statusCode === 'BUILD_FAILED') {
+            message = 'Failed to build external PS1 BIOS resource.';
+          } else if (statusCode === 'BLOCKED') {
+            message = 'External PS1 BIOS resource is blocked on Qortal.';
+          } else if (statusCode === 'UNSUPPORTED') {
+            message = 'External PS1 BIOS resource format is unsupported.';
+          } else if (statusCode) {
+            message = 'External PS1 BIOS resource status: ' + statusCode + '.';
+          }
+
+          return {
+            statusCode: statusCode,
+            message: message,
+            ready: statusCode === 'READY',
+            failed: statusCode === 'NOT_PUBLISHED' || statusCode === 'BUILD_FAILED' || statusCode === 'BLOCKED' || statusCode === 'UNSUPPORTED',
+            delayMs: statusCode === 'MISSING_DATA' ? 8000 : 2500
+          };
+        }
+
+        function describeExternalSegaCdBiosStatus(statusPayload) {
+          var statusCode = readQdnStatusCode(statusPayload);
+          var percent = readQdnStatusPercent(statusPayload);
+          var percentBucket = null;
+          if (typeof percent === 'number' && isFinite(percent)) {
+            if (percent >= 100) {
+              percentBucket = 100;
+            } else if (percent > 0) {
+              percentBucket = Math.floor(percent / 10) * 10;
+            } else {
+              percentBucket = 0;
+            }
+          }
+          var percentText = percentBucket === null ? '' : ' (' + percentBucket + '%)';
+          var message = 'Preparing external Sega CD BIOS resource...';
+
+          if (statusCode === 'DOWNLOADING') {
+            message = 'Downloading external Sega CD BIOS resource' + percentText + '...';
+          } else if (statusCode === 'DOWNLOADED') {
+            message = 'External Sega CD BIOS resource downloaded, preparing files...';
+          } else if (statusCode === 'BUILDING') {
+            message = 'Building external Sega CD BIOS resource' + percentText + '...';
+          } else if (statusCode === 'PUBLISHED') {
+            message = 'Fetching external Sega CD BIOS resource from Qortal...';
+          } else if (statusCode === 'MISSING_DATA') {
+            message = 'External Sega CD BIOS resource missing data, retrying...';
+          } else if (statusCode === 'READY') {
+            message = 'External Sega CD BIOS resource is ready.';
+          } else if (statusCode === 'NOT_PUBLISHED') {
+            message = 'External Sega CD BIOS resource is not published.';
+          } else if (statusCode === 'BUILD_FAILED') {
+            message = 'Failed to build external Sega CD BIOS resource.';
+          } else if (statusCode === 'BLOCKED') {
+            message = 'External Sega CD BIOS resource is blocked on Qortal.';
+          } else if (statusCode === 'UNSUPPORTED') {
+            message = 'External Sega CD BIOS resource format is unsupported.';
+          } else if (statusCode) {
+            message = 'External Sega CD BIOS resource status: ' + statusCode + '.';
+          }
+
+          return {
+            statusCode: statusCode,
+            message: message,
+            ready: statusCode === 'READY',
+            failed: statusCode === 'NOT_PUBLISHED' || statusCode === 'BUILD_FAILED' || statusCode === 'BLOCKED' || statusCode === 'UNSUPPORTED',
+            delayMs: statusCode === 'MISSING_DATA' ? 8000 : 2500
+          };
+        }
+
+        function describeExternalSaturnBiosStatus(statusPayload) {
+          var statusCode = readQdnStatusCode(statusPayload);
+          var percent = readQdnStatusPercent(statusPayload);
+          var percentBucket = null;
+          if (typeof percent === 'number' && isFinite(percent)) {
+            if (percent >= 100) {
+              percentBucket = 100;
+            } else if (percent > 0) {
+              percentBucket = Math.floor(percent / 10) * 10;
+            } else {
+              percentBucket = 0;
+            }
+          }
+          var percentText = percentBucket === null ? '' : ' (' + percentBucket + '%)';
+          var message = 'Preparing external Saturn BIOS resource...';
+
+          if (statusCode === 'DOWNLOADING') {
+            message = 'Downloading external Saturn BIOS resource' + percentText + '...';
+          } else if (statusCode === 'DOWNLOADED') {
+            message = 'External Saturn BIOS resource downloaded, preparing files...';
+          } else if (statusCode === 'BUILDING') {
+            message = 'Building external Saturn BIOS resource' + percentText + '...';
+          } else if (statusCode === 'PUBLISHED') {
+            message = 'Fetching external Saturn BIOS resource from Qortal...';
+          } else if (statusCode === 'MISSING_DATA') {
+            message = 'External Saturn BIOS resource missing data, retrying...';
+          } else if (statusCode === 'READY') {
+            message = 'External Saturn BIOS resource is ready.';
+          } else if (statusCode === 'NOT_PUBLISHED') {
+            message = 'External Saturn BIOS resource is not published.';
+          } else if (statusCode === 'BUILD_FAILED') {
+            message = 'Failed to build external Saturn BIOS resource.';
+          } else if (statusCode === 'BLOCKED') {
+            message = 'External Saturn BIOS resource is blocked on Qortal.';
+          } else if (statusCode === 'UNSUPPORTED') {
+            message = 'External Saturn BIOS resource format is unsupported.';
+          } else if (statusCode) {
+            message = 'External Saturn BIOS resource status: ' + statusCode + '.';
+          }
+
+          return {
+            statusCode: statusCode,
+            message: message,
+            ready: statusCode === 'READY',
+            failed: statusCode === 'NOT_PUBLISHED' || statusCode === 'BUILD_FAILED' || statusCode === 'BLOCKED' || statusCode === 'UNSUPPORTED',
+            delayMs: statusCode === 'MISSING_DATA' ? 8000 : 2500
+          };
+        }
+
+        async function ensureExternalCoreBundleReady() {
+          var startedAt = Date.now();
+          var timeoutMs = 4 * 60 * 1000;
+
+          while (Date.now() - startedAt < timeoutMs) {
+            var statusPayload;
+            try {
+              statusPayload = await getExternalCoreBundleStatus();
+            } catch (error) {
+              throw new Error('Unable to check external core bundle status: ' + toErrorMessage(error, 'request failed'));
+            }
+
+            var statusInfo = describeCoreBundleStatus(statusPayload);
+            postStatusMessage(statusInfo.message);
+
+            if (statusInfo.ready) {
+              return;
+            }
+            if (statusInfo.failed) {
+              throw new Error(statusInfo.message);
+            }
+
+            await waitMs(statusInfo.delayMs);
+          }
+
+          throw new Error('Timed out waiting for external core bundle.');
+        }
+
+        async function ensureExternalPsxBiosReady() {
+          var startedAt = Date.now();
+          var timeoutMs = 2 * 60 * 1000;
+
+          while (Date.now() - startedAt < timeoutMs) {
+            var statusPayload;
+            try {
+              statusPayload = await getExternalPsxBiosStatus();
+            } catch (error) {
+              throw new Error('Unable to check external PS1 BIOS status: ' + toErrorMessage(error, 'request failed'));
+            }
+
+            var statusInfo = describeExternalPsxBiosStatus(statusPayload);
+            postStatusMessage(statusInfo.message);
+
+            if (statusInfo.ready) {
+              return;
+            }
+            if (statusInfo.failed) {
+              throw new Error(statusInfo.message);
+            }
+
+            await waitMs(statusInfo.delayMs);
+          }
+
+          throw new Error('Timed out waiting for external PS1 BIOS resource.');
+        }
+
+        async function ensureExternalSegaCdBiosReady() {
+          var startedAt = Date.now();
+          var timeoutMs = 2 * 60 * 1000;
+
+          while (Date.now() - startedAt < timeoutMs) {
+            var statusPayload;
+            try {
+              statusPayload = await getExternalSegaCdBiosStatus();
+            } catch (error) {
+              throw new Error('Unable to check external Sega CD BIOS status: ' + toErrorMessage(error, 'request failed'));
+            }
+
+            var statusInfo = describeExternalSegaCdBiosStatus(statusPayload);
+            postStatusMessage(statusInfo.message);
+
+            if (statusInfo.ready) {
+              return;
+            }
+            if (statusInfo.failed) {
+              throw new Error(statusInfo.message);
+            }
+
+            await waitMs(statusInfo.delayMs);
+          }
+
+          throw new Error('Timed out waiting for external Sega CD BIOS resource.');
+        }
+
+        async function ensureExternalSaturnBiosReady() {
+          var startedAt = Date.now();
+          var timeoutMs = 2 * 60 * 1000;
+
+          while (Date.now() - startedAt < timeoutMs) {
+            var statusPayload;
+            try {
+              statusPayload = await getExternalSaturnBiosStatus();
+            } catch (error) {
+              throw new Error('Unable to check external Saturn BIOS status: ' + toErrorMessage(error, 'request failed'));
+            }
+
+            var statusInfo = describeExternalSaturnBiosStatus(statusPayload);
+            postStatusMessage(statusInfo.message);
+
+            if (statusInfo.ready) {
+              return;
+            }
+            if (statusInfo.failed) {
+              throw new Error(statusInfo.message);
+            }
+
+            await waitMs(statusInfo.delayMs);
+          }
+
+          throw new Error('Timed out waiting for external Saturn BIOS resource.');
+        }
+
+        function getBiosRequirementForCore(coreId) {
+          if (!coreId || !Object.prototype.hasOwnProperty.call(biosRequirementsByCore, coreId)) {
+            return null;
+          }
+          return biosRequirementsByCore[coreId];
+        }
+
+        async function buildExternalPsxBiosUrl() {
+          return buildArbitraryResourceUrl(psxBiosService, psxBiosName, psxBiosIdentifier, psxBiosFilepath);
+        }
+
+        function buildExternalSegaCdBiosPath(filename) {
+          var name = typeof filename === 'string' ? filename.trim() : '';
+          if (!name) {
+            return '';
+          }
+          if (!scdBiosPathPrefix) {
+            return name;
+          }
+          return scdBiosPathPrefix + '/' + name;
+        }
+
+        async function buildExternalSegaCdBiosUrl(filename) {
+          var filepath = buildExternalSegaCdBiosPath(filename);
+          if (!filepath) {
+            return '';
+          }
+          return buildArbitraryResourceUrl(scdBiosService, scdBiosName, scdBiosIdentifier, filepath);
+        }
+
+        function buildExternalSaturnBiosPath(filename) {
+          var name = typeof filename === 'string' ? filename.trim() : '';
+          if (!name) {
+            return '';
+          }
+          if (!saturnBiosPathPrefix) {
+            return name;
+          }
+          return saturnBiosPathPrefix + '/' + name;
+        }
+
+        async function buildExternalSaturnBiosUrl(filename) {
+          var filepath = buildExternalSaturnBiosPath(filename);
+          if (!filepath) {
+            return '';
+          }
+          return buildArbitraryResourceUrl(saturnBiosService, saturnBiosName, saturnBiosIdentifier, filepath);
+        }
+
+        function shouldRequireSegaCdBios(systemId, coreId) {
+          if (systemId !== 'scd') {
+            return false;
+          }
+          return Object.prototype.hasOwnProperty.call(segaCdBiosRequiredCores, coreId);
+        }
+
+        function shouldTrySaturnBios(systemId, coreId) {
+          if (systemId !== 'saturn') {
+            return false;
+          }
+          if (Object.prototype.hasOwnProperty.call(saturnRealBiosRequiredCores, coreId)) {
+            return true;
+          }
+          return Object.prototype.hasOwnProperty.call(saturnHleBiosOptionByCore, coreId);
+        }
+
+        function shouldRequireSaturnRealBios(systemId, coreId) {
+          if (systemId !== 'saturn') {
+            return false;
+          }
+          return Object.prototype.hasOwnProperty.call(saturnRealBiosRequiredCores, coreId);
+        }
+
+        function appendBiosMappings(targetList, sourceUrl, targetPaths) {
+          if (!Array.isArray(targetList) || typeof sourceUrl !== 'string' || !sourceUrl) {
+            return;
+          }
+          if (!Array.isArray(targetPaths) || targetPaths.length === 0) {
+            return;
+          }
+          targetList.push({
+            sourceUrl: sourceUrl,
+            targetPaths: targetPaths.slice()
+          });
+        }
+
+        async function resolvePsxBiosMappings(coreId, mappings) {
+          var requirement = getBiosRequirementForCore(coreId);
+          if (!requirement) {
+            return;
+          }
+
+          postStatusMessage('Checking bundled PS1 BIOS...');
+          var bundledPath = requirement.bundledPath;
+          var bundledAvailable = bundledPath ? await localAssetExists(bundledPath) : false;
+          if (bundledAvailable) {
+            postStatusMessage('Using bundled PS1 BIOS.');
+            appendBiosMappings(mappings, withIdentifier(bundledPath), requirement.targetPaths);
+            return;
+          }
+
+          postStatusMessage('Bundled PS1 BIOS missing. Preparing external BIOS resource...');
+          await ensureExternalPsxBiosReady();
+          var externalUrl = await buildExternalPsxBiosUrl();
+          var externalAvailable = await urlAssetExists(externalUrl);
+          if (!externalAvailable) {
+            throw new Error('External PS1 BIOS file "' + requirement.filename + '" was not found.');
+          }
+          postStatusMessage('Using PS1 BIOS from Qortal.');
+          appendBiosMappings(mappings, externalUrl, requirement.targetPaths);
+        }
+
+        async function resolveSegaCdBiosMappings(coreId, systemId, mappings) {
+          if (!shouldRequireSegaCdBios(systemId, coreId)) {
+            return;
+          }
+
+          postStatusMessage('Checking bundled Sega CD BIOS...');
+          var foundBundled = false;
+          for (var i = 0; i < segaCdBiosFilenames.length; i++) {
+            var filename = segaCdBiosFilenames[i];
+            var bundledPath = 'data/bios/' + filename;
+            var bundledAvailable = await localAssetExists(bundledPath);
+            if (!bundledAvailable) {
+              continue;
+            }
+            foundBundled = true;
+            appendBiosMappings(
+              mappings,
+              withIdentifier(bundledPath),
+              buildPsxBiosTargetPaths(retroarchSystemBaseDirs, [filename])
+            );
+          }
+          if (foundBundled) {
+            postStatusMessage('Using bundled Sega CD BIOS.');
+            return;
+          }
+
+          postStatusMessage('Bundled Sega CD BIOS missing. Preparing external BIOS resource...');
+          await ensureExternalSegaCdBiosReady();
+          postStatusMessage('Verifying external Sega CD BIOS files...');
+          var foundExternal = false;
+          for (var j = 0; j < segaCdBiosFilenames.length; j++) {
+            var externalFilename = segaCdBiosFilenames[j];
+            var externalUrl = await buildExternalSegaCdBiosUrl(externalFilename);
+            if (!externalUrl) {
+              continue;
+            }
+            var externalAvailable = await urlAssetExists(externalUrl);
+            if (!externalAvailable) {
+              continue;
+            }
+            foundExternal = true;
+            appendBiosMappings(
+              mappings,
+              externalUrl,
+              buildPsxBiosTargetPaths(retroarchSystemBaseDirs, [externalFilename])
+            );
+          }
+
+          if (!foundExternal) {
+            throw new Error(
+              'Sega CD BIOS files were not found. Expected one or more of ' +
+              segaCdBiosFilenames.join(', ') +
+              ' under "' + scdBiosPathPrefix + '/".'
+            );
+          }
+          postStatusMessage('Using Sega CD BIOS from Qortal.');
+        }
+
+        async function resolveSaturnBiosMappings(coreId, systemId, mappings) {
+          var result = {
+            forceHle: false
+          };
+          if (!shouldTrySaturnBios(systemId, coreId)) {
+            return result;
+          }
+
+          var requireRealBios = shouldRequireSaturnRealBios(systemId, coreId);
+          var kronosBaseDirs = retroarchSystemBaseDirs.map(function(baseDir) {
+            var normalized = typeof baseDir === 'string' ? baseDir : '';
+            normalized = normalized.replace(/\\/g, '/');
+            return normalized + 'kronos/';
+          });
+
+          postStatusMessage('Checking bundled Saturn BIOS...');
+          var foundBundled = false;
+          for (var i = 0; i < saturnBiosFilenames.length; i++) {
+            var filename = saturnBiosFilenames[i];
+            var bundledPath = 'data/bios/' + filename;
+            var bundledAvailable = await localAssetExists(bundledPath);
+            if (!bundledAvailable) {
+              continue;
+            }
+            foundBundled = true;
+            appendBiosMappings(
+              mappings,
+              withIdentifier(bundledPath),
+              buildPsxBiosTargetPaths(retroarchSystemBaseDirs, [filename])
+            );
+            appendBiosMappings(
+              mappings,
+              withIdentifier(bundledPath),
+              buildPsxBiosTargetPaths(kronosBaseDirs, [filename])
+            );
+          }
+          if (foundBundled) {
+            postStatusMessage('Using bundled Saturn BIOS.');
+            return result;
+          }
+
+          postStatusMessage('Bundled Saturn BIOS missing. Preparing external BIOS resource...');
+          try {
+            await ensureExternalSaturnBiosReady();
+          } catch (error) {
+            if (requireRealBios) {
+              throw error;
+            }
+            result.forceHle = true;
+            postStatusMessage('External Saturn BIOS resource is unavailable. Continuing with HLE BIOS mode for this core.');
+            return result;
+          }
+          postStatusMessage('Verifying external Saturn BIOS files...');
+          var foundExternal = false;
+          for (var j = 0; j < saturnBiosFilenames.length; j++) {
+            var externalFilename = saturnBiosFilenames[j];
+            var externalUrl = await buildExternalSaturnBiosUrl(externalFilename);
+            if (!externalUrl) {
+              continue;
+            }
+            var externalAvailable = await urlAssetExists(externalUrl);
+            if (!externalAvailable) {
+              continue;
+            }
+            foundExternal = true;
+            appendBiosMappings(
+              mappings,
+              externalUrl,
+              buildPsxBiosTargetPaths(retroarchSystemBaseDirs, [externalFilename])
+            );
+            appendBiosMappings(
+              mappings,
+              externalUrl,
+              buildPsxBiosTargetPaths(kronosBaseDirs, [externalFilename])
+            );
+          }
+
+          if (!foundExternal) {
+            if (requireRealBios) {
+              throw new Error(
+                'Saturn BIOS files were not found. Expected one or more of ' +
+                saturnBiosFilenames.join(', ') +
+                ' under "' + saturnBiosPathPrefix + '/".'
+              );
+            }
+            result.forceHle = true;
+            postStatusMessage('Saturn BIOS not found. Continuing with HLE BIOS mode for this core.');
+            return result;
+          }
+
+          postStatusMessage('Using Saturn BIOS from Qortal.');
+          return result;
+        }
+
+        async function resolveBiosAssetConfig(coreId, systemId) {
+          var mappings = [];
+          var saturnConfig = null;
+          await resolvePsxBiosMappings(coreId, mappings);
+          await resolveSegaCdBiosMappings(coreId, systemId, mappings);
+          saturnConfig = await resolveSaturnBiosMappings(coreId, systemId, mappings);
+          var saturnForceHle = Boolean(saturnConfig && saturnConfig.forceHle);
+          if (mappings.length === 0 && !saturnForceHle) {
+            return null;
+          }
+          return {
+            mappings: mappings,
+            saturnForceHle: saturnForceHle
+          };
+        }
+
+        async function resolveCoreAssetMode(coreId) {
+          postStatusMessage('Checking bundled core assets...');
+
+          var bundledAvailable = await bundledCoreAssetsAvailable(coreId);
+          if (bundledAvailable) {
+            postStatusMessage('Using bundled core assets.');
+            return 'bundled';
+          }
+
+          postStatusMessage('Bundled core assets missing. Preparing external core bundle...');
+          await ensureExternalCoreBundleReady();
+          postStatusMessage('Verifying external core files...');
+          var externalAvailable = await externalCoreAssetsAvailable(coreId);
+          if (!externalAvailable) {
+            throw new Error('External core files were not found at "' + coreBundlePathPrefix + '/".');
+          }
+          postStatusMessage('Using external core bundle from Qortal.');
+          return 'external';
+        }
+
+        async function buildEjsPaths(useExternalCores) {
+          var paths = {
+            'emulator.min.js': withIdentifier('data/emulator.min.js'),
+            'emulator.min.css': withIdentifier('data/emulator.min.css'),
+            'emulator.override.js': withIdentifier('data/emulator.override.js'),
+            'extract7z.js': withIdentifier('data/compression/extract7z.js'),
+            'extract7z.worker.js': withIdentifier('data/compression/extract7z.worker.js'),
+            'extractzip.js': withIdentifier('data/compression/extractzip.js'),
+            'extractzip.worker.js': withIdentifier('data/compression/extractzip.worker.js'),
+            'libunrar.js': withIdentifier('data/compression/libunrar.js'),
+            'libunrar.wasm': withIdentifier('data/compression/libunrar.wasm'),
+            'unrar.worker.js': withIdentifier('data/compression/unrar.worker.js')
+          };
+
+          var coreIds = Object.keys(installedCores);
+          for (var i = 0; i < coreIds.length; i++) {
+            var coreId = coreIds[i];
+            var modernPath = 'data/cores/' + coreId + '-wasm.data';
+            var legacyPath = 'data/cores/' + coreId + '-legacy-wasm.data';
+            var reportPath = 'data/cores/reports/' + coreId + '.json';
+            var externalModernPath = buildExternalCorePath(coreId, 'modern');
+            var externalLegacyPath = buildExternalCorePath(coreId, 'legacy');
+            var externalReportPath = buildExternalCorePath(coreId, 'report');
+
+            if (useExternalCores) {
+              var externalModernUrl = await buildArbitraryFilepathUrl(coreBundleService, coreBundleName, coreBundleIdentifier, externalModernPath);
+              var externalLegacyUrl = await buildArbitraryFilepathUrl(coreBundleService, coreBundleName, coreBundleIdentifier, externalLegacyPath);
+              paths[coreId + '-wasm.data'] = externalModernUrl;
+              paths[coreId + '-legacy-wasm.data'] = externalLegacyUrl;
+              if (Object.prototype.hasOwnProperty.call(coresWithDedicatedThreadAssets, coreId)) {
+                // Use dedicated thread bundles for cores that ship them to avoid thread/non-thread ABI mismatches.
+                var externalThreadModernPath = coreBundlePathPrefix + '/' + coreId + '-thread-wasm.data';
+                var externalThreadLegacyPath = coreBundlePathPrefix + '/' + coreId + '-thread-legacy-wasm.data';
+                paths[coreId + '-thread-wasm.data'] = await buildArbitraryFilepathUrl(coreBundleService, coreBundleName, coreBundleIdentifier, externalThreadModernPath);
+                paths[coreId + '-thread-legacy-wasm.data'] = await buildArbitraryFilepathUrl(coreBundleService, coreBundleName, coreBundleIdentifier, externalThreadLegacyPath);
+              } else {
+                // We do not ship dedicated thread variants for most Emulator cores yet.
+                // Route thread requests to non-thread assets so emulator never falls back to CDN.
+                paths[coreId + '-thread-wasm.data'] = externalModernUrl;
+                paths[coreId + '-thread-legacy-wasm.data'] = externalLegacyUrl;
+              }
+              paths[coreId + '.json'] = await buildArbitraryFilepathUrl(coreBundleService, coreBundleName, coreBundleIdentifier, externalReportPath);
+            } else {
+              var bundledModernUrl = withIdentifier(modernPath);
+              var bundledLegacyUrl = withIdentifier(legacyPath);
+              paths[coreId + '-wasm.data'] = bundledModernUrl;
+              paths[coreId + '-legacy-wasm.data'] = bundledLegacyUrl;
+              if (Object.prototype.hasOwnProperty.call(coresWithDedicatedThreadAssets, coreId)) {
+                paths[coreId + '-thread-wasm.data'] = withIdentifier('data/cores/' + coreId + '-thread-wasm.data');
+                paths[coreId + '-thread-legacy-wasm.data'] = withIdentifier('data/cores/' + coreId + '-thread-legacy-wasm.data');
+              } else {
+                paths[coreId + '-thread-wasm.data'] = bundledModernUrl;
+                paths[coreId + '-thread-legacy-wasm.data'] = bundledLegacyUrl;
+              }
+              paths[coreId + '.json'] = withIdentifier(reportPath);
+            }
+          }
+
+          return paths;
+        }
+
+        function waitMs(durationMs) {
+          return new Promise(function(resolve) {
+            setTimeout(resolve, durationMs);
+          });
+        }
+
+        function handleStartupFailure(message) {
+          var details = message || 'Unable to load emulator core assets.';
+          console.error('Emulator player startup failed:', details);
+          clearStartupWatchdogTimers();
+          placeholder.classList.remove('hidden');
+          placeholder.textContent = details;
+          postErrorMessage(details, 'core-asset-load-failed');
+          postToHost('qdnes-player-ready', {
+            core: '',
+            system: activeSystem,
+            hotSwap: false
+          });
+        }
+
+        function requireInstalledCore(value, allowedCores) {
+          if (typeof value !== 'string') {
+            return '';
+          }
+          var normalized = value.trim().toLowerCase();
+          if (normalized && Object.prototype.hasOwnProperty.call(allowedCores, normalized)) {
+            return normalized;
+          }
+          return '';
+        }
+
+        function applyFontFace(activeIdentifier) {
+          if (!activeIdentifier) {
+            return;
+          }
+          var styleId = 'qdn-font-face';
+          var style = document.getElementById(styleId);
+          var fontUrl = 'Lexend-Regular.ttf?identifier=' + encodeURIComponent(activeIdentifier);
+          var css = "@font-face { font-family: 'Lexend'; src: url('" + fontUrl + "'); }";
+          if (style) {
+            style.textContent = css;
+            return;
+          }
+          style = document.createElement('style');
+          style.id = styleId;
+          style.textContent = css;
+          document.head.appendChild(style);
+        }
+      })();
+    </script>
+  </body>
+</html>
