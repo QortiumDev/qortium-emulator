@@ -1861,9 +1861,13 @@
           window.__qdnesResolvedRouteSystemId = '';
         }
 
-        if (currentUrl !== targetUrl) {
-          window.history[mode + 'State']({}, '', targetUrl);
-        }
+        // History writes disabled for Qortium Home embedding: pushState/replaceState
+        // would pollute Home's shared session history (and its back button) and can
+        // re-enter the app through popstate. Route state is tracked in-memory only,
+        // via setStoredQdnesRouteState() below.
+        void mode;
+        void currentUrl;
+        void targetUrl;
         return setStoredQdnesRouteState(readQdnesRouteState());
       }
 
@@ -1976,15 +1980,14 @@
           window.addEventListener('message', handlePlayerMessage);
           playerMessageBound = true;
         }
-	        if (!browserNavigationBound) {
-	        window.addEventListener('popstate', function() {
-	          void handleRouteNavigationChange();
-	        });
-	        window.addEventListener('hashchange', function() {
-	          void handleRouteNavigationChange();
-	        });
-	        browserNavigationBound = true;
-	      }
+	        // Browser-history navigation listeners intentionally NOT bound when running
+	        // inside Qortium Home. Home manages tab switching through the shared session
+	        // history; the popstate/hashchange events it fires would call
+	        // handleRouteNavigationChange() and re-bootstrap the app, resetting a running
+	        // game on every tab switch. Internal navigation does not need them: it drives
+	        // the UI directly via setActiveSystem()/setVisiblePage() and keeps route state
+	        // in memory (window.__qdnesRouteState).
+	        void browserNavigationBound;
 
         gameFrame.addEventListener('load', function() {
           if (activeGameUrl) {
