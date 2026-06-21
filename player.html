@@ -15,6 +15,7 @@
         --text-scale: 1;
         --player-bg: #06080f;
         --placeholder-text: #c8d1f0;
+        --player-accent-rgb: 47, 225, 160;
       }
       /* Text-size scale mirrors Qortium Home (src/styles.css) for cross-view parity. */
       :root[data-text-size='extra-small'] { --text-scale: 0.88; }
@@ -27,7 +28,33 @@
         color-scheme: light;
         --player-bg: #eefaf4;
         --placeholder-text: #2a3a5e;
+        --player-accent-rgb: 31, 185, 134;
       }
+      /* Accent tint for the pre-game screen, mirroring Home accents. */
+      :root[data-theme='dark'][data-accent='blue'],
+      :root:not([data-theme='light'])[data-accent='blue'] { --player-accent-rgb: 138, 190, 254; }
+      :root[data-theme='dark'][data-accent='orange'],
+      :root:not([data-theme='light'])[data-accent='orange'] { --player-accent-rgb: 241, 177, 109; }
+      :root[data-theme='dark'][data-accent='purple'],
+      :root:not([data-theme='light'])[data-accent='purple'] { --player-accent-rgb: 202, 162, 255; }
+      :root[data-theme='dark'][data-accent='red'],
+      :root:not([data-theme='light'])[data-accent='red'] { --player-accent-rgb: 241, 154, 154; }
+      :root[data-theme='dark'][data-accent='teal'],
+      :root:not([data-theme='light'])[data-accent='teal'] { --player-accent-rgb: 110, 217, 209; }
+      :root[data-theme='dark'][data-accent='cyan'],
+      :root:not([data-theme='light'])[data-accent='cyan'] { --player-accent-rgb: 136, 210, 255; }
+      :root[data-theme='dark'][data-accent='pink'],
+      :root:not([data-theme='light'])[data-accent='pink'] { --player-accent-rgb: 248, 167, 207; }
+      :root[data-theme='dark'][data-accent='yellow'],
+      :root:not([data-theme='light'])[data-accent='yellow'] { --player-accent-rgb: 244, 203, 103; }
+      :root[data-theme='light'][data-accent='blue'] { --player-accent-rgb: 42, 121, 243; }
+      :root[data-theme='light'][data-accent='orange'] { --player-accent-rgb: 222, 139, 35; }
+      :root[data-theme='light'][data-accent='purple'] { --player-accent-rgb: 123, 68, 218; }
+      :root[data-theme='light'][data-accent='red'] { --player-accent-rgb: 213, 62, 62; }
+      :root[data-theme='light'][data-accent='teal'] { --player-accent-rgb: 23, 163, 152; }
+      :root[data-theme='light'][data-accent='cyan'] { --player-accent-rgb: 18, 152, 216; }
+      :root[data-theme='light'][data-accent='pink'] { --player-accent-rgb: 212, 63, 134; }
+      :root[data-theme='light'][data-accent='yellow'] { --player-accent-rgb: 214, 168, 40; }
       html, body {
         margin: 0;
         padding: 0;
@@ -48,8 +75,8 @@
         color: var(--placeholder-text);
         letter-spacing: 0.02em;
         font-size: calc(14px * var(--text-scale));
-        background: radial-gradient(circle at top, rgba(47, 225, 160, 0.12), transparent 60%),
-          radial-gradient(circle at bottom, rgba(52, 199, 146, 0.18), transparent 55%);
+        background: radial-gradient(circle at top, rgba(var(--player-accent-rgb), 0.12), transparent 60%),
+          radial-gradient(circle at bottom, rgba(var(--player-accent-rgb), 0.18), transparent 55%);
       }
       .hidden {
         display: none;
@@ -77,6 +104,11 @@
           var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
           if (textSize && SIZES.indexOf(textSize) !== -1) {
             root.setAttribute('data-text-size', textSize);
+          }
+          var accent = params.get('accent');
+          var ACCENTS = ['green', 'blue', 'orange', 'purple', 'red', 'teal', 'cyan', 'pink', 'yellow'];
+          if (accent && ACCENTS.indexOf(accent) !== -1) {
+            root.setAttribute('data-accent', accent);
           }
           var lang = params.get('lang');
           if (lang) {
