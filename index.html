@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="./favicon.ico" sizes="any">
     <title>Emulator</title>
     <style>
       @font-face {
@@ -209,11 +210,10 @@
       .menu-button:hover {
         background: var(--control-bg-hover);
       }
-      .menu-button-line {
-        width: 18px;
-        height: 2px;
-        border-radius: 999px;
-        background: currentColor;
+      .menu-button-icon {
+        display: block;
+        height: 30px;
+        width: 30px;
       }
       .brand-meta {
         display: grid;
@@ -4318,9 +4318,7 @@
       <header class="topbar">
         <div class="brand-wrap">
           <button id="menuButton" class="menu-button" type="button" aria-label="Menu" title="Menu">
-            <span class="menu-button-line" aria-hidden="true"></span>
-            <span class="menu-button-line" aria-hidden="true"></span>
-            <span class="menu-button-line" aria-hidden="true"></span>
+            <img class="menu-button-icon" src="./qortium-emulator-protoicon-black-transparent.png?identifier=Emulator" alt="" aria-hidden="true">
           </button>
           <div class="brand-meta">
             <strong class="brand-title">Emulator</strong>
