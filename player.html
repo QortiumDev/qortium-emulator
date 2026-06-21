@@ -197,7 +197,6 @@
           identifier = '';
         }
         applyFontFace(identifier);
-        var identifierQuery = identifier ? '?identifier=' + encodeURIComponent(identifier) : '';
         var placeholder = document.getElementById('placeholder');
         var activeCore = core;
         var activeSystem = requestedSystem;
@@ -815,7 +814,10 @@
         }
 
         function withIdentifier(path) {
-          return path + identifierQuery;
+          // Bundled app assets resolve by path under Core's path-segment render
+          // route, so no ?identifier= query is needed. Kept as a pass-through to
+          // avoid churning the ~20 call sites below.
+          return path;
         }
 
         function getQortiumQortalBridge() {
@@ -1758,7 +1760,7 @@
           }
           var styleId = 'qdn-font-face';
           var style = document.getElementById(styleId);
-          var fontUrl = 'Lexend-Regular.ttf?identifier=' + encodeURIComponent(activeIdentifier);
+          var fontUrl = 'Lexend-Regular.ttf';
           var css = "@font-face { font-family: 'Lexend'; src: url('" + fontUrl + "'); }";
           if (style) {
             style.textContent = css;
