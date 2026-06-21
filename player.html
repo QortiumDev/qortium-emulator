@@ -12,12 +12,27 @@
       }
       :root {
         color-scheme: dark;
+        --text-scale: 1;
+        --player-bg: #06080f;
+        --placeholder-text: #c8d1f0;
+      }
+      /* Text-size scale mirrors Qortium Home (src/styles.css) for cross-view parity. */
+      :root[data-text-size='extra-small'] { --text-scale: 0.88; }
+      :root[data-text-size='small'] { --text-scale: 0.94; }
+      :root[data-text-size='medium'] { --text-scale: 1; }
+      :root[data-text-size='large'] { --text-scale: 1.3; }
+      :root[data-text-size='extra-large'] { --text-scale: 1.7; }
+      :root[data-text-size='huge'] { --text-scale: 2.1; }
+      :root[data-theme='light'] {
+        color-scheme: light;
+        --player-bg: #eefaf4;
+        --placeholder-text: #2a3a5e;
       }
       html, body {
         margin: 0;
         padding: 0;
         height: 100%;
-        background: #06080f;
+        background: var(--player-bg);
         font-family: 'Lexend', sans-serif;
       }
       #game {
@@ -30,9 +45,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #c8d1f0;
+        color: var(--placeholder-text);
         letter-spacing: 0.02em;
-        font-size: 14px;
+        font-size: calc(14px * var(--text-scale));
         background: radial-gradient(circle at top, rgba(47, 225, 160, 0.12), transparent 60%),
           radial-gradient(circle at bottom, rgba(52, 199, 146, 0.18), transparent 55%);
       }
@@ -46,6 +61,33 @@
         overflow: hidden;
       }
     </style>
+    <script>
+      // Apply Qortium Home display settings (theme, text size, language) forwarded
+      // from the launcher via player.html query params, for parity across views.
+      (function applyHomeDisplaySettings() {
+        try {
+          var params = new URLSearchParams(window.location.search || '');
+          var root = document.documentElement;
+          var theme = params.get('theme');
+          if (theme === 'light' || theme === 'dark') {
+            root.setAttribute('data-theme', theme);
+            root.style.colorScheme = theme;
+          }
+          var textSize = params.get('textSize');
+          var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
+          if (textSize && SIZES.indexOf(textSize) !== -1) {
+            root.setAttribute('data-text-size', textSize);
+          }
+          var lang = params.get('lang');
+          if (lang) {
+            root.setAttribute('lang', lang);
+            root.setAttribute('dir', lang === 'ar' || lang === 'he' ? 'rtl' : 'ltr');
+          }
+        } catch (error) {
+          // Display settings are best-effort; ignore parse/DOM errors.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div class="frame">

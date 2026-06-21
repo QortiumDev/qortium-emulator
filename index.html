@@ -66,17 +66,24 @@
         --left-sidebar-min-width: 220px;
         --left-sidebar-max-width: calc(100vw - 20px);
       }
-      :root[data-text-size='small'],
-      :root[data-qdnes-text-size='small'] {
+      /* Text-size scale mirrors Qortium Home (src/styles.css) for cross-view parity. */
+      :root[data-text-size='extra-small'] {
+        --text-scale: 0.88;
+      }
+      :root[data-text-size='small'] {
+        --text-scale: 0.94;
+      }
+      :root[data-text-size='medium'] {
         --text-scale: 1;
       }
-      :root[data-text-size='medium'],
-      :root[data-qdnes-text-size='medium'] {
-        --text-scale: 1.25;
+      :root[data-text-size='large'] {
+        --text-scale: 1.3;
       }
-      :root[data-text-size='large'],
-      :root[data-qdnes-text-size='large'] {
-        --text-scale: 1.5;
+      :root[data-text-size='extra-large'] {
+        --text-scale: 1.7;
+      }
+      :root[data-text-size='huge'] {
+        --text-scale: 2.1;
       }
       :root[data-theme='light'] {
         --bg: #eefaf4;
@@ -2520,6 +2527,14 @@
         if (romFilename) {
           params.set('romFilename', romFilename);
         }
+        // Forward Qortium Home display settings so the player view matches the launcher.
+        var displayParams = new URLSearchParams(window.location.search || '');
+        ['theme', 'textSize', 'accent', 'lang'].forEach(function (key) {
+          var value = displayParams.get(key);
+          if (value) {
+            params.set(key, value);
+          }
+        });
         return 'player.html?' + params.toString();
       }
 
@@ -4311,6 +4326,34 @@
 
       window.addEventListener('drop', dropHandler, false);
       window.addEventListener('dragover', dragOverHandler, false);
+    </script>
+    <script>
+      // Apply Qortium Home display settings (theme, text size, language) from the
+      // render URL query params before first paint, for parity across Home views.
+      // Home appends ?theme=&textSize=&accent=&lang= to the render URL (qortium-home #46).
+      (function applyHomeDisplaySettings() {
+        try {
+          var params = new URLSearchParams(window.location.search || '');
+          var root = document.documentElement;
+          var theme = params.get('theme');
+          if (theme === 'light' || theme === 'dark') {
+            root.setAttribute('data-theme', theme);
+            root.style.colorScheme = theme;
+          }
+          var textSize = params.get('textSize');
+          var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
+          if (textSize && SIZES.indexOf(textSize) !== -1) {
+            root.setAttribute('data-text-size', textSize);
+          }
+          var lang = params.get('lang');
+          if (lang) {
+            root.setAttribute('lang', lang);
+            root.setAttribute('dir', lang === 'ar' || lang === 'he' ? 'rtl' : 'ltr');
+          }
+        } catch (error) {
+          // Display settings are best-effort; ignore parse/DOM errors.
+        }
+      })();
     </script>
   </head>
   <body onload="startApp()">
