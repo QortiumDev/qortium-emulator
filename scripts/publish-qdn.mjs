@@ -477,15 +477,16 @@ if (!existsSync(distPath)) {
   throw new Error(`Build output does not exist: ${distPath}. Run npm run build first.`);
 }
 
-const apiKeySource = getApiKeySource();
-const apiKey = apiKeySource.apiKey;
+const apiCredential = getApiKeySource();
+const apiKey = apiCredential.apiKey;
+const credentialLabel = apiCredential.label;
 const account = getLocalPreviewAccount();
 
 console.log(`Node: ${nodeApiUrl}`);
 console.log(`Owner: ${account.accountAddress}`);
 console.log(`Resource: qdn://${service}/${publishName}/${identifier}`);
 console.log(`Source: ${distPath}`);
-console.log(`API key: loaded from ${apiKeySource.label}`);
+console.log(`API key: loaded from ${credentialLabel}`);
 
 const status = await requestJson('/admin/status');
 
