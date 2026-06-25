@@ -304,7 +304,7 @@
         --status-ready-text: #1e5ec3;
         --status-ready-border: rgba(42, 121, 243, 0.4);
         --status-ready-bg: rgba(42, 121, 243, 0.16);
-        --btn-primary-text: #ffffff;
+        --btn-primary-text: var(--text);
         --btn-primary-accent-to: #9fc3fa;
         --btn-secondary-from: rgba(30, 94, 195, 0.9);
         --btn-secondary-to: rgba(30, 94, 195, 0.7);
@@ -322,7 +322,7 @@
         --status-ready-text: #bf6e0f;
         --status-ready-border: rgba(222, 139, 35, 0.4);
         --status-ready-bg: rgba(222, 139, 35, 0.16);
-        --btn-primary-text: #ffffff;
+        --btn-primary-text: var(--text);
         --btn-primary-accent-to: #f0cb9c;
         --btn-secondary-from: rgba(191, 110, 15, 0.9);
         --btn-secondary-to: rgba(191, 110, 15, 0.7);
@@ -340,7 +340,7 @@
         --status-ready-text: #622fbd;
         --status-ready-border: rgba(123, 68, 218, 0.4);
         --status-ready-bg: rgba(123, 68, 218, 0.16);
-        --btn-primary-text: #ffffff;
+        --btn-primary-text: var(--text);
         --btn-primary-accent-to: #c4abee;
         --btn-secondary-from: rgba(98, 47, 189, 0.9);
         --btn-secondary-to: rgba(98, 47, 189, 0.7);
@@ -358,7 +358,7 @@
         --status-ready-text: #b63232;
         --status-ready-border: rgba(213, 62, 62, 0.4);
         --status-ready-bg: rgba(213, 62, 62, 0.16);
-        --btn-primary-text: #ffffff;
+        --btn-primary-text: var(--text);
         --btn-primary-accent-to: #eca8a8;
         --btn-secondary-from: rgba(182, 50, 50, 0.9);
         --btn-secondary-to: rgba(182, 50, 50, 0.7);
@@ -376,7 +376,7 @@
         --status-ready-text: #12857a;
         --status-ready-border: rgba(23, 163, 152, 0.4);
         --status-ready-bg: rgba(23, 163, 152, 0.16);
-        --btn-primary-text: #ffffff;
+        --btn-primary-text: var(--text);
         --btn-primary-accent-to: #97d6d1;
         --btn-secondary-from: rgba(18, 133, 122, 0.9);
         --btn-secondary-to: rgba(18, 133, 122, 0.7);
@@ -394,7 +394,7 @@
         --status-ready-text: #0f79aa;
         --status-ready-border: rgba(18, 152, 216, 0.4);
         --status-ready-bg: rgba(18, 152, 216, 0.16);
-        --btn-primary-text: #ffffff;
+        --btn-primary-text: var(--text);
         --btn-primary-accent-to: #94d1ed;
         --btn-secondary-from: rgba(15, 121, 170, 0.9);
         --btn-secondary-to: rgba(15, 121, 170, 0.7);
@@ -412,7 +412,7 @@
         --status-ready-text: #bd3673;
         --status-ready-border: rgba(212, 63, 134, 0.4);
         --status-ready-bg: rgba(212, 63, 134, 0.16);
-        --btn-primary-text: #ffffff;
+        --btn-primary-text: var(--text);
         --btn-primary-accent-to: #eca9c9;
         --btn-secondary-from: rgba(189, 54, 115, 0.9);
         --btn-secondary-to: rgba(189, 54, 115, 0.7);
@@ -496,10 +496,9 @@
         min-width: 0;
       }
       .menu-button {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        border: 1px solid var(--stroke);
+        width: 44px;
+        height: 44px;
+        border: 0;
         flex: 0 0 auto;
         padding: 0;
         display: inline-flex;
@@ -507,17 +506,21 @@
         align-items: center;
         justify-content: center;
         gap: 5px;
-        background: var(--control-bg);
+        background: transparent;
         color: var(--text);
         cursor: pointer;
       }
       .menu-button:hover {
-        background: var(--control-bg-hover);
+        color: var(--accent);
       }
       .menu-button-icon {
         display: block;
-        height: 30px;
-        width: 30px;
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+      }
+      :root[data-theme='light'] .menu-button-icon {
+        filter: invert(1);
       }
       .brand-meta {
         display: grid;
@@ -986,7 +989,7 @@
         color: var(--text);
       }
       select:disabled {
-        opacity: 0.6;
+        opacity: 0.8;
       }
       .button-row {
         display: grid;
@@ -1019,7 +1022,7 @@
       }
       button:disabled {
         cursor: not-allowed;
-        opacity: 0.6;
+        opacity: 0.8;
         transform: none;
         box-shadow: none;
       }
@@ -1156,7 +1159,7 @@
         border-color: var(--accent-border);
       }
       [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button:disabled {
-        opacity: 0.6;
+        opacity: 0.8;
         cursor: default;
       }
       [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button[data-qapp-lib-sidebar-item^='heading-'] {
@@ -1247,7 +1250,7 @@
         background: var(--control-bg-hover);
       }
       .qapp-topbar-host .qapp-shell-icon-button:disabled {
-        opacity: 0.55;
+        opacity: 0.8;
         cursor: default;
       }
       .qapp-topbar-host .qapp-shell-info-icon {
@@ -1366,7 +1369,7 @@
         background: var(--control-bg-hover);
       }
       .qapp-topbar-host .qapp-shell-auth-button:disabled {
-        opacity: 0.55;
+        opacity: 0.8;
         cursor: default;
       }
       .qapp-topbar-host .qapp-lib-rating-summary {
@@ -1397,7 +1400,7 @@
         background: var(--control-bg-hover);
       }
       .qapp-topbar-host .qapp-lib-rating-row button:disabled {
-        opacity: 0.55;
+        opacity: 0.8;
         cursor: default;
       }
       .qapp-topbar-host .qapp-lib-menu-section label.qapp-topbar-inline-checkbox {
@@ -2832,6 +2835,19 @@
             params.set(key, value);
           }
         });
+        var root = document.documentElement;
+        if (root.dataset.theme) {
+          params.set('theme', root.dataset.theme);
+        }
+        if (root.dataset.textSize) {
+          params.set('textSize', root.dataset.textSize);
+        }
+        if (root.dataset.accent) {
+          params.set('accent', root.dataset.accent);
+        }
+        if (root.dataset.language) {
+          params.set('lang', root.dataset.language);
+        }
         return 'player.html?' + params.toString();
       }
 
@@ -4625,36 +4641,118 @@
       window.addEventListener('dragover', dragOverHandler, false);
     </script>
     <script>
-      // Apply Qortium Home display settings (theme, text size, language) from the
-      // render URL query params before first paint, for parity across Home views.
-      // Home appends ?theme=&textSize=&accent=&lang= to the render URL (qortium-home #46).
-      (function applyHomeDisplaySettings() {
-        try {
-          var params = new URLSearchParams(window.location.search || '');
-          var root = document.documentElement;
-          var theme = params.get('theme');
-          if (theme === 'light' || theme === 'dark') {
-            root.setAttribute('data-theme', theme);
+      // Apply Qortium Home display settings from URL params or Core globals before
+      // first paint, then keep them in sync with Home postMessage updates.
+      (function bindHomeDisplaySettings() {
+        var root = document.documentElement;
+        var THEMES = ['dark', 'light'];
+        var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
+        var ACCENTS = ['green', 'blue', 'orange', 'purple', 'red', 'teal', 'cyan', 'pink', 'yellow'];
+
+        function normalizeChoice(value, allowedValues) {
+          if (typeof value !== 'string') {
+            return '';
+          }
+          var normalized = value.trim().toLowerCase();
+          return allowedValues.indexOf(normalized) !== -1 ? normalized : '';
+        }
+
+        function normalizeLanguage(value) {
+          if (typeof value !== 'string') {
+            return '';
+          }
+          var normalized = value.trim().replace(/_/g, '-').toLowerCase();
+          return /^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/.test(normalized) ? normalized : '';
+        }
+
+        function applyDisplaySettings(settings) {
+          if (!settings || typeof settings !== 'object') {
+            return;
+          }
+          var theme = normalizeChoice(settings.theme, THEMES);
+          if (theme) {
+            root.dataset.theme = theme;
             root.style.colorScheme = theme;
           }
-          var textSize = params.get('textSize');
-          var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
-          if (textSize && SIZES.indexOf(textSize) !== -1) {
-            root.setAttribute('data-text-size', textSize);
+          var textSize = normalizeChoice(settings.textSize, SIZES);
+          if (textSize) {
+            root.dataset.textSize = textSize;
           }
-          var accent = params.get('accent');
-          var ACCENTS = ['green', 'blue', 'orange', 'purple', 'red', 'teal', 'cyan', 'pink', 'yellow'];
-          if (accent && ACCENTS.indexOf(accent) !== -1) {
-            root.setAttribute('data-accent', accent);
+          var accent = normalizeChoice(settings.accent, ACCENTS);
+          if (accent) {
+            root.dataset.accent = accent;
           }
-          var lang = params.get('lang');
-          if (lang) {
-            root.setAttribute('lang', lang);
-            root.setAttribute('dir', lang === 'ar' || lang === 'he' ? 'rtl' : 'ltr');
+          var language = normalizeLanguage(settings.language);
+          if (language) {
+            root.dataset.language = language;
+            root.setAttribute('lang', language);
+            root.setAttribute('dir', language === 'ar' || language === 'he' ? 'rtl' : 'ltr');
           }
+        }
+
+        function firstValidChoice(values, allowedValues) {
+          for (var index = 0; index < values.length; index += 1) {
+            var normalized = normalizeChoice(values[index], allowedValues);
+            if (normalized) {
+              return normalized;
+            }
+          }
+          return '';
+        }
+
+        function firstValidLanguage(values) {
+          for (var index = 0; index < values.length; index += 1) {
+            var normalized = normalizeLanguage(values[index]);
+            if (normalized) {
+              return normalized;
+            }
+          }
+          return '';
+        }
+
+        function firstPresent(values) {
+          for (var index = 0; index < values.length; index += 1) {
+            if (values[index] !== null && values[index] !== undefined) {
+              return values[index];
+            }
+          }
+          return undefined;
+        }
+
+        try {
+          var params = new URLSearchParams(window.location.search || '');
+          applyDisplaySettings({
+            theme: firstValidChoice([params.get('theme'), window._qdnTheme], THEMES),
+            textSize: firstValidChoice([params.get('textSize'), window._qdnTextSize], SIZES),
+            accent: firstValidChoice([params.get('accent'), window._qdnAccent], ACCENTS),
+            language: firstValidLanguage([params.get('lang'), window._qdnLang])
+          });
         } catch (error) {
           // Display settings are best-effort; ignore parse/DOM errors.
         }
+
+        window.addEventListener('message', function handleHomeDisplaySettingsMessage(event) {
+          var data = event.data;
+          if (!data || typeof data !== 'object') {
+            return;
+          }
+          if (data.action === 'THEME_CHANGED') {
+            applyDisplaySettings({ theme: firstPresent([data.theme, data.qdnTheme]) });
+          } else if (data.action === 'ACCENT_CHANGED') {
+            applyDisplaySettings({ accent: firstPresent([data.accent, data.qdnAccent]) });
+          } else if (data.action === 'TEXT_SIZE_CHANGED') {
+            applyDisplaySettings({ textSize: firstPresent([data.textSize, data.qdnTextSize]) });
+          } else if (data.action === 'LANGUAGE_CHANGED') {
+            applyDisplaySettings({ language: firstPresent([data.language, data.lang, data.qdnLang]) });
+          } else if (data.action === 'DISPLAY_SETTINGS_CHANGED') {
+            applyDisplaySettings({
+              theme: firstPresent([data.theme, data.qdnTheme]),
+              accent: firstPresent([data.accent, data.qdnAccent]),
+              textSize: firstPresent([data.textSize, data.qdnTextSize]),
+              language: firstPresent([data.language, data.lang, data.qdnLang])
+            });
+          }
+        });
       })();
     </script>
   </head>
@@ -4663,7 +4761,7 @@
       <header class="topbar">
         <div class="brand-wrap">
           <button id="menuButton" class="menu-button" type="button" aria-label="Menu" title="Menu">
-            <img class="menu-button-icon" src="./qortium-emulator-protoicon-black-transparent.png" alt="" aria-hidden="true">
+            <img class="menu-button-icon" src="qortium-emulator-protoicon-black-transparent.png" alt="" aria-hidden="true">
           </button>
           <div class="brand-meta">
             <strong class="brand-title">Emulator</strong>
