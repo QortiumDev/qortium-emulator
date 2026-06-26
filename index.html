@@ -10,6 +10,13 @@
         font-family: 'Lexend';
         src: url('Lexend-Regular.ttf');
       }
+      @font-face {
+        font-family: 'Inter';
+        src: url('assets/fonts/inter/inter-latin-wght-normal.woff2') format('woff2');
+        font-display: swap;
+        font-style: normal;
+        font-weight: 100 900;
+      }
       :root {
         --text-scale: 1;
         --bg: #071a14;
@@ -434,6 +441,64 @@
         --btn-primary-accent-to: #edd89e;
         --btn-secondary-from: rgba(189, 143, 32, 0.9);
         --btn-secondary-to: rgba(189, 143, 32, 0.7);
+      }
+      :root[data-ui='modern'] {
+        --bg: #f2efe6;
+        --bg-deep: #f2efe6;
+        --panel: #ffffff;
+        --panel-strong: #ffffff;
+        --text: #0d0d0d;
+        --muted: #6b6b6b;
+        --stroke: #ddd9d0;
+        --shadow: none;
+        --bg-glow-primary: rgba(0, 0, 0, 0);
+        --bg-glow-accent: rgba(0, 0, 0, 0);
+        --orb-primary: rgba(0, 0, 0, 0);
+        --orb-accent: rgba(0, 0, 0, 0);
+        --topbar-bg: #ffffff;
+        --control-bg: #f7f4ec;
+        --control-bg-hover: #ddd9d0;
+        --status-pill-bg: #f7f4ec;
+        --chip-bg: #f7f4ec;
+        --screen-border: #ddd9d0;
+        --screen-inset-stroke: rgba(0, 0, 0, 0.08);
+        --input-border: #ddd9d0;
+        --input-bg: #ffffff;
+        --ghost-border: #ddd9d0;
+        --button-shadow: none;
+        --status-log-border: #ddd9d0;
+        --status-log-bg: #ffffff;
+        --status-log-text: #6b6b6b;
+        --sidebar-hover-bg: #f7f4ec;
+        --brand-logo-bg: #ffffff;
+        --home-hero-from: #ffffff;
+        --home-hero-to: #ffffff;
+      }
+      :root[data-theme='dark'][data-ui='modern'] {
+        --bg: #111318;
+        --bg-deep: #111318;
+        --panel: #1c1f28;
+        --panel-strong: #1c1f28;
+        --text: #e4e8f0;
+        --muted: #8892a4;
+        --stroke: #2e3340;
+        --topbar-bg: #1c1f28;
+        --control-bg: #222633;
+        --control-bg-hover: #2e3340;
+        --status-pill-bg: #222633;
+        --chip-bg: #222633;
+        --screen-border: #2e3340;
+        --screen-inset-stroke: rgba(255, 255, 255, 0.06);
+        --input-border: #2e3340;
+        --input-bg: #222633;
+        --ghost-border: #2e3340;
+        --status-log-border: #2e3340;
+        --status-log-bg: #222633;
+        --status-log-text: #8892a4;
+        --sidebar-hover-bg: #222633;
+        --brand-logo-bg: #222633;
+        --home-hero-from: #1c1f28;
+        --home-hero-to: #1c1f28;
       }
       * {
         box-sizing: border-box;
@@ -1418,6 +1483,111 @@
       .qdnes-status-strip {
         justify-content: flex-end;
         margin-bottom: 16px;
+      }
+      :root[data-ui='modern'] body,
+      :root[data-ui='modern'] button,
+      :root[data-ui='modern'] select,
+      :root[data-ui='modern'] textarea,
+      :root[data-ui='modern'] [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-shell-icon-button,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-lib-menu-section label,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-lib-menu-section select,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-shell-auth-button,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-lib-rating-row button {
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      :root[data-ui='modern'] body {
+        background: var(--bg);
+      }
+      :root[data-ui='modern'] body::before,
+      :root[data-ui='modern'] body::after {
+        display: none;
+      }
+      :root[data-ui='modern'] .topbar {
+        min-height: 52px;
+        padding: 6px 16px;
+        border-bottom: 1.5px solid var(--stroke);
+        background: var(--topbar-bg);
+        backdrop-filter: none;
+        box-shadow: none;
+      }
+      :root[data-ui='modern'] .menu-button,
+      :root[data-ui='modern'] .topbar-changelog,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-shell-icon-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50px;
+      }
+      :root[data-ui='modern'] .menu-button-icon {
+        width: 36px;
+        height: 36px;
+      }
+      :root[data-ui='modern'] .app,
+      :root[data-ui='modern'] .home-page {
+        width: min(100%, 56.25em);
+        padding: 76px 16px 32px;
+      }
+      :root[data-ui='modern'] .home-hero,
+      :root[data-ui='modern'] .home-attribution,
+      :root[data-ui='modern'] .home-system-card,
+      :root[data-ui='modern'] .player-card,
+      :root[data-ui='modern'] .panel-block,
+      :root[data-ui='modern'] .topbar-changelog-popover,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-lib-menu {
+        border: 1.5px solid var(--stroke);
+        border-radius: 8px;
+        box-shadow: none;
+      }
+      :root[data-ui='modern'] .home-hero,
+      :root[data-ui='modern'] .home-system-card,
+      :root[data-ui='modern'] .player-card,
+      :root[data-ui='modern'] .panel-block,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-lib-menu {
+        background: var(--panel-strong);
+      }
+      :root[data-ui='modern'] .home-attribution,
+      :root[data-ui='modern'] select,
+      :root[data-ui='modern'] textarea,
+      :root[data-ui='modern'] .status-log,
+      :root[data-ui='modern'] .home-system-link,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-lib-menu-section select {
+        background: var(--input-bg);
+        border: 1.5px solid var(--input-border);
+        border-radius: 8px;
+      }
+      :root[data-ui='modern'] .screen-frame {
+        border: 1.5px solid var(--screen-border);
+        border-radius: 8px;
+      }
+      :root[data-ui='modern'] .screen-placeholder {
+        background: var(--screen-bg);
+      }
+      :root[data-ui='modern'] button,
+      :root[data-ui='modern'] .home-system-link,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-shell-auth-button,
+      :root[data-ui='modern'] .qapp-topbar-host .qapp-lib-rating-row button {
+        border-radius: 50px;
+        box-shadow: none;
+      }
+      :root[data-ui='modern'] button:hover,
+      :root[data-ui='modern'] .home-system-link:hover {
+        box-shadow: none;
+      }
+      :root[data-ui='modern'] [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-items {
+        background: var(--panel);
+        border-right: 1.5px solid var(--stroke);
+        backdrop-filter: none;
+      }
+      :root[data-ui='modern'] [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar-overlay-preview .qapp-lib-left-sidebar-items,
+      :root[data-ui='modern'] [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar-mobile .qapp-lib-left-sidebar-items {
+        box-shadow: none;
+      }
+      @media (min-width: 900px) {
+        :root[data-ui='modern'] .app,
+        :root[data-ui='modern'] .home-page {
+          padding-left: 32px;
+          padding-right: 32px;
+        }
       }
     </style>
     <script src="./qortium-qortal-bridge.js"></script>
@@ -2829,7 +2999,7 @@
         }
         // Forward Qortium Home display settings so the player view matches the launcher.
         var displayParams = new URLSearchParams(window.location.search || '');
-        ['theme', 'textSize', 'accent', 'lang'].forEach(function (key) {
+        ['theme', 'textSize', 'accent', 'lang', 'uiStyle'].forEach(function (key) {
           var value = displayParams.get(key);
           if (value) {
             params.set(key, value);
@@ -2847,6 +3017,9 @@
         }
         if (root.dataset.language) {
           params.set('lang', root.dataset.language);
+        }
+        if (root.dataset.ui) {
+          params.set('uiStyle', root.dataset.ui);
         }
         return 'player.html?' + params.toString();
       }
@@ -4648,6 +4821,7 @@
         var THEMES = ['dark', 'light'];
         var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
         var ACCENTS = ['green', 'blue', 'orange', 'purple', 'red', 'teal', 'cyan', 'pink', 'yellow'];
+        var UI_STYLES = ['classic', 'modern'];
 
         function normalizeChoice(value, allowedValues) {
           if (typeof value !== 'string') {
@@ -4669,24 +4843,37 @@
           if (!settings || typeof settings !== 'object') {
             return;
           }
+          var didApply = false;
           var theme = normalizeChoice(settings.theme, THEMES);
           if (theme) {
             root.dataset.theme = theme;
             root.style.colorScheme = theme;
+            didApply = true;
           }
           var textSize = normalizeChoice(settings.textSize, SIZES);
           if (textSize) {
             root.dataset.textSize = textSize;
+            didApply = true;
           }
           var accent = normalizeChoice(settings.accent, ACCENTS);
           if (accent) {
             root.dataset.accent = accent;
+            didApply = true;
+          }
+          var uiStyle = normalizeChoice(settings.uiStyle, UI_STYLES);
+          if (uiStyle) {
+            root.dataset.ui = uiStyle;
+            didApply = true;
           }
           var language = normalizeLanguage(settings.language);
           if (language) {
             root.dataset.language = language;
             root.setAttribute('lang', language);
             root.setAttribute('dir', language === 'ar' || language === 'he' ? 'rtl' : 'ltr');
+            didApply = true;
+          }
+          if (didApply) {
+            relayDisplaySettingsToPlayer();
           }
         }
 
@@ -4719,13 +4906,44 @@
           return undefined;
         }
 
+        function relayDisplaySettingsToPlayer() {
+          var frame = document.getElementById('gameFrame');
+          if (!frame || !frame.contentWindow) {
+            return;
+          }
+          var targetOrigin = window.location.origin && window.location.origin !== 'null'
+            ? window.location.origin
+            : '*';
+          try {
+            frame.contentWindow.postMessage({
+              requestedHandler: 'UI',
+              action: 'DISPLAY_SETTINGS_CHANGED',
+              theme: root.dataset.theme,
+              accent: root.dataset.accent,
+              textSize: root.dataset.textSize,
+              language: root.dataset.language,
+              uiStyle: root.dataset.ui
+            }, targetOrigin);
+          } catch (error) {
+            // Player relay is best-effort; a stale iframe should not break the launcher.
+          }
+        }
+
         try {
           var params = new URLSearchParams(window.location.search || '');
           applyDisplaySettings({
             theme: firstValidChoice([params.get('theme'), window._qdnTheme], THEMES),
             textSize: firstValidChoice([params.get('textSize'), window._qdnTextSize], SIZES),
             accent: firstValidChoice([params.get('accent'), window._qdnAccent], ACCENTS),
-            language: firstValidLanguage([params.get('lang'), window._qdnLang])
+            language: firstValidLanguage([params.get('lang'), params.get('language'), window._qdnLang, window._qdnLanguage]),
+            uiStyle: firstValidChoice([
+              params.get('uiStyle'),
+              params.get('ui-style'),
+              params.get('qdnUiStyle'),
+              params.get('qdnUIStyle'),
+              window._qdnUiStyle,
+              window._qdnUIStyle
+            ], UI_STYLES) || 'classic'
           });
         } catch (error) {
           // Display settings are best-effort; ignore parse/DOM errors.
@@ -4744,12 +4962,15 @@
             applyDisplaySettings({ textSize: firstPresent([data.textSize, data.qdnTextSize]) });
           } else if (data.action === 'LANGUAGE_CHANGED') {
             applyDisplaySettings({ language: firstPresent([data.language, data.lang, data.qdnLang]) });
+          } else if (data.action === 'UI_STYLE_CHANGED') {
+            applyDisplaySettings({ uiStyle: firstPresent([data.uiStyle, data.ui, data.qdnUiStyle, data.qdnUIStyle]) });
           } else if (data.action === 'DISPLAY_SETTINGS_CHANGED') {
             applyDisplaySettings({
               theme: firstPresent([data.theme, data.qdnTheme]),
               accent: firstPresent([data.accent, data.qdnAccent]),
               textSize: firstPresent([data.textSize, data.qdnTextSize]),
-              language: firstPresent([data.language, data.lang, data.qdnLang])
+              language: firstPresent([data.language, data.lang, data.qdnLang]),
+              uiStyle: firstPresent([data.uiStyle, data.ui, data.qdnUiStyle, data.qdnUIStyle])
             });
           }
         });

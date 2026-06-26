@@ -10,6 +10,13 @@
         font-family: 'Lexend';
         src: url('Lexend-Regular.ttf');
       }
+      @font-face {
+        font-family: 'Inter';
+        src: url('assets/fonts/inter/inter-latin-wght-normal.woff2') format('woff2');
+        font-display: swap;
+        font-style: normal;
+        font-weight: 100 900;
+      }
       :root {
         color-scheme: dark;
         --text-scale: 1;
@@ -55,12 +62,23 @@
       :root[data-theme='light'][data-accent='cyan'] { --player-accent-rgb: 18, 152, 216; }
       :root[data-theme='light'][data-accent='pink'] { --player-accent-rgb: 212, 63, 134; }
       :root[data-theme='light'][data-accent='yellow'] { --player-accent-rgb: 214, 168, 40; }
+      :root[data-ui='modern'] {
+        --player-bg: #f2efe6;
+        --placeholder-text: #6b6b6b;
+      }
+      :root[data-theme='dark'][data-ui='modern'] {
+        --player-bg: #111318;
+        --placeholder-text: #8892a4;
+      }
       html, body {
         margin: 0;
         padding: 0;
         height: 100%;
         background: var(--player-bg);
         font-family: 'Lexend', sans-serif;
+      }
+      :root[data-ui='modern'] body {
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       }
       #game {
         width: 100%;
@@ -89,35 +107,157 @@
       }
     </style>
     <script>
-      // Apply Qortium Home display settings (theme, text size, language) forwarded
-      // from the launcher via player.html query params, for parity across views.
+      // Apply Qortium Home display settings forwarded from the launcher, and keep
+      // the pre-game player shell synchronized with live Home changes.
       (function applyHomeDisplaySettings() {
-        try {
-          var params = new URLSearchParams(window.location.search || '');
-          var root = document.documentElement;
-          var theme = params.get('theme');
-          if (theme === 'light' || theme === 'dark') {
+        var root = document.documentElement;
+        var THEMES = ['dark', 'light'];
+        var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
+        var ACCENTS = ['green', 'blue', 'orange', 'purple', 'red', 'teal', 'cyan', 'pink', 'yellow'];
+        var UI_STYLES = ['classic', 'modern'];
+
+        function normalizeChoice(value, allowedValues) {
+          if (typeof value !== 'string') {
+            return '';
+          }
+          var normalized = value.trim().toLowerCase();
+          return allowedValues.indexOf(normalized) !== -1 ? normalized : '';
+        }
+
+        function normalizeLanguage(value) {
+          if (typeof value !== 'string') {
+            return '';
+          }
+          var normalized = value.trim().replace(/_/g, '-').toLowerCase();
+          return /^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/.test(normalized) ? normalized : '';
+        }
+
+        function firstValidChoice(values, allowedValues) {
+          for (var index = 0; index < values.length; index += 1) {
+            var normalized = normalizeChoice(values[index], allowedValues);
+            if (normalized) {
+              return normalized;
+            }
+          }
+          return '';
+        }
+
+        function firstValidLanguage(values) {
+          for (var index = 0; index < values.length; index += 1) {
+            var normalized = normalizeLanguage(values[index]);
+            if (normalized) {
+              return normalized;
+            }
+          }
+          return '';
+        }
+
+        function firstPresent(values) {
+          for (var index = 0; index < values.length; index += 1) {
+            if (values[index] !== null && values[index] !== undefined) {
+              return values[index];
+            }
+          }
+          return undefined;
+        }
+
+        function applyDisplaySettings(settings) {
+          if (!settings || typeof settings !== 'object') {
+            return;
+          }
+          var theme = normalizeChoice(settings.theme, THEMES);
+          if (theme) {
             root.setAttribute('data-theme', theme);
             root.style.colorScheme = theme;
           }
-          var textSize = params.get('textSize');
-          var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
-          if (textSize && SIZES.indexOf(textSize) !== -1) {
+          var textSize = normalizeChoice(settings.textSize, SIZES);
+          if (textSize) {
             root.setAttribute('data-text-size', textSize);
           }
-          var accent = params.get('accent');
-          var ACCENTS = ['green', 'blue', 'orange', 'purple', 'red', 'teal', 'cyan', 'pink', 'yellow'];
-          if (accent && ACCENTS.indexOf(accent) !== -1) {
+          var accent = normalizeChoice(settings.accent, ACCENTS);
+          if (accent) {
             root.setAttribute('data-accent', accent);
           }
-          var lang = params.get('lang');
+          var uiStyle = normalizeChoice(settings.uiStyle, UI_STYLES);
+          if (uiStyle) {
+            root.setAttribute('data-ui', uiStyle);
+          }
+          var lang = normalizeLanguage(settings.language);
           if (lang) {
             root.setAttribute('lang', lang);
             root.setAttribute('dir', lang === 'ar' || lang === 'he' ? 'rtl' : 'ltr');
           }
+        }
+
+        function componentToHex(value) {
+          var number = Math.max(0, Math.min(255, parseInt(value, 10) || 0));
+          return number.toString(16).padStart(2, '0');
+        }
+
+        function rgbListToHex(value) {
+          var parts = String(value || '').split(',');
+          if (parts.length < 3) {
+            return '#2fe1a0';
+          }
+          return '#' + componentToHex(parts[0]) + componentToHex(parts[1]) + componentToHex(parts[2]);
+        }
+
+        function resolvePlayerColors() {
+          var styles = window.getComputedStyle(root);
+          return {
+            backgroundColor: (styles.getPropertyValue('--player-bg') || '#06080f').trim(),
+            color: rgbListToHex(styles.getPropertyValue('--player-accent-rgb'))
+          };
+        }
+
+        window.qortiumApplyPlayerDisplaySettings = applyDisplaySettings;
+        window.qortiumResolvePlayerColors = resolvePlayerColors;
+
+        try {
+          var params = new URLSearchParams(window.location.search || '');
+          applyDisplaySettings({
+            theme: firstValidChoice([params.get('theme'), window._qdnTheme], THEMES),
+            textSize: firstValidChoice([params.get('textSize'), window._qdnTextSize], SIZES),
+            accent: firstValidChoice([params.get('accent'), window._qdnAccent], ACCENTS),
+            language: firstValidLanguage([params.get('lang'), params.get('language'), window._qdnLang, window._qdnLanguage]),
+            uiStyle: firstValidChoice([
+              params.get('uiStyle'),
+              params.get('ui-style'),
+              params.get('qdnUiStyle'),
+              params.get('qdnUIStyle'),
+              window._qdnUiStyle,
+              window._qdnUIStyle
+            ], UI_STYLES) || 'classic'
+          });
         } catch (error) {
           // Display settings are best-effort; ignore parse/DOM errors.
         }
+
+        window.addEventListener('message', function handleHomeDisplaySettingsMessage(event) {
+          var data = event.data;
+          if (!data || typeof data !== 'object') {
+            return;
+          }
+          if (data.action === 'THEME_CHANGED') {
+            applyDisplaySettings({ theme: firstPresent([data.theme, data.qdnTheme]) });
+          } else if (data.action === 'ACCENT_CHANGED') {
+            applyDisplaySettings({ accent: firstPresent([data.accent, data.qdnAccent]) });
+          } else if (data.action === 'TEXT_SIZE_CHANGED') {
+            applyDisplaySettings({ textSize: firstPresent([data.textSize, data.qdnTextSize]) });
+          } else if (data.action === 'LANGUAGE_CHANGED') {
+            applyDisplaySettings({ language: firstPresent([data.language, data.lang, data.qdnLang]) });
+          } else if (data.action === 'UI_STYLE_CHANGED') {
+            applyDisplaySettings({ uiStyle: firstPresent([data.uiStyle, data.ui, data.qdnUiStyle, data.qdnUIStyle]) });
+          } else if (data.action === 'DISPLAY_SETTINGS_CHANGED') {
+            applyDisplaySettings({
+              theme: firstPresent([data.theme, data.qdnTheme]),
+              accent: firstPresent([data.accent, data.qdnAccent]),
+              textSize: firstPresent([data.textSize, data.qdnTextSize]),
+              language: firstPresent([data.language, data.lang, data.qdnLang]),
+              uiStyle: firstPresent([data.uiStyle, data.ui, data.qdnUiStyle, data.qdnUIStyle])
+            });
+          }
+        });
       })();
     </script>
   </head>
@@ -759,8 +899,11 @@
           window.EJS_startOnLoaded = true;
           window.EJS_language = 'en-US';
           window.EJS_disableAutoLang = false;
-          window.EJS_backgroundColor = '#06080f';
-          window.EJS_color = '#2fe1a0';
+          var ejsColors = typeof window.qortiumResolvePlayerColors === 'function'
+            ? window.qortiumResolvePlayerColors()
+            : { backgroundColor: '#06080f', color: '#2fe1a0' };
+          window.EJS_backgroundColor = ejsColors.backgroundColor;
+          window.EJS_color = ejsColors.color;
           if (core === 'mednafen_psx_hw') {
             var useSoftwarePsxRenderer = !graphicsSupport.webgl2;
             var useThreadedPsxCore = typeof window.SharedArrayBuffer === 'function';
