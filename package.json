@@ -1,6 +1,6 @@
 {
   "name": "qortium-emulator",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "license": "0BSD",
   "description": "A Qortium QDN app that launches EmulatorJS against Qortal-hosted game resources.",

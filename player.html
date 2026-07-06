@@ -425,6 +425,8 @@
         var startupDiagnosticCount = 0;
         var startupWatchdogTimerShort = 0;
         var startupWatchdogTimerLong = 0;
+        var activeDiagnosticRequestId = '';
+        var refreshCheckSerial = 0;
         var graphicsSupport = detectGraphicsSupport();
 
         function postToHost(type, payload) {
@@ -502,6 +504,65 @@
           });
         }
 
+        function getNativeFullscreenElement() {
+          return document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement ||
+            null;
+        }
+
+        function postFullscreenState(active, source) {
+          postToHost('qdnes-player-fullscreen', {
+            active: Boolean(active),
+            source: source || ''
+          });
+        }
+
+        function syncNativeFullscreenState() {
+          postFullscreenState(Boolean(getNativeFullscreenElement()), 'native-change');
+        }
+
+        function ensureFullscreenBridge() {
+          var emulator = window.EJS_emulator;
+          if (!emulator || typeof emulator.toggleFullscreen !== 'function') {
+            return false;
+          }
+          if (emulator.__qdnesFullscreenBridgeInstalled) {
+            return true;
+          }
+          var originalToggleFullscreen = emulator.toggleFullscreen.bind(emulator);
+          emulator.__qdnesFullscreenBridgeInstalled = true;
+          emulator.toggleFullscreen = function(active) {
+            var wantsFullscreen = active !== false;
+            postFullscreenState(wantsFullscreen, 'emulator-toggle');
+            try {
+              return originalToggleFullscreen(active);
+            } catch (error) {
+              throw error;
+            }
+          };
+          return true;
+        }
+
+        function armFullscreenBridgeInstall() {
+          if (ensureFullscreenBridge()) {
+            return;
+          }
+          var attempts = 0;
+          var timer = setInterval(function() {
+            attempts += 1;
+            if (ensureFullscreenBridge() || attempts > 100) {
+              clearInterval(timer);
+            }
+          }, 50);
+        }
+
+        document.addEventListener('fullscreenchange', syncNativeFullscreenState);
+        document.addEventListener('webkitfullscreenchange', syncNativeFullscreenState);
+        document.addEventListener('mozfullscreenchange', syncNativeFullscreenState);
+        document.addEventListener('MSFullscreenChange', syncNativeFullscreenState);
+
         function clearStartupWatchdogTimers() {
           if (startupWatchdogTimerShort) {
             clearTimeout(startupWatchdogTimerShort);
@@ -572,6 +633,275 @@
             support.webgl1 = false;
           }
           return support;
+        }
+
+        function getRectSnapshot(element) {
+          if (!element || typeof element.getBoundingClientRect !== 'function') {
+            return null;
+          }
+          var rect = element.getBoundingClientRect();
+          return {
+            x: Math.round(rect.x),
+            y: Math.round(rect.y),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height)
+          };
+        }
+
+        function findDiagnosticCanvas() {
+          return document.querySelector('canvas.ejs_canvas') ||
+            document.querySelector('#game canvas') ||
+            document.querySelector('canvas');
+        }
+
+        function describeCanvasForDiagnostics(canvas) {
+          if (!canvas) {
+            return {
+              found: false,
+              width: 0,
+              height: 0,
+              cssWidth: 0,
+              cssHeight: 0,
+              className: ''
+            };
+          }
+          var rect = getRectSnapshot(canvas) || { width: 0, height: 0 };
+          return {
+            found: true,
+            width: canvas.width || 0,
+            height: canvas.height || 0,
+            cssWidth: rect.width || 0,
+            cssHeight: rect.height || 0,
+            className: typeof canvas.className === 'string' ? canvas.className : ''
+          };
+        }
+
+        function collectDiagnosticSnapshot(label, mode) {
+          var visualViewport = window.visualViewport
+            ? {
+                width: Math.round(window.visualViewport.width),
+                height: Math.round(window.visualViewport.height),
+                scale: window.visualViewport.scale
+              }
+            : null;
+          var canvas = findDiagnosticCanvas();
+          return {
+            label: label || '',
+            mode: mode || '',
+            sampledAt: new Date().toISOString(),
+            core: activeCore,
+            system: activeSystem,
+            romTitle: activeGameTitle,
+            romFilename: activeRomFilename,
+            runtimeState: describeEmulatorRuntimeState(),
+            hotSwapEnabled: hotSwapEnabled,
+            documentVisibility: document.visibilityState || '',
+            focused: document.hasFocus ? document.hasFocus() : null,
+            fullscreen: Boolean(getNativeFullscreenElement()),
+            crossOriginIsolated: Boolean(window.crossOriginIsolated),
+            sharedArrayBuffer: typeof window.SharedArrayBuffer === 'function',
+            devicePixelRatio: window.devicePixelRatio || 1,
+            hardwareConcurrency: navigator.hardwareConcurrency || null,
+            deviceMemory: navigator.deviceMemory || null,
+            userAgent: navigator.userAgent,
+            viewport: {
+              width: window.innerWidth,
+              height: window.innerHeight
+            },
+            visualViewport: visualViewport,
+            screen: window.screen
+              ? {
+                  width: window.screen.width,
+                  height: window.screen.height,
+                  availWidth: window.screen.availWidth,
+                  availHeight: window.screen.availHeight
+                }
+              : null,
+            graphicsSupport: Object.assign({}, graphicsSupport),
+            frame: getRectSnapshot(document.querySelector('.frame')),
+            game: getRectSnapshot(document.getElementById('game')),
+            canvas: describeCanvasForDiagnostics(canvas)
+          };
+        }
+
+        function summarizeDiagnosticFrames(deltas, elapsedMs) {
+          var total = Array.isArray(deltas) ? deltas.length : 0;
+          var sum = 0;
+          var min = 0;
+          var max = 0;
+          var over33 = 0;
+          var over50 = 0;
+          var over100 = 0;
+          for (var i = 0; i < total; i++) {
+            var delta = deltas[i];
+            if (typeof delta !== 'number' || !isFinite(delta)) {
+              continue;
+            }
+            sum += delta;
+            if (min === 0 || delta < min) {
+              min = delta;
+            }
+            if (delta > max) {
+              max = delta;
+            }
+            if (delta > 33.34) {
+              over33++;
+            }
+            if (delta > 50) {
+              over50++;
+            }
+            if (delta > 100) {
+              over100++;
+            }
+          }
+          var average = total > 0 ? sum / total : 0;
+          var fps = elapsedMs > 0 ? total / (elapsedMs / 1000) : 0;
+          return {
+            elapsedMs: Math.round(elapsedMs),
+            frameCount: total,
+            fps: fps,
+            estimatedDisplayHz: fps,
+            averageFrameMs: average,
+            minFrameMs: min,
+            maxFrameMs: max,
+            framesOver33ms: over33,
+            framesOver50ms: over50,
+            framesOver100ms: over100
+          };
+        }
+
+        function runDiagnosticRequest(data) {
+          var requestId = String(data && data.requestId || '');
+          if (!requestId) {
+            return;
+          }
+          if (activeDiagnosticRequestId) {
+            postToHost('qdnes-player-diagnostic-result', {
+              requestId: requestId,
+              result: {
+                error: 'diagnostic-busy'
+              }
+            });
+            return;
+          }
+          activeDiagnosticRequestId = requestId;
+          var label = typeof data.label === 'string' ? data.label : '';
+          var mode = typeof data.mode === 'string' ? data.mode : '';
+          var durationMs = Number(data.durationMs);
+          if (!isFinite(durationMs) || durationMs < 1000) {
+            durationMs = 5000;
+          }
+          durationMs = Math.min(Math.max(durationMs, 1000), 15000);
+
+          var startedAt = performance.now();
+          var lastFrameAt = 0;
+          var frameDeltas = [];
+          var before = collectDiagnosticSnapshot(label, mode);
+
+          function finish(now) {
+            var finishedAt = typeof now === 'number' ? now : performance.now();
+            var elapsedMs = finishedAt - startedAt;
+            var result = collectDiagnosticSnapshot(label, mode);
+            result.before = before;
+            result.timing = summarizeDiagnosticFrames(frameDeltas, elapsedMs);
+            activeDiagnosticRequestId = '';
+            postToHost('qdnes-player-diagnostic-result', {
+              requestId: requestId,
+              result: result
+            });
+          }
+
+          function tick(now) {
+            if (activeDiagnosticRequestId !== requestId) {
+              return;
+            }
+            if (lastFrameAt > 0) {
+              frameDeltas.push(now - lastFrameAt);
+            }
+            lastFrameAt = now;
+            if (now - startedAt >= durationMs) {
+              finish(now);
+              return;
+            }
+            requestAnimationFrame(tick);
+          }
+
+          requestAnimationFrame(tick);
+        }
+
+        function formatRefreshRate(value) {
+          if (typeof value !== 'number' || !isFinite(value) || value <= 0) {
+            return 'unknown';
+          }
+          return value.toFixed(value >= 100 ? 0 : 1) + ' Hz';
+        }
+
+        function sampleDisplayRefresh(durationMs) {
+          var sampleDuration = Number(durationMs);
+          if (!isFinite(sampleDuration) || sampleDuration < 500) {
+            sampleDuration = 2000;
+          }
+          sampleDuration = Math.min(Math.max(sampleDuration, 500), 5000);
+          return new Promise(function(resolve) {
+            var startedAt = performance.now();
+            var lastFrameAt = 0;
+            var deltas = [];
+
+            function tick(now) {
+              if (lastFrameAt > 0) {
+                deltas.push(now - lastFrameAt);
+              }
+              lastFrameAt = now;
+              if (now - startedAt >= sampleDuration) {
+                resolve(summarizeDiagnosticFrames(deltas, now - startedAt));
+                return;
+              }
+              requestAnimationFrame(tick);
+            }
+
+            requestAnimationFrame(tick);
+          });
+        }
+
+        function classifyRefreshRate(estimatedHz) {
+          if (typeof estimatedHz !== 'number' || !isFinite(estimatedHz) || estimatedHz <= 0) {
+            return 'unknown';
+          }
+          if (estimatedHz < 45) {
+            return 'low';
+          }
+          if (estimatedHz < 55) {
+            return 'borderline';
+          }
+          return 'ok';
+        }
+
+        function runDisplayRefreshPreflight() {
+          var sampleId = ++refreshCheckSerial;
+          sampleDisplayRefresh(2200).then(function(summary) {
+            if (sampleId !== refreshCheckSerial) {
+              return;
+            }
+            var estimatedHz = summary && typeof summary.estimatedDisplayHz === 'number'
+              ? summary.estimatedDisplayHz
+              : 0;
+            var classification = classifyRefreshRate(estimatedHz);
+            if (classification === 'low') {
+              postStatusMessage(
+                'Display refresh warning: estimated ' + formatRefreshRate(estimatedHz) +
+                '. 60 FPS systems will stutter at this display mode; switch the OS display mode to 60 Hz or lower the resolution.'
+              );
+              return;
+            }
+            if (classification === 'borderline') {
+              postStatusMessage(
+                'Display refresh note: estimated ' + formatRefreshRate(estimatedHz) +
+                '. Some 60 FPS systems may feel uneven unless the display is set near 60 Hz.'
+              );
+            }
+          }).catch(function(error) {
+            console.warn('Display refresh preflight failed:', error);
+          });
         }
 
         function toErrorMessage(error, fallback) {
@@ -675,6 +1005,18 @@
 
         window.addEventListener('message', function(event) {
           var data = event && event.data;
+          if (data && typeof data === 'object' && data.type === 'qdnes-host-fullscreen-exit') {
+            if (window.EJS_emulator && typeof window.EJS_emulator.toggleFullscreen === 'function') {
+              window.EJS_emulator.toggleFullscreen(false);
+            } else {
+              postFullscreenState(false, 'host-exit');
+            }
+            return;
+          }
+          if (data && typeof data === 'object' && data.type === 'qdnes-player-diagnostic-run') {
+            runDiagnosticRequest(data);
+            return;
+          }
           if (!data || typeof data !== 'object' || data.type !== 'qdnes-player-load-game') {
             return;
           }
@@ -995,6 +1337,7 @@
             }
           }
           window.EJS_ready = function() {
+            armFullscreenBridgeInstall();
             postStatusMessage('Emulator runtime ready. Waiting for game start...');
             postToHost('qdnes-player-ready', {
               core: activeCore,
@@ -1003,9 +1346,11 @@
             });
           };
           window.EJS_onGameStart = function() {
+            armFullscreenBridgeInstall();
             hotSwapEnabled = isHotSwapAllowedForSystem(activeSystem);
             clearStartupWatchdogTimers();
             postStatusMessage('Game started.');
+            runDisplayRefreshPreflight();
             postToHost('qdnes-player-ready', {
               core: activeCore,
               system: activeSystem,
@@ -1022,6 +1367,7 @@
           var script = document.createElement('script');
           script.src = withIdentifier('data/loader.js');
           script.onload = function() {
+            armFullscreenBridgeInstall();
             postStatusMessage('Loader script loaded. Initializing emulator runtime...');
           };
           script.onerror = function() {

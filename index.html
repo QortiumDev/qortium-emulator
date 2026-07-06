@@ -588,18 +588,22 @@
         filter: invert(1);
       }
       .brand-meta {
-        display: grid;
-        gap: 0;
+        align-items: baseline;
+        display: flex;
+        gap: 8px;
         min-width: 0;
       }
       .brand-title {
         font-size: calc(14px * var(--text-scale));
         letter-spacing: 0.02em;
         color: var(--text);
+        white-space: nowrap;
       }
       .brand-version {
         font-size: calc(11px * var(--text-scale));
         color: var(--muted);
+        flex: none;
+        font-weight: 650;
       }
       .topbar-spacer {
         flex: 1 1 auto;
@@ -607,6 +611,12 @@
       .topbar-actions {
         display: inline-flex;
         align-items: center;
+      }
+      .topbar-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
       }
       .topbar-changelog {
         padding: 0;
@@ -720,10 +730,10 @@
         display: none;
       }
       .app {
-        width: min(1200px, 100%);
+        width: min(1480px, 100%);
         max-width: 100%;
         margin: 0 auto;
-        padding: 32px 12px 56px;
+        padding: 18px 16px 32px;
         position: relative;
         z-index: 1;
         animation: liftIn 0.6s ease-out;
@@ -926,14 +936,14 @@
       }
       .app-main {
         display: grid;
-        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-        gap: 24px;
+        grid-template-columns: minmax(0, 2.2fr) minmax(320px, 0.85fr);
+        gap: 18px;
         align-items: start;
       }
       .player-card {
         background: var(--panel);
         border-radius: 20px;
-        padding: 20px;
+        padding: 16px;
         border: 1px solid var(--stroke);
         box-shadow: var(--shadow);
       }
@@ -941,7 +951,7 @@
         display: flex;
         justify-content: space-between;
         gap: 12px;
-        margin-bottom: 16px;
+        margin-bottom: 10px;
         color: var(--muted);
         font-size: calc(13px * var(--text-scale));
       }
@@ -952,10 +962,25 @@
         color: var(--text);
         font-weight: 600;
       }
+      .fullscreen-exit-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 6px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--ghost-border);
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: calc(12px * var(--text-scale));
+      }
+      .fullscreen-exit-button[hidden] {
+        display: none;
+      }
       .screen-frame {
         position: relative;
         width: 100%;
-        aspect-ratio: 4 / 3;
+        aspect-ratio: 16 / 10;
         border-radius: 16px;
         overflow: hidden;
         border: 1px solid var(--screen-border);
@@ -1005,18 +1030,18 @@
         display: none;
       }
       .player-footer {
-        margin-top: 16px;
+        margin-top: 10px;
         font-size: calc(13px * var(--text-scale));
         color: var(--muted);
       }
       .control-panel {
         display: grid;
-        gap: 16px;
+        gap: 14px;
       }
       .panel-block {
         background: var(--panel-strong);
         border-radius: 18px;
-        padding: 16px;
+        padding: 14px 16px;
         border: 1px solid var(--stroke);
         box-shadow: var(--shadow);
       }
@@ -1093,7 +1118,7 @@
       }
       .status-log {
         width: 100%;
-        min-height: 140px;
+        min-height: 118px;
         padding: 12px;
         border-radius: 12px;
         border: 1px solid var(--status-log-border);
@@ -1103,6 +1128,27 @@
         line-height: 1.5;
         resize: vertical;
       }
+      .status-actions {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .status-actions[hidden] {
+        display: none !important;
+      }
+      .diagnostic-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: calc(12px * var(--text-scale));
+      }
+      .diagnostic-links a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      .diagnostic-links a:hover {
+        text-decoration: underline;
+      }
       .hint {
         margin: 12px 0 0;
         font-size: calc(12px * var(--text-scale));
@@ -1111,6 +1157,62 @@
       .stack {
         display: grid;
         gap: 10px;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .topbar {
+        display: none;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .content-shell {
+        height: 100vh;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .qapp-left-sidebar-host {
+        display: none;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .app-shell-main {
+        overflow: hidden;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .app[data-system-page='systems'] {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        padding: 10px;
+        box-sizing: border-box;
+        animation: none;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .app-main {
+        height: 100%;
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+      }
+      :root[data-qdnes-diagnostic-mode='capped'] .screen-frame {
+        width: min(100%, 640px);
+        max-height: 480px;
+        aspect-ratio: 4 / 3;
+        margin-inline: auto;
+      }
+      :root[data-qdnes-diagnostic-mode='expanded'] .screen-frame {
+        height: min(72vh, 760px);
+        min-height: 420px;
+        aspect-ratio: auto;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .player-card {
+        height: 100%;
+        min-height: 0;
+        box-sizing: border-box;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        padding: 10px;
+        border-radius: 12px;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .screen-frame {
+        min-height: 0;
+        height: 100%;
+        aspect-ratio: auto;
+        border-radius: 10px;
+      }
+      :root[data-qdnes-player-fullscreen='true'] .control-panel,
+      :root[data-qdnes-player-fullscreen='true'] .player-footer {
+        display: none;
       }
       @media (max-width: 960px) {
         .app {
@@ -1124,6 +1226,18 @@
         .app-header {
           flex-direction: column;
           align-items: flex-start;
+        }
+        .topbar {
+          flex-wrap: wrap;
+          height: auto;
+          min-height: 64px;
+        }
+        .topbar-status {
+          order: 3;
+          width: 100%;
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding-bottom: 2px;
         }
         .app-main {
           grid-template-columns: 1fr;
@@ -1153,6 +1267,10 @@
         }
         .screen-frame {
           aspect-ratio: 1 / 1;
+        }
+        :root[data-qdnes-diagnostic-mode='expanded'] .screen-frame {
+          height: 62vh;
+          min-height: 300px;
         }
       }
       [data-qapp-lib='left-sidebar'].qapp-lib-left-sidebar {
@@ -1480,10 +1598,6 @@
       .qapp-topbar-host .qapp-lib-menu-section label.qapp-topbar-inline-checkbox input[type='checkbox'] {
         margin: 0;
       }
-      .qdnes-status-strip {
-        justify-content: flex-end;
-        margin-bottom: 16px;
-      }
       :root[data-ui='modern'] body,
       :root[data-ui='modern'] button,
       :root[data-ui='modern'] select,
@@ -1524,8 +1638,16 @@
       }
       :root[data-ui='modern'] .app,
       :root[data-ui='modern'] .home-page {
+        padding-top: 18px;
+        padding-bottom: 32px;
+      }
+      :root[data-ui='modern'] .app {
+        width: min(100%, 88em);
+      }
+      :root[data-ui='modern'] .home-page {
         width: min(100%, 56.25em);
-        padding: 76px 16px 32px;
+        padding-left: 16px;
+        padding-right: 16px;
       }
       :root[data-ui='modern'] .home-hero,
       :root[data-ui='modern'] .home-attribution,
@@ -1585,11 +1707,14 @@
       @media (min-width: 900px) {
         :root[data-ui='modern'] .app,
         :root[data-ui='modern'] .home-page {
-          padding-left: 32px;
-          padding-right: 32px;
+          padding-left: 24px;
+          padding-right: 24px;
         }
       }
     </style>
+    <script>
+      window.QORTIUM_APP_VERSION = '__QORTIUM_APP_VERSION__';
+    </script>
     <script src="./qortium-qortal-bridge.js"></script>
     <script>
       function safeDecodeRouteSegment(value) {
@@ -1631,6 +1756,63 @@
           }
         }
         return normalizeQdnBasePath(window.location.pathname || '/');
+      }
+
+      function buildBundledAppPath(pathname, queryString) {
+        var normalizedPathname = String(pathname || '').replace(/^\/+/, '');
+        var normalizedQuery = queryString ? '?' + String(queryString).replace(/^\?+/, '') : '';
+
+        try {
+          if (window.location.protocol === 'file:') {
+            return normalizedPathname + normalizedQuery;
+          }
+
+          var pathSegments = window.location.pathname.split('/');
+          if (pathSegments[1] === 'render' && pathSegments[2] && pathSegments[3] && pathSegments[4]) {
+            var renderRoot = '/' + pathSegments.slice(1, 5).join('/');
+            return renderRoot + '/' + normalizedPathname + normalizedQuery;
+          }
+        } catch (error) {
+          // Fall through to the relative path for local previews and unexpected hosts.
+        }
+
+        return normalizedPathname + normalizedQuery;
+      }
+
+      function normalizeAppVersion(value) {
+        if (typeof value !== 'string') {
+          return '';
+        }
+        var normalized = value.trim().replace(/^v/i, '');
+        return normalized && normalized !== '__QORTIUM_APP_VERSION__' ? normalized : '';
+      }
+
+      function setAppVersionLabel(version) {
+        var label = document.getElementById('brand-version');
+        if (!label) {
+          return;
+        }
+        var normalized = normalizeAppVersion(version);
+        label.textContent = normalized ? 'v' + normalized : '';
+        label.hidden = !normalized;
+      }
+
+      async function loadPackageVersion() {
+        try {
+          var response = await fetch('./package.json', { cache: 'no-store' });
+          if (!response.ok) {
+            return '';
+          }
+          var data = await response.json();
+          return normalizeAppVersion(data && data.version);
+        } catch (error) {
+          return '';
+        }
+      }
+
+      async function updateAppVersionLabel() {
+        var packagedVersion = normalizeAppVersion(window.QORTIUM_APP_VERSION);
+        setAppVersionLabel(packagedVersion || await loadPackageVersion());
       }
 
       function normalizeAppRelativePath(path) {
@@ -1742,6 +1924,37 @@
       var playerMessageBound = false;
       var qdnRomLoadInFlight = false;
       var runtimeFallbackUsed = false;
+      var diagnosticButton = null;
+      var diagnosticJsonLink = null;
+      var diagnosticMarkdownLink = null;
+      var diagnosticRunInFlight = false;
+      var diagnosticRequestSerial = 0;
+      var pendingDiagnosticRequest = null;
+      var diagnosticReportUrls = [];
+      var DIAGNOSTIC_RUN_DURATION_MS = 5000;
+      var DIAGNOSTIC_REQUEST_TIMEOUT_MS = 9000;
+      var DIAGNOSTIC_TESTS = [
+        {
+          id: 'current',
+          label: 'Current player size',
+          mode: ''
+        },
+        {
+          id: 'capped',
+          label: 'Capped 640x480 surface',
+          mode: 'capped'
+        },
+        {
+          id: 'expanded',
+          label: 'Expanded available surface',
+          mode: 'expanded'
+        },
+        {
+          id: 'baseline-repeat',
+          label: 'Current player size repeat',
+          mode: ''
+        }
+      ];
       var HOT_SWAP_DISABLED_SYSTEMS = new Set(['scd', 'ps1', 'saturn']);
       var QDN_RESOURCE_READY_STATUSES = new Set(['READY']);
       var QDN_RESOURCE_ERROR_STATUSES = new Set([
@@ -1789,6 +2002,7 @@
       var screenPlaceholderBody = null;
       var screenPlaceholderActions = null;
       var screenPlaceholderAction = null;
+      var playerFullscreenExitButton = null;
       var pirateNintendoButton = null;
       var coreSelect = null;
       var coreChip = null;
@@ -2408,6 +2622,7 @@
         screenPlaceholderBody = document.getElementById('screenPlaceholderBody');
         screenPlaceholderActions = document.getElementById('screenPlaceholderActions');
         screenPlaceholderAction = document.getElementById('screenPlaceholderAction');
+        playerFullscreenExitButton = document.getElementById('playerFullscreenExitButton');
         pirateNintendoButton = document.getElementById('pirateNintendoButton');
         coreSelect = document.getElementById('coreSelect');
         coreChip = document.getElementById('coreChip');
@@ -2415,6 +2630,10 @@
         localFileHint = document.getElementById('localFileHint');
         romList = document.getElementById('romList');
         romVariantList = document.getElementById('romVariantList');
+        diagnosticButton = document.getElementById('diagnosticButton');
+        diagnosticJsonLink = document.getElementById('diagnosticJsonLink');
+        diagnosticMarkdownLink = document.getElementById('diagnosticMarkdownLink');
+        void updateAppVersionLabel();
         var identifier = getQdnIdentifier();
         applyFontFace(identifier);
 
@@ -2425,6 +2644,8 @@
 	        bindQortalNewTabLinks();
 	        bindScreenPlaceholderAction();
 	        bindPirateNintendoButton();
+	        bindPlayerFullscreenExit();
+	        bindDiagnosticButton();
         if (coreSelect) {
           coreSelect.onchange = updateCoreUi;
         }
@@ -2469,6 +2690,16 @@
         gameFrame.addEventListener('load', function() {
           if (activeGameUrl) {
             setStatus('Running', 'ready');
+          }
+          if (diagnosticRunInFlight) {
+            finishPendingDiagnosticRequest(new Error('Player frame reloaded during diagnostics.'));
+            finishDiagnosticRunState();
+          }
+        });
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' &&
+              document.documentElement.getAttribute('data-qdnes-player-fullscreen') === 'true') {
+            setPlayerFullscreenState(false);
           }
         });
       }
@@ -2543,6 +2774,7 @@
 	          clearCurrentGameState('None loaded');
 	          clearCurrentQdnSelection();
 	          resetPlayerCapabilityState();
+	          setPlayerFullscreenState(false, { notifyPlayer: false });
           if (gameFrame) {
             gameFrame.src = buildPlayerUrl('', '', '', '');
 	          }
@@ -2573,6 +2805,28 @@
           if (window.location.hash !== '#home') {
             window.location.hash = '#home';
           }
+        });
+      }
+
+      function bindPlayerFullscreenExit() {
+        if (!playerFullscreenExitButton || playerFullscreenExitButton.dataset.fullscreenExitBound === 'true') {
+          return;
+        }
+        playerFullscreenExitButton.dataset.fullscreenExitBound = 'true';
+        playerFullscreenExitButton.addEventListener('click', function(event) {
+          event.preventDefault();
+          setPlayerFullscreenState(false);
+        });
+      }
+
+      function bindDiagnosticButton() {
+        if (!diagnosticButton || diagnosticButton.dataset.diagnosticBound === 'true') {
+          return;
+        }
+        diagnosticButton.dataset.diagnosticBound = 'true';
+        diagnosticButton.addEventListener('click', function(event) {
+          event.preventDefault();
+          void runPerformanceDiagnostics();
         });
       }
 
@@ -2662,6 +2916,314 @@
       function clearStatusLog() {
         if (statusLog) {
           statusLog.value = '';
+        }
+      }
+
+      function getRectSnapshot(element) {
+        if (!element || typeof element.getBoundingClientRect !== 'function') {
+          return null;
+        }
+        var rect = element.getBoundingClientRect();
+        return {
+          x: Math.round(rect.x),
+          y: Math.round(rect.y),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height)
+        };
+      }
+
+      function collectLauncherDiagnosticContext() {
+        var visualViewport = window.visualViewport
+          ? {
+              width: Math.round(window.visualViewport.width),
+              height: Math.round(window.visualViewport.height),
+              scale: window.visualViewport.scale
+            }
+          : null;
+        var qortiumHome = window.qortiumHome && typeof window.qortiumHome === 'object'
+          ? window.qortiumHome
+          : null;
+        return {
+          generatedAt: new Date().toISOString(),
+          appVersion: typeof window.QORTIUM_APP_VERSION === 'string' ? window.QORTIUM_APP_VERSION : '',
+          userAgent: navigator.userAgent,
+          language: navigator.language || '',
+          platform: navigator.platform || '',
+          hardwareConcurrency: navigator.hardwareConcurrency || null,
+          deviceMemory: navigator.deviceMemory || null,
+          devicePixelRatio: window.devicePixelRatio || 1,
+          viewport: {
+            width: window.innerWidth,
+            height: window.innerHeight
+          },
+          visualViewport: visualViewport,
+          screen: window.screen
+            ? {
+                width: window.screen.width,
+                height: window.screen.height,
+                availWidth: window.screen.availWidth,
+                availHeight: window.screen.availHeight
+              }
+            : null,
+          documentVisibility: document.visibilityState || '',
+          qortiumHomeBridge: Boolean(qortiumHome),
+          qortiumHomeQdnViewsBridge: Boolean(qortiumHome && qortiumHome.qdnViews),
+          qortiumQortalBridge: Boolean(window.qortiumQortal),
+          location: {
+            protocol: window.location.protocol,
+            host: window.location.host,
+            pathname: window.location.pathname
+          },
+          selected: {
+            system: activeSystemId,
+            configuredCore: getSelectedCore(),
+            activePlayerCore: activePlayerCore,
+            activePlayerSystem: activePlayerSystem,
+            romTitle: activeGameTitle,
+            romFilename: activeGameRomFilename,
+            source: currentQdnSelection ? 'qdn' : (currentBlobUrl ? 'local-file' : 'unknown'),
+            qdnSelection: currentQdnSelection ? Object.assign({}, currentQdnSelection) : null
+          }
+        };
+      }
+
+      function collectLauncherSurfaceSnapshot() {
+        return {
+          diagnosticMode: document.documentElement.getAttribute('data-qdnes-diagnostic-mode') || '',
+          playerFullscreenFallback: document.documentElement.getAttribute('data-qdnes-player-fullscreen') === 'true',
+          playerCard: getRectSnapshot(document.querySelector('.player-card')),
+          screenFrame: getRectSnapshot(document.querySelector('.screen-frame')),
+          gameFrame: getRectSnapshot(gameFrame)
+        };
+      }
+
+      function setDiagnosticSurfaceMode(mode) {
+        var root = document.documentElement;
+        var normalizedMode = mode === 'capped' || mode === 'expanded' ? mode : '';
+        if (normalizedMode) {
+          root.setAttribute('data-qdnes-diagnostic-mode', normalizedMode);
+        } else {
+          root.removeAttribute('data-qdnes-diagnostic-mode');
+        }
+      }
+
+      function clearDiagnosticReportUrls() {
+        for (var i = 0; i < diagnosticReportUrls.length; i++) {
+          URL.revokeObjectURL(diagnosticReportUrls[i]);
+        }
+        diagnosticReportUrls = [];
+      }
+
+      function sanitizeReportFilenamePart(value) {
+        var normalized = typeof value === 'string' && value.trim()
+          ? value.trim().toLowerCase()
+          : 'rom';
+        normalized = normalized.replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+        return normalized.slice(0, 80) || 'rom';
+      }
+
+      function createDownloadLink(link, filename, mimeType, content) {
+        if (!link) {
+          return;
+        }
+        var blob = new Blob([content], { type: mimeType });
+        var url = URL.createObjectURL(blob);
+        diagnosticReportUrls.push(url);
+        link.href = url;
+        link.download = filename;
+      }
+
+      function exposeDiagnosticReports(report) {
+        clearDiagnosticReportUrls();
+        var reportBase = [
+          'qortium-emulator-diagnostics',
+          sanitizeReportFilenamePart(report.context.selected.system),
+          sanitizeReportFilenamePart(report.context.selected.configuredCore),
+          new Date().toISOString().replace(/[:.]/g, '-')
+        ].join('-');
+        createDownloadLink(
+          diagnosticJsonLink,
+          reportBase + '.json',
+          'application/json',
+          JSON.stringify(report, null, 2)
+        );
+        createDownloadLink(
+          diagnosticMarkdownLink,
+          reportBase + '.md',
+          'text/markdown',
+          formatDiagnosticMarkdown(report)
+        );
+        var links = document.getElementById('diagnosticReportLinks');
+        if (links) {
+          links.hidden = false;
+        }
+      }
+
+      function formatNumber(value, digits) {
+        if (typeof value !== 'number' || !isFinite(value)) {
+          return 'n/a';
+        }
+        return value.toFixed(digits);
+      }
+
+      function formatDiagnosticMarkdown(report) {
+        var lines = [];
+        var selected = report.context.selected;
+        lines.push('# Qortium Emulator Diagnostics');
+        lines.push('');
+        lines.push('- Generated: ' + report.generatedAt);
+        lines.push('- App version: ' + (report.context.appVersion || 'unknown'));
+        lines.push('- System: ' + (selected.system || 'unknown'));
+        lines.push('- Configured core: ' + (selected.configuredCore || 'unknown'));
+        lines.push('- Active player core: ' + (selected.activePlayerCore || 'unknown'));
+        lines.push('- ROM: ' + (selected.romTitle || selected.romFilename || 'unknown'));
+        lines.push('- Source: ' + selected.source);
+        lines.push('- Device pixel ratio: ' + report.context.devicePixelRatio);
+        lines.push('- Home bridge: ' + (report.context.qortiumHomeBridge ? 'yes' : 'no'));
+        lines.push('- Isolated QDN view bridge: ' + (report.context.qortiumHomeQdnViewsBridge ? 'yes' : 'no'));
+        lines.push('');
+        lines.push('| Test | FPS | Avg frame ms | Long frames > 33ms | Canvas CSS | Canvas backing | Player surface |');
+        lines.push('| --- | ---: | ---: | ---: | --- | --- | --- |');
+        report.tests.forEach(function(test) {
+          var result = test.playerResult || {};
+          var timing = result.timing || {};
+          var canvas = result.canvas || {};
+          var launcher = test.launcherSurface || {};
+          var screenFrame = launcher.screenFrame || {};
+          lines.push([
+            '| ' + test.label,
+            formatNumber(timing.fps, 1),
+            formatNumber(timing.averageFrameMs, 2),
+            String(timing.framesOver33ms || 0),
+            (canvas.cssWidth || 0) + 'x' + (canvas.cssHeight || 0),
+            (canvas.width || 0) + 'x' + (canvas.height || 0),
+            (screenFrame.width || 0) + 'x' + (screenFrame.height || 0) + ' |'
+          ].join(' | '));
+        });
+        lines.push('');
+        lines.push('## Interpretation Notes');
+        lines.push('');
+        lines.push('- If capped surface FPS is materially better than expanded surface FPS, browser compositing or canvas scaling is likely part of the lag.');
+        lines.push('- If every surface is slow, the selected core, ROM, runtime startup, or host throttling is more likely than simple canvas size.');
+        lines.push('- Run this same report in Home and in a plain browser/Core render to compare host render paths.');
+        lines.push('');
+        return lines.join('\n');
+      }
+
+      function finishPendingDiagnosticRequest(error, result) {
+        if (!pendingDiagnosticRequest) {
+          return;
+        }
+        var request = pendingDiagnosticRequest;
+        pendingDiagnosticRequest = null;
+        if (request.timeoutId) {
+          clearTimeout(request.timeoutId);
+        }
+        if (error) {
+          request.reject(error);
+        } else {
+          request.resolve(result);
+        }
+      }
+
+      function requestPlayerDiagnosticSample(test) {
+        return new Promise(function(resolve, reject) {
+          if (!gameFrame || !gameFrame.contentWindow) {
+            reject(new Error('Player frame is unavailable.'));
+            return;
+          }
+          if (pendingDiagnosticRequest) {
+            reject(new Error('A diagnostic sample is already pending.'));
+            return;
+          }
+          var requestId = String(++diagnosticRequestSerial);
+          var timeoutId = setTimeout(function() {
+            finishPendingDiagnosticRequest(new Error('Timed out waiting for player diagnostic sample.'));
+          }, DIAGNOSTIC_REQUEST_TIMEOUT_MS);
+          pendingDiagnosticRequest = {
+            id: requestId,
+            resolve: resolve,
+            reject: reject,
+            timeoutId: timeoutId
+          };
+          try {
+            gameFrame.contentWindow.postMessage({
+              type: 'qdnes-player-diagnostic-run',
+              requestId: requestId,
+              label: test.label,
+              mode: test.mode || '',
+              durationMs: DIAGNOSTIC_RUN_DURATION_MS
+            }, '*');
+          } catch (error) {
+            finishPendingDiagnosticRequest(error);
+          }
+        });
+      }
+
+      function finishDiagnosticRunState() {
+        diagnosticRunInFlight = false;
+        setDiagnosticSurfaceMode('');
+        if (diagnosticButton) {
+          diagnosticButton.disabled = false;
+          diagnosticButton.textContent = 'Run Diagnostics';
+        }
+      }
+
+      async function runPerformanceDiagnostics() {
+        if (diagnosticRunInFlight) {
+          return;
+        }
+        if (!activeGameUrl) {
+          alert('Load a ROM before running diagnostics.');
+          return;
+        }
+        diagnosticRunInFlight = true;
+        if (diagnosticButton) {
+          diagnosticButton.disabled = true;
+          diagnosticButton.textContent = 'Running Diagnostics...';
+        }
+        var links = document.getElementById('diagnosticReportLinks');
+        if (links) {
+          links.hidden = true;
+        }
+        setPlayerFullscreenState(false);
+        setStatus('Testing', 'loading');
+        putMessage('Running performance diagnostics with the selected ROM and core...');
+
+        var report = {
+          schemaVersion: 1,
+          generatedAt: new Date().toISOString(),
+          context: collectLauncherDiagnosticContext(),
+          tests: []
+        };
+
+        try {
+          for (var i = 0; i < DIAGNOSTIC_TESTS.length; i++) {
+            var test = DIAGNOSTIC_TESTS[i];
+            setDiagnosticSurfaceMode(test.mode);
+            await waitMs(500);
+            putMessage('Diagnostic test ' + (i + 1) + '/' + DIAGNOSTIC_TESTS.length + ': ' + test.label + '...');
+            var launcherSurface = collectLauncherSurfaceSnapshot();
+            var playerResult = await requestPlayerDiagnosticSample(test);
+            report.tests.push({
+              id: test.id,
+              label: test.label,
+              mode: test.mode,
+              launcherSurface: launcherSurface,
+              playerResult: playerResult
+            });
+          }
+          report.completedAt = new Date().toISOString();
+          exposeDiagnosticReports(report);
+          putMessage('Diagnostics complete. Report download links are below the status log.');
+          setStatus('Running', 'ready');
+        } catch (error) {
+          console.error('Diagnostics failed:', error);
+          putMessage('Diagnostics failed: ' + (error && error.message ? error.message : error));
+          setStatus('Error', 'error');
+        } finally {
+          finishPendingDiagnosticRequest(new Error('Diagnostic run finished.'));
+          finishDiagnosticRunState();
         }
       }
 
@@ -2987,10 +3549,6 @@
         params.set('saturnBiosName', PLAYER_SATURN_BIOS_RESOURCE.name);
         params.set('saturnBiosIdentifier', PLAYER_SATURN_BIOS_RESOURCE.identifier);
         params.set('saturnBiosPathPrefix', PLAYER_SATURN_BIOS_RESOURCE.pathPrefix);
-        var identifier = getQdnIdentifier();
-        if (identifier) {
-          params.set('identifier', identifier);
-        }
         if (title) {
           params.set('title', title);
         }
@@ -3021,7 +3579,7 @@
         if (root.dataset.ui) {
           params.set('uiStyle', root.dataset.ui);
         }
-        return 'player.html?' + params.toString();
+        return buildBundledAppPath('player.html', params.toString());
       }
 
       function clearHotSwapFallbackTimer() {
@@ -3039,7 +3597,38 @@
         activePlayerSystem = '';
       }
 
+      function postPlayerFullscreenExitRequest() {
+        if (!gameFrame || !gameFrame.contentWindow) {
+          return;
+        }
+        try {
+          gameFrame.contentWindow.postMessage({
+            type: 'qdnes-host-fullscreen-exit'
+          }, '*');
+        } catch (error) {
+          console.warn('Failed to post player fullscreen exit request:', error);
+        }
+      }
+
+      function setPlayerFullscreenState(active, options) {
+        var root = document.documentElement;
+        var shouldActivate = Boolean(active);
+        var settings = options || {};
+        if (shouldActivate) {
+          root.setAttribute('data-qdnes-player-fullscreen', 'true');
+        } else {
+          root.removeAttribute('data-qdnes-player-fullscreen');
+          if (settings.notifyPlayer !== false) {
+            postPlayerFullscreenExitRequest();
+          }
+        }
+        if (playerFullscreenExitButton) {
+          playerFullscreenExitButton.hidden = !shouldActivate;
+        }
+      }
+
       function reloadPlayerFrame(gameUrl, title, forcedCore, romFilename) {
+        setPlayerFullscreenState(false, { notifyPlayer: false });
         resetPlayerCapabilityState();
         gameFrame.src = buildPlayerUrl(gameUrl, title, forcedCore, romFilename);
       }
@@ -3153,6 +3742,19 @@
         }
         var data = event.data;
         if (!data || typeof data !== 'object') {
+          return;
+        }
+
+        if (data.type === 'qdnes-player-fullscreen') {
+          setPlayerFullscreenState(Boolean(data.active), { notifyPlayer: false });
+          return;
+        }
+
+        if (data.type === 'qdnes-player-diagnostic-result') {
+          if (!pendingDiagnosticRequest || pendingDiagnosticRequest.id !== String(data.requestId || '')) {
+            return;
+          }
+          finishPendingDiagnosticRequest(null, data.result || {});
           return;
         }
 
@@ -4745,7 +5347,6 @@
           setStatus('Loading', 'loading');
           await ensureQdnRomReady(service, publisher, fileInfo.identifier);
 
-          var url = await getQortalResourceUrl(service, publisher, fileInfo.identifier);
           var romFilename = typeof fileInfo.filename === 'string' ? fileInfo.filename : '';
           var displayTitle = getDisplayTitle(groupInfo);
           setCurrentQdnSelection(createQdnSelection({
@@ -4761,6 +5362,8 @@
             isDefaultFile: Boolean(fileInfo.isDefault),
             core: getSelectedCore()
           }));
+
+          var url = await getQortalResourceUrl(service, publisher, fileInfo.identifier);
 
           putMessage('Loading ROM from Qortal...');
           launchEmulator(url, displayTitle, false, romFilename);
@@ -4986,7 +5589,7 @@
           </button>
           <div class="brand-meta">
             <strong class="brand-title">Emulator</strong>
-            <span id="brand-version" class="brand-version">v0.1.0</span>
+            <span id="brand-version" class="brand-version" hidden></span>
           </div>
 	          <button id="changelogButton" class="topbar-changelog" type="button" aria-label="Changelog" title="Changelog" aria-expanded="false" aria-controls="changelogPopover">
 	            <svg
@@ -5016,10 +5619,14 @@
 	            </ul>
 	          </div>
 	        </div>
-        <div class="topbar-spacer"></div>
-        <div class="topbar-actions">
-          <div id="qapp-topbar-host" class="qapp-topbar-host"></div>
-        </div>
+	        <div class="topbar-spacer"></div>
+	        <div class="topbar-status" aria-label="Emulator status">
+	          <div class="status-pill status-idle" id="statusPill">Idle</div>
+	          <div class="chip" id="coreChip">Core: fceumm</div>
+	        </div>
+	        <div class="topbar-actions">
+	          <div id="qapp-topbar-host" class="qapp-topbar-host"></div>
+	        </div>
       </header>
       <div id="content-shell" class="content-shell">
         <aside id="qapp-left-sidebar-host" class="qapp-left-sidebar-host"></aside>
@@ -5073,20 +5680,17 @@
             </article>
           </div>
         </section>
-        <div class="app" data-system-page="systems">
-        <div class="status-strip qdnes-status-strip">
-          <div class="status-pill status-idle" id="statusPill">Idle</div>
-          <div class="chip" id="coreChip">Core: fceumm</div>
-        </div>
+	        <div class="app" data-system-page="systems">
 
-      <main class="app-main">
+	      <main class="app-main">
         <section class="player-card">
           <div class="player-meta">
             <span>ROM</span>
             <strong id="currentRom">None loaded</strong>
+            <button type="button" class="fullscreen-exit-button" id="playerFullscreenExitButton" hidden>Exit Fullscreen</button>
           </div>
           <div class="screen-frame">
-            <iframe id="gameFrame" title="Emulator Player" allow="autoplay; fullscreen"></iframe>
+            <iframe id="gameFrame" title="Emulator Player" allow="autoplay; fullscreen" allowfullscreen></iframe>
             <div class="screen-placeholder" id="screenPlaceholder">
               <div class="screen-placeholder-content">
                 <h2 class="screen-placeholder-title" id="screenPlaceholderTitle" hidden></h2>
@@ -5132,6 +5736,13 @@
           <div class="panel-block">
             <h2>Status</h2>
             <textarea id="statusLog" class="status-log" readonly="readonly"></textarea>
+            <div class="status-actions" hidden>
+              <button id="diagnosticButton" type="button" class="secondary">Run Diagnostics</button>
+              <div id="diagnosticReportLinks" class="diagnostic-links" hidden>
+                <a id="diagnosticJsonLink" href="#" download="qortium-emulator-diagnostics.json">JSON report</a>
+                <a id="diagnosticMarkdownLink" href="#" download="qortium-emulator-diagnostics.md">Markdown report</a>
+              </div>
+            </div>
           </div>
         </aside>
       </main>
