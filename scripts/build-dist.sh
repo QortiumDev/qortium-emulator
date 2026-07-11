@@ -139,6 +139,7 @@ copy_file "qortium-emulator-protoicon-black-transparent.webp"
 
 APP_VERSION="$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('${REPO_ROOT}/package.json', 'utf8')); console.log(pkg.version || '0.0.0');")"
 APP_VERSION="${APP_VERSION}" DIST_INDEX="${OUTPUT_DIR}/index.html" node -e "const fs = require('fs'); const indexPath = process.env.DIST_INDEX; const version = process.env.APP_VERSION; fs.writeFileSync(indexPath, fs.readFileSync(indexPath, 'utf8').replace(/__QORTIUM_APP_VERSION__/g, version));"
+APP_VERSION="${APP_VERSION}" DIST_MANIFEST="${OUTPUT_DIR}/qortium-app.json" node -e "const fs = require('fs'); fs.writeFileSync(process.env.DIST_MANIFEST, JSON.stringify({ name: 'Emulator', version: process.env.APP_VERSION }, null, 2) + '\\n');"
 
 copy_file "data/emulator.min.js"
 copy_file "data/emulator.min.css"
