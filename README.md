@@ -25,6 +25,12 @@ style messages. Classic and Modern styles are implemented; Fun is not.
 Display-setting changes are relayed into the player iframe while a game is
 running.
 
+Launcher home, system, and linked-ROM selections are represented in the app
+URL. Deliberate navigation adds browser-history entries, so Qortium Home and
+the browser Back/Forward controls can traverse them. Restoring launcher pages
+does not reload an active player, and returning to the exact same linked ROM,
+file, and core reuses the running game.
+
 EmulatorJS fullscreen state is bridged back to the launcher. The launcher can
 expand the player surface when native iframe fullscreen is not sufficient, and
 it exposes an **Exit Fullscreen** button; Escape also leaves that fallback mode.
@@ -42,7 +48,7 @@ cost from core, ROM, runtime, or host throttling.
 
 ## QAVS
 
-The app is at QAVS `1.4.0`: `1.4` is its minimum Qortium platform level and the
+The app is at QAVS `1.4.1`: `1.4` is its minimum Qortium platform level and the
 patch number is the app release. `scripts/build-dist.sh` reads `package.json`,
 injects the visible version into `dist/index.html`, and writes
 `dist/qortium-app.json` with the name `Emulator` and current version.
@@ -52,6 +58,7 @@ injects the visible version into `dist/index.html`, and writes
 ```sh
 npm run dev      # serve the source tree at http://localhost:5178
 npm run check    # JavaScript syntax checks
+npm test         # focused URL/history routing checks
 npm run build    # stage the publishable app in dist/
 npm run preview  # serve dist/ at http://localhost:4178
 ```

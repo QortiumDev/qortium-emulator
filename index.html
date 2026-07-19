@@ -1784,7 +1784,8 @@
           return '';
         }
         var normalized = value.trim().replace(/^v/i, '');
-        return normalized && normalized !== '__QORTIUM_APP_VERSION__' ? normalized : '';
+        var buildPlaceholder = '__QORTIUM_' + 'APP_VERSION__';
+        return normalized && normalized !== buildPlaceholder ? normalized : '';
       }
 
       function setAppVersionLabel(version) {
@@ -1834,9 +1835,6 @@
       }
 
       function getCurrentAppRelativePath() {
-        if (typeof window._qdnPath === 'string' && window._qdnPath) {
-          return normalizeAppRelativePath(window._qdnPath);
-        }
         var pathname = typeof window.location.pathname === 'string'
           ? window.location.pathname
           : '';
@@ -1846,6 +1844,9 @@
         }
         if (pathname === basePath.replace(/\/$/, '')) {
           return '';
+        }
+        if (typeof window._qdnPath === 'string' && window._qdnPath) {
+          return normalizeAppRelativePath(window._qdnPath);
         }
         return normalizeAppRelativePath(pathname);
       }
@@ -1922,6 +1923,7 @@
       var pendingHotSwapRequest = null;
       var hotSwapFallbackTimer = 0;
       var playerMessageBound = false;
+      var routeNavigationSerial = 0;
       var qdnRomLoadInFlight = false;
       var runtimeFallbackUsed = false;
       var diagnosticButton = null;
@@ -2509,7 +2511,11 @@
           : { kind: 'home', systemId: 'home' };
         var basePath = getEncodedQdnBasePath();
         var relativePath = '';
-        var hash = '';
+        var currentHash = typeof window.location.hash === 'string' ? window.location.hash : '';
+        var normalizedCurrentHash = currentHash.replace(/^#/, '').trim().toLowerCase();
+        var currentHashIsRoute = normalizedCurrentHash === 'home' ||
+          Object.prototype.hasOwnProperty.call(SYSTEM_CONFIGS, normalizedCurrentHash);
+        var hash = currentHashIsRoute ? '' : currentHash;
         var params = new URLSearchParams(window.location.search || '');
         clearQdnesRouteSearchParams(params);
 
@@ -2537,7 +2543,9 @@
       }
 
       function commitQdnesRouteState(routeState, historyMode) {
-        var mode = historyMode === 'replace' ? 'replace' : 'push';
+        var mode = historyMode === 'none'
+          ? 'none'
+          : (historyMode === 'replace' ? 'replace' : 'push');
         var state = routeState && typeof routeState === 'object'
           ? routeState
           : readHashRouteState();
@@ -2552,13 +2560,9 @@
           window.__qdnesResolvedRouteSystemId = '';
         }
 
-        // History writes disabled for Qortium Home embedding: pushState/replaceState
-        // would pollute Home's shared session history (and its back button) and can
-        // re-enter the app through popstate. Route state is tracked in-memory only,
-        // via setStoredQdnesRouteState() below.
-        void mode;
-        void currentUrl;
-        void targetUrl;
+        if (mode !== 'none' && currentUrl !== targetUrl) {
+          window.history[mode + 'State']({}, '', targetUrl);
+        }
         return setStoredQdnesRouteState(readQdnesRouteState());
       }
 
@@ -2652,6 +2656,7 @@
         var initialRoute = window.__qdnesRouteApi && typeof window.__qdnesRouteApi.readState === 'function'
           ? window.__qdnesRouteApi.readState()
           : readHashRouteState();
+	        commitQdnesRouteState(initialRoute, 'replace');
 	        var initialSystemId = initialRoute.kind === 'system'
 	          ? normalizeSystemId(initialRoute.systemId)
 	          : normalizeSystemId(window.__qdnesPendingSystemId || 'nes');
@@ -2678,14 +2683,12 @@
           window.addEventListener('message', handlePlayerMessage);
           playerMessageBound = true;
         }
-	        // Browser-history navigation listeners intentionally NOT bound when running
-	        // inside Qortium Home. Home manages tab switching through the shared session
-	        // history; the popstate/hashchange events it fires would call
-	        // handleRouteNavigationChange() and re-bootstrap the app, resetting a running
-	        // game on every tab switch. Internal navigation does not need them: it drives
-	        // the UI directly via setActiveSystem()/setVisiblePage() and keeps route state
-	        // in memory (window.__qdnesRouteState).
-	        void browserNavigationBound;
+	        if (!browserNavigationBound) {
+	          window.addEventListener('popstate', function() {
+	            void handleRouteNavigationChange();
+	          });
+	          browserNavigationBound = true;
+	        }
 
         gameFrame.addEventListener('load', function() {
           if (activeGameUrl) {
@@ -4796,16 +4799,67 @@
         syncDeepLinkRoute(nextSelection, historyMode);
       }
 
-      async function bootstrapDeepLinkRoute(routeState, historyMode) {
+      function getDeepLinkRouteIdentity(source) {
+        if (!source || normalizeDeepLinkRouteType(source.routeType || '') === '') {
+          return '';
+        }
+        var systemId = normalizeSystemId(source.systemId || activeSystemId);
+        var defaultCore = getSystemConfig(systemId).defaultCore;
+        var fileIdentifier = source.isDefaultFile ? '' : String(source.fileIdentifier || '');
+        return JSON.stringify({
+          routeType: normalizeDeepLinkRouteType(source.routeType || ''),
+          metadataName: String(source.metadataName || ''),
+          metadataIdentifier: String(source.metadataIdentifier || ''),
+          filePublisher: fileIdentifier ? String(source.filePublisher || '') : '',
+          fileIdentifier: fileIdentifier,
+          core: source.core && source.core !== defaultCore ? String(source.core) : '',
+          systemId: systemId
+        });
+      }
+
+      function isCurrentRunningDeepLinkRoute(routeState) {
+        return Boolean(
+          activeGameUrl &&
+          currentQdnSelection &&
+          getDeepLinkRouteIdentity(routeState) === getDeepLinkRouteIdentity(currentQdnSelection)
+        );
+      }
+
+      function restoreCurrentRunningDeepLinkRoute(routeState) {
+        var systemId = normalizeSystemId(currentQdnSelection.systemId || routeState.systemId || activeSystemId);
+        if (normalizeSystemId(activeSystemId) === systemId) {
+          setVisiblePage('systems');
+        } else {
+          setActiveSystem(systemId, {
+            reloadLibrary: false,
+            showPage: true
+          });
+        }
+        var requestedCore = routeState.core || getSystemConfig(systemId).defaultCore;
+        if (requestedCore) {
+          setSelectedCore(requestedCore);
+          updateCoreUi();
+        }
+        window.__qdnesResolvedRouteSystemId = systemId;
+        setStoredQdnesRouteState(routeState);
+      }
+
+      async function bootstrapDeepLinkRoute(routeState, historyMode, isCurrentNavigation) {
         if (!routeState || routeState.kind !== 'deep-link') {
           return false;
         }
+        var navigationIsCurrent = typeof isCurrentNavigation === 'function'
+          ? isCurrentNavigation
+          : function() { return true; };
         try {
           clearStatusLog();
           setStatus('Loading', 'loading');
           putMessage('Resolving linked library entry...');
 
           var metadata = await fetchPirateMetadata(routeState.metadataName, routeState.metadataIdentifier);
+          if (!navigationIsCurrent()) {
+            return false;
+          }
           var systemAnalysis = analyzeDeepLinkSystem(metadata, routeState.routeType);
           var inferredSystemId = systemAnalysis.systemId || '';
           if (systemAnalysis.status === 'unsupported') {
@@ -4884,7 +4938,7 @@
           };
 
           seedCurrentRomSelection(groupInfo, [metadata], fileEntries, selectedFile);
-          setCurrentQdnSelection(createQdnSelection({
+          var nextQdnSelection = createQdnSelection({
             systemId: inferredSystemId,
             groupKey: groupInfo.key,
             routeType: routeState.routeType,
@@ -4896,19 +4950,26 @@
             title: displayTitle,
             isDefaultFile: Boolean(selectedFile.isDefault),
             core: getSelectedCore()
-          }));
+          });
 
           clearStatusLog();
           setStatus('Loading', 'loading');
           await ensureQdnRomReady(selectedFile.service || 'FILE', selectedFile.publisher, selectedFile.identifier);
+          if (!navigationIsCurrent()) {
+            return false;
+          }
 
           var url = await getQortalResourceUrl(
             selectedFile.service || 'FILE',
             selectedFile.publisher,
             selectedFile.identifier
           );
+          if (!navigationIsCurrent()) {
+            return false;
+          }
 
           putMessage('Loading ROM from Qortal...');
+          setCurrentQdnSelection(nextQdnSelection);
           launchEmulator(url, displayTitle, false, selectedFile.filename || '');
           syncCurrentQdnSelectionRoute(historyMode || 'replace');
           return true;
@@ -4924,6 +4985,10 @@
       }
 
       async function handleRouteNavigationChange() {
+	        var navigationSerial = ++routeNavigationSerial;
+	        var navigationIsCurrent = function() {
+	          return navigationSerial === routeNavigationSerial;
+	        };
         var routeState = window.__qdnesRouteApi && typeof window.__qdnesRouteApi.readState === 'function'
           ? window.__qdnesRouteApi.readState()
           : readQdnesRouteState();
@@ -4931,18 +4996,26 @@
 	          window.__qdnesResolvedRouteSystemId = '';
 	          setStoredQdnesRouteState(routeState);
 	          if (routeState.kind === 'system') {
-	            setActiveSystem(routeState.systemId, {
-	              reloadLibrary: true,
-	              showPage: true
-	            });
+	            if (normalizeSystemId(activeSystemId) === normalizeSystemId(routeState.systemId)) {
+	              setVisiblePage('systems');
+	            } else {
+	              setActiveSystem(routeState.systemId, {
+	                reloadLibrary: true,
+	                showPage: true
+	              });
+	            }
 	          } else {
 	            setVisiblePage('home');
 	          }
 	          return;
 	        }
-        if (await bootstrapDeepLinkRoute(routeState, 'replace')) {
-          void populateRomListFromQDN();
-        }
+	        if (isCurrentRunningDeepLinkRoute(routeState)) {
+	          restoreCurrentRunningDeepLinkRoute(routeState);
+	          return;
+	        }
+	        if (await bootstrapDeepLinkRoute(routeState, 'none', navigationIsCurrent) && navigationIsCurrent()) {
+	          void populateRomListFromQDN();
+	        }
       }
 
       async function loadRomVariants(preferredSelection) {
