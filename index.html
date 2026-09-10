@@ -676,6 +676,7 @@
         grid-template-rows: auto minmax(0, 1fr);
       }
       .topbar {
+        min-width: 0;
         position: relative;
         z-index: 20;
         display: flex;
@@ -6791,7 +6792,7 @@
                   no automated ROM compatibility suite and no bundled download of core or
                   BIOS assets outside of what a launched session already streamed; every
                   release is smoke-checked manually against the checklist in
-                  <code>AGENTS.md</code>.
+                  <code>README.md</code>. The report links request a browser Blob download; they do not provide a host-acknowledged save result.
                 </p>
                 <p>
                   Appearance follows Qortium Home theme, accent, text-size, UI style, and
