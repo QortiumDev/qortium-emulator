@@ -1,6 +1,44 @@
 (function () {
   var DEFAULT_QORTAL_API_URL = 'https://ext-node.qortal.link';
 
+  var BRIDGE_ACTIONS = {
+    generic: {
+      search: 'SEARCH_QDN_RESOURCES',
+      status: 'GET_QDN_RESOURCE_STATUS',
+      fetch: 'FETCH_QDN_RESOURCE',
+      url: 'GET_QDN_RESOURCE_URL'
+    },
+    legacy: {
+      search: 'SEARCH_QORTAL_RESOURCES',
+      status: 'GET_QORTAL_RESOURCE_STATUS',
+      fetch: 'FETCH_QORTAL_RESOURCE',
+      url: 'GET_QORTAL_RESOURCE_URL'
+    }
+  };
+
+  var SEARCH_RESOURCE_QUERY_FIELDS = {
+    default: 'default',
+    description: 'description',
+    exactMatchNames: 'exactmatchnames',
+    excludeBlocked: 'excludeblocked',
+    followedOnly: 'followedonly',
+    identifier: 'identifier',
+    includeMetadata: 'includemetadata',
+    includeStatus: 'includestatus',
+    keywords: 'keywords',
+    limit: 'limit',
+    mode: 'mode',
+    name: 'name',
+    nameListFilter: 'namefilter',
+    names: 'name',
+    offset: 'offset',
+    prefix: 'prefix',
+    query: 'query',
+    reverse: 'reverse',
+    service: 'service',
+    title: 'title'
+  };
+
   function getQortalApiBaseUrl() {
     var configured = '';
     if (typeof window.EMULATOR_QORTAL_API_URL === 'string') {
@@ -10,6 +48,27 @@
       configured = window.QORTIUM_EMULATOR_QORTAL_API_URL;
     }
     return (configured || DEFAULT_QORTAL_API_URL).replace(/\/+$/, '');
+  }
+
+  function getQortalRequest() {
+    if (typeof window.qortalRequest === 'function') {
+      return window.qortalRequest;
+    }
+    try {
+      if (window.parent && typeof window.parent.qortalRequest === 'function') {
+        return window.parent.qortalRequest;
+      }
+    } catch (error) {
+      // Ignore cross-origin access errors.
+    }
+    try {
+      if (window.top && typeof window.top.qortalRequest === 'function') {
+        return window.top.qortalRequest;
+      }
+    } catch (error) {
+      // Ignore cross-origin access errors.
+    }
+    return null;
   }
 
   function getQdnRequest() {
@@ -89,44 +148,32 @@
 
   function buildSearchPath(request) {
     var queryParams = new URLSearchParams();
-    var fields = {
-      default: 'default',
-      description: 'description',
-      exactMatchNames: 'exactmatchnames',
-      excludeBlocked: 'excludeblocked',
-      followedOnly: 'followedonly',
-      identifier: 'identifier',
-      includeMetadata: 'includemetadata',
-      includeStatus: 'includestatus',
-      keywords: 'keywords',
-      limit: 'limit',
-      mode: 'mode',
-      name: 'name',
-      nameListFilter: 'namefilter',
-      names: 'name',
-      offset: 'offset',
-      prefix: 'prefix',
-      query: 'query',
-      reverse: 'reverse',
-      service: 'service',
-      title: 'title'
-    };
 
-    Object.keys(fields).forEach(function (key) {
+    Object.keys(SEARCH_RESOURCE_QUERY_FIELDS).forEach(function (key) {
       if (Object.prototype.hasOwnProperty.call(request, key)) {
-        appendSearchValue(queryParams, fields[key], request[key]);
+        appendSearchValue(queryParams, SEARCH_RESOURCE_QUERY_FIELDS[key], request[key]);
       }
     });
 
     return '/arbitrary/resources/search?' + queryParams.toString();
   }
 
-  async function requestBridge(action, payload) {
-    var qdnRequest = getQdnRequest();
-    if (!qdnRequest) {
-      return null;
+  async function requestBridge(genericAction, legacyAction, payload) {
+    var qortalRequest = getQortalRequest();
+    if (qortalRequest) {
+      return {
+        present: true,
+        result: await qortalRequest(Object.assign({ action: genericAction }, payload || {}))
+      };
     }
-    return qdnRequest(Object.assign({ action: action }, payload || {}));
+    var qdnRequest = getQdnRequest();
+    if (qdnRequest) {
+      return {
+        present: true,
+        result: await qdnRequest(Object.assign({ action: legacyAction }, payload || {}))
+      };
+    }
+    return { present: false, result: null };
   }
 
   async function fetchJson(path) {
@@ -177,25 +224,25 @@
   }
 
   async function searchResources(request) {
-    var bridgeResult = await requestBridge('SEARCH_QORTAL_RESOURCES', request);
-    if (bridgeResult !== null) {
-      return bridgeResult;
+    var bridge = await requestBridge(BRIDGE_ACTIONS.generic.search, BRIDGE_ACTIONS.legacy.search, request);
+    if (bridge.present) {
+      return bridge.result;
     }
     return fetchJson(buildSearchPath(request || {}));
   }
 
   async function getResourceStatus(request) {
-    var bridgeResult = await requestBridge('GET_QORTAL_RESOURCE_STATUS', request);
-    if (bridgeResult !== null) {
-      return bridgeResult;
+    var bridge = await requestBridge(BRIDGE_ACTIONS.generic.status, BRIDGE_ACTIONS.legacy.status, request);
+    if (bridge.present) {
+      return bridge.result;
     }
     return fetchJson(buildStatusPath(request || {}));
   }
 
   async function fetchResource(request) {
-    var bridgeResult = await requestBridge('FETCH_QORTAL_RESOURCE', request);
-    if (bridgeResult !== null) {
-      return bridgeResult;
+    var bridge = await requestBridge(BRIDGE_ACTIONS.generic.fetch, BRIDGE_ACTIONS.legacy.fetch, request);
+    if (bridge.present) {
+      return bridge.result;
     }
     return fetchText(buildResourcePath(request || {}));
   }
@@ -210,17 +257,24 @@
   }
 
   async function getResourceUrl(request) {
-    var bridgeResult = await requestBridge('GET_QORTAL_RESOURCE_URL', request);
-    var url = readUrlResult(bridgeResult);
+    var bridge = await requestBridge(BRIDGE_ACTIONS.generic.url, BRIDGE_ACTIONS.legacy.url, request);
+    if (!bridge.present) {
+      return getQortalApiBaseUrl() + buildResourcePath(request || {});
+    }
+    var url = readUrlResult(bridge.result);
     if (url) {
       return url;
     }
-    return getQortalApiBaseUrl() + buildResourcePath(request || {});
+    throw new Error('Qortal resource bridge returned an invalid URL.');
   }
 
   window.qortiumQortal = {
+    ACTIONS: BRIDGE_ACTIONS,
+    DEFAULT_QORTAL_API_URL: DEFAULT_QORTAL_API_URL,
+    SEARCH_QUERY_FIELDS: SEARCH_RESOURCE_QUERY_FIELDS,
     fetchResource: fetchResource,
     fetchResourceContent: fetchResourceContent,
+    getApiBaseUrl: getQortalApiBaseUrl,
     getResourceStatus: getResourceStatus,
     getResourceUrl: getResourceUrl,
     searchResources: searchResources

@@ -81,6 +81,9 @@ const routeFunctionNames = [
 function createHarness(url, overrides = {}) {
   const parsed = new URL(url);
   const writes = [];
+  let currentHistoryState = Object.prototype.hasOwnProperty.call(overrides, 'initialHistoryState')
+    ? overrides.initialHistoryState
+    : null;
   const location = {
     hash: parsed.hash,
     href: parsed.href,
@@ -104,6 +107,7 @@ function createHarness(url, overrides = {}) {
       nes: { defaultCore: 'fceumm' },
       snes: { defaultCore: 'snes9x' },
     },
+    DEEP_LINK_ROUTE_QUERY_KEYS: ['fileIdentifier', 'filePublisher', 'core'],
     activeGameUrl: '',
     activeSystemId: 'nes',
     currentQdnSelection: null,
@@ -113,11 +117,16 @@ function createHarness(url, overrides = {}) {
     updateCoreUi() {},
     window: {
       history: {
+        get state() {
+          return currentHistoryState;
+        },
         pushState(_state, _title, next) {
+          currentHistoryState = _state;
           writes.push({ mode: 'push', url: String(next) });
           updateLocation(next);
         },
         replaceState(_state, _title, next) {
+          currentHistoryState = _state;
           writes.push({ mode: 'replace', url: String(next) });
           updateLocation(next);
         },
@@ -132,7 +141,15 @@ function createHarness(url, overrides = {}) {
       `globalThis.routes = { ${routeFunctionNames.join(', ')} };`,
     context,
   );
-  return { context, location, routes: context.routes, writes };
+  return {
+    context,
+    location,
+    routes: context.routes,
+    writes,
+    get historyState() {
+      return currentHistoryState;
+    },
+  };
 }
 
 test('reads the live QDN path instead of a stale injected startup path', () => {
@@ -211,6 +228,16 @@ test('route commits push, replace, deduplicate, and never write during traversal
     { mode: 'push', url: '/render/APP/Emulator/Emulator/?theme=dark#nes' },
     { mode: 'replace', url: '/render/APP/Emulator/Emulator/?theme=dark#snes' },
   ]);
+});
+
+test('route commits preserve the embedding host history.state sentinel', () => {
+  const harness = createHarness(
+    'https://node.example/render/APP/Emulator/Emulator?theme=dark#home',
+    { _qdnBase: '/render/APP/Emulator/Emulator/', initialHistoryState: { host: 'sentinel' } },
+  );
+
+  harness.routes.commitQdnesRouteState({ kind: 'system', systemId: 'nes' }, 'push');
+  assert.deepEqual(harness.historyState, { host: 'sentinel' });
 });
 
 test('the running-game guard matches the exact deep-link file and core identity', () => {
