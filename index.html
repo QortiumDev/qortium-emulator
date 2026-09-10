@@ -828,9 +828,12 @@
         width: min(1080px, 100%);
         max-width: 100%;
         margin: 0 auto;
-        padding: 32px 12px 56px;
-        display: grid;
-        gap: 20px;
+        padding: 24px 12px 32px;
+        height: 100%;
+        overflow: auto;
+        overscroll-behavior: contain;
+        position: relative;
+        display: block;
         min-height: 0;
       }
       .developers-header {
@@ -863,6 +866,7 @@
         white-space: nowrap;
       }
       .developers-body {
+        margin-top: 20px;
         display: flex;
         align-items: flex-start;
         gap: 20px;
@@ -896,12 +900,18 @@
       .developers-reference {
         flex: 1 1 auto;
         min-width: 0;
-        max-height: calc(100vh - 220px);
-        overflow-y: auto;
-        overflow-x: hidden;
-        overscroll-behavior: contain;
+        max-height: none;
+        overflow: visible;
         display: grid;
         gap: 28px;
+      }
+      .developers-reference pre {
+        min-width: 0;
+        max-width: 100%;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-family: ui-monospace, monospace;
+        font-size: calc(13px * var(--text-scale));
       }
       .developers-section h2 {
         margin: 0 0 8px;
@@ -6656,7 +6666,7 @@
         </aside>
       </main>
       </div>
-        <section class="developers-page" data-system-page="developers" id="developersPage" lang="en" dir="ltr">
+        <section class="developers-page" data-system-page="developers" id="developersReferenceContainer" tabindex="0" lang="en" dir="ltr">
           <header class="developers-header">
             <div>
               <p class="developers-eyebrow">Reference</p>
@@ -6677,7 +6687,7 @@
               <a data-dev-toc-item="deep-links" href="?view=developers&amp;section=deep-links">Deep links</a>
               <a data-dev-toc-item="player-lifecycle" href="?view=developers&amp;section=player-lifecycle">Player lifecycle</a>
             </nav>
-            <div class="developers-reference" id="developersReferenceContainer" tabindex="0">
+            <div class="developers-reference">
               <section id="dev-section-overview" class="developers-section">
                 <h2>Overview</h2>
                 <p>
