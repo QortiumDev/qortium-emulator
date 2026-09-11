@@ -17,6 +17,34 @@
         font-style: normal;
         font-weight: 100 900;
       }
+      @font-face {
+        font-family: 'Comic Neue';
+        src: url('assets/fonts/comic-neue/comic-neue-latin-400-normal.woff2') format('woff2');
+        font-display: swap;
+        font-style: normal;
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'Comic Neue';
+        src: url('assets/fonts/comic-neue/comic-neue-latin-700-normal.woff2') format('woff2');
+        font-display: swap;
+        font-style: normal;
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: 'Fredoka';
+        src: url('assets/fonts/fredoka/fredoka-latin-400-normal.woff2') format('woff2');
+        font-display: swap;
+        font-style: normal;
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'Fredoka';
+        src: url('assets/fonts/fredoka/fredoka-latin-700-normal.woff2') format('woff2');
+        font-display: swap;
+        font-style: normal;
+        font-weight: 700;
+      }
       :root {
         --text-scale: 1;
         --bg: #071a14;
@@ -298,6 +326,25 @@
         --btn-secondary-from: rgba(237, 191, 83, 0.86);
         --btn-secondary-to: rgba(237, 191, 83, 0.6);
       }
+      :root[data-theme='dark'][data-accent='clay'],
+      :root:not([data-theme='light'])[data-accent='clay'] {
+        --accent: #c18b72;
+        --accent-strong: #d09b80;
+        --accent-soft: rgba(193, 139, 114, 0.18);
+        --accent-border: rgba(193, 139, 114, 0.45);
+        --highlight: #c18b72;
+        --bg-glow-primary: rgba(193, 139, 114, 0.18);
+        --bg-glow-accent: rgba(193, 139, 114, 0.2);
+        --orb-primary: rgba(193, 139, 114, 0.24);
+        --orb-accent: rgba(193, 139, 114, 0.2);
+        --status-ready-text: #c18b72;
+        --status-ready-border: rgba(193, 139, 114, 0.5);
+        --status-ready-bg: rgba(193, 139, 114, 0.16);
+        --btn-primary-text: #211d1a;
+        --btn-primary-accent-to: #e5c0ac;
+        --btn-secondary-from: rgba(208, 155, 128, 0.86);
+        --btn-secondary-to: rgba(208, 155, 128, 0.6);
+      }
       :root[data-theme='light'][data-accent='blue'] {
         --accent: #2a79f3;
         --accent-strong: #1e5ec3;
@@ -442,6 +489,24 @@
         --btn-secondary-from: rgba(189, 143, 32, 0.9);
         --btn-secondary-to: rgba(189, 143, 32, 0.7);
       }
+      :root[data-theme='light'][data-accent='clay'] {
+        --accent: #9a6750;
+        --accent-strong: #7f503b;
+        --accent-soft: rgba(154, 103, 80, 0.15);
+        --accent-border: rgba(154, 103, 80, 0.45);
+        --highlight: #7f503b;
+        --bg-glow-primary: rgba(154, 103, 80, 0.16);
+        --bg-glow-accent: rgba(154, 103, 80, 0.14);
+        --orb-primary: rgba(154, 103, 80, 0.18);
+        --orb-accent: rgba(154, 103, 80, 0.16);
+        --status-ready-text: #7f503b;
+        --status-ready-border: rgba(154, 103, 80, 0.4);
+        --status-ready-bg: rgba(154, 103, 80, 0.16);
+        --btn-primary-text: var(--text);
+        --btn-primary-accent-to: #d7b6a6;
+        --btn-secondary-from: rgba(127, 80, 59, 0.9);
+        --btn-secondary-to: rgba(127, 80, 59, 0.7);
+      }
       :root[data-ui='modern'] {
         --bg: #f2efe6;
         --bg-deep: #f2efe6;
@@ -500,6 +565,73 @@
         --home-hero-from: #1c1f28;
         --home-hero-to: #1c1f28;
       }
+      :root[data-ui='fun'] {
+        --bg: #fff2e0;
+        --bg-deep: #ffe8cc;
+        --panel: #ffffff;
+        --panel-strong: #ffffff;
+        --text: #402a1f;
+        --muted: #8a6a52;
+        --accent: #ff6f91;
+        --accent-strong: #ff4d76;
+        --accent-soft: rgba(255, 111, 145, 0.2);
+        --highlight: #ffb703;
+        --stroke: #ffd7a8;
+        --shadow: 0 12px 0 rgba(64, 42, 31, 0.08);
+        --bg-glow-primary: rgba(255, 183, 3, 0.16);
+        --bg-glow-accent: rgba(255, 111, 145, 0.18);
+        --orb-primary: rgba(255, 183, 3, 0.2);
+        --orb-accent: rgba(255, 111, 145, 0.2);
+        --topbar-bg: #ffffff;
+        --control-bg: #fff2e0;
+        --control-bg-hover: #ffe0b8;
+        --status-pill-bg: #fff2e0;
+        --chip-bg: #fff2e0;
+        --screen-border: #ffd7a8;
+        --screen-inset-stroke: rgba(64, 42, 31, 0.08);
+        --input-border: #ffd7a8;
+        --input-bg: #ffffff;
+        --btn-primary-text: #402210;
+        --ghost-border: #ffd7a8;
+        --button-shadow: 0 6px 0 rgba(64, 42, 31, 0.12);
+        --status-log-border: #ffd7a8;
+        --status-log-bg: #ffffff;
+        --status-log-text: #8a6a52;
+        --sidebar-hover-bg: #fff2e0;
+        --brand-logo-bg: #ffffff;
+        --home-hero-from: #ffe8cc;
+        --home-hero-to: #fff2e0;
+      }
+      :root[data-theme='dark'][data-ui='fun'] {
+        --bg: #2a1a3a;
+        --bg-deep: #20142e;
+        --panel: #3a2450;
+        --panel-strong: #3a2450;
+        --text: #fbe9ff;
+        --muted: #c6a8dd;
+        --accent: #ff8fab;
+        --accent-strong: #ff6f91;
+        --accent-soft: rgba(255, 143, 171, 0.22);
+        --highlight: #ffd166;
+        --stroke: #52356e;
+        --topbar-bg: #3a2450;
+        --control-bg: #3a2450;
+        --control-bg-hover: #52356e;
+        --status-pill-bg: #3a2450;
+        --chip-bg: #3a2450;
+        --screen-border: #52356e;
+        --screen-inset-stroke: rgba(255, 255, 255, 0.08);
+        --input-border: #52356e;
+        --input-bg: #3a2450;
+        --ghost-border: #52356e;
+        --status-log-border: #52356e;
+        --status-log-bg: #3a2450;
+        --status-log-text: #c6a8dd;
+        --sidebar-hover-bg: #52356e;
+        --brand-logo-bg: #3a2450;
+        --home-hero-from: #3a2450;
+        --home-hero-to: #2a1a3a;
+      }
       * {
         box-sizing: border-box;
       }
@@ -544,6 +676,7 @@
         grid-template-rows: auto minmax(0, 1fr);
       }
       .topbar {
+        min-width: 0;
         position: relative;
         z-index: 20;
         display: flex;
@@ -689,6 +822,146 @@
         font-size: calc(13px * var(--text-scale));
         color: var(--muted);
       }
+      .topbar-developers-button {
+        text-decoration: none;
+      }
+      .developers-page {
+        width: min(1080px, 100%);
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 24px 12px 32px;
+        height: 100%;
+        overflow: auto;
+        overscroll-behavior: contain;
+        position: relative;
+        display: block;
+        min-height: 0;
+      }
+      .developers-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .developers-eyebrow {
+        margin: 0 0 4px;
+        font-size: calc(12px * var(--text-scale));
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .developers-title {
+        margin: 0 0 6px;
+        font-size: calc(28px * var(--text-scale));
+      }
+      .developers-intro {
+        margin: 0;
+        max-width: 60ch;
+        color: var(--muted);
+      }
+      .developers-close-button {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .developers-body {
+        margin-top: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        min-height: 0;
+      }
+      .developers-toc {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 0 0 auto;
+        width: min(220px, 40vw);
+        position: sticky;
+        top: 0;
+      }
+      .developers-toc a {
+        display: block;
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: var(--text);
+        text-decoration: none;
+        border: 1px solid transparent;
+      }
+      .developers-toc a:hover {
+        background: var(--control-bg-hover);
+      }
+      .developers-toc a[aria-current='true'] {
+        background: var(--accent-soft);
+        border-color: var(--accent-border);
+        font-weight: 650;
+      }
+      .developers-reference {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-height: none;
+        overflow: visible;
+        display: grid;
+        gap: 28px;
+      }
+      .developers-reference pre {
+        min-width: 0;
+        max-width: 100%;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-family: ui-monospace, monospace;
+        font-size: calc(13px * var(--text-scale));
+      }
+      .developers-section h2 {
+        margin: 0 0 8px;
+      }
+      .developers-section p,
+      .developers-section li {
+        color: var(--muted);
+      }
+      .developers-section code {
+        background: var(--control-bg);
+        border: 1px solid var(--stroke);
+        border-radius: 6px;
+        padding: 1px 6px;
+        color: var(--text);
+        word-break: break-word;
+      }
+      .developers-example {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+      .developers-example pre {
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-x: auto;
+        color: var(--text);
+        font-family: 'Lexend', monospace;
+        font-size: calc(13px * var(--text-scale));
+      }
+      @media (max-width: 720px) {
+        .developers-body {
+          flex-direction: column;
+        }
+        .developers-toc {
+          width: 100%;
+          flex-direction: row;
+          flex-wrap: wrap;
+          position: static;
+        }
+        .developers-reference {
+          max-height: none;
+        }
+      }
       .content-shell {
         height: 100%;
         min-height: 0;
@@ -723,10 +996,15 @@
         overflow-x: hidden;
         overscroll-behavior: contain;
       }
-      html[data-qdnes-boot-page='home'] [data-system-page='systems'] {
+      html[data-qdnes-boot-page='home'] [data-system-page='systems'],
+      html[data-qdnes-boot-page='developers'] [data-system-page='systems'] {
         display: none;
       }
-      html[data-qdnes-boot-page='systems'] [data-system-page='home'] {
+      html[data-qdnes-boot-page='systems'] [data-system-page='home'],
+      html[data-qdnes-boot-page='developers'] [data-system-page='home'] {
+        display: none;
+      }
+      html:not([data-qdnes-boot-page='developers']) [data-system-page='developers'] {
         display: none;
       }
       .app {
@@ -1711,6 +1989,139 @@
           padding-right: 24px;
         }
       }
+      :root[data-ui='fun'] h1,
+      :root[data-ui='fun'] h2,
+      :root[data-ui='fun'] button,
+      :root[data-ui='fun'] .home-title,
+      :root[data-ui='fun'] .developers-title,
+      :root[data-ui='fun'] .home-system-link,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-shell-auth-button,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-lib-rating-row button {
+        font-family: 'Fredoka', 'Lexend', sans-serif;
+      }
+      :root[data-ui='fun'] body,
+      :root[data-ui='fun'] select,
+      :root[data-ui='fun'] textarea,
+      :root[data-ui='fun'] [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-item-button,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-shell-icon-button,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-lib-menu-section label,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-lib-menu-section select {
+        font-family: 'Comic Neue', 'Lexend', sans-serif;
+      }
+      :root[data-ui='fun'] body {
+        background: var(--bg);
+      }
+      :root[data-ui='fun'] body::before,
+      :root[data-ui='fun'] body::after {
+        display: none;
+      }
+      :root[data-ui='fun'] .topbar {
+        border-bottom: 3px solid var(--stroke);
+        background: var(--topbar-bg);
+        backdrop-filter: none;
+        box-shadow: none;
+      }
+      :root[data-ui='fun'] .menu-button,
+      :root[data-ui='fun'] .topbar-changelog,
+      :root[data-ui='fun'] .topbar-developers-button,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-shell-icon-button {
+        border-radius: 50%;
+        border: 2px solid var(--stroke);
+      }
+      :root[data-ui='fun'] .home-hero,
+      :root[data-ui='fun'] .home-attribution,
+      :root[data-ui='fun'] .home-system-card,
+      :root[data-ui='fun'] .player-card,
+      :root[data-ui='fun'] .panel-block,
+      :root[data-ui='fun'] .developers-toc,
+      :root[data-ui='fun'] .developers-reference,
+      :root[data-ui='fun'] .developers-example,
+      :root[data-ui='fun'] .topbar-changelog-popover,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-lib-menu {
+        border: 3px solid var(--stroke);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+      :root[data-ui='fun'] .home-hero,
+      :root[data-ui='fun'] .home-system-card,
+      :root[data-ui='fun'] .player-card,
+      :root[data-ui='fun'] .panel-block,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-lib-menu {
+        background: var(--panel-strong);
+      }
+      :root[data-ui='fun'] .home-attribution,
+      :root[data-ui='fun'] select,
+      :root[data-ui='fun'] textarea,
+      :root[data-ui='fun'] .status-log,
+      :root[data-ui='fun'] .home-system-link,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-lib-menu-section select {
+        background: var(--input-bg);
+        border: 2px solid var(--input-border);
+        border-radius: 14px;
+      }
+      :root[data-ui='fun'] .screen-frame {
+        border: 3px solid var(--screen-border);
+        border-radius: 16px;
+      }
+      :root[data-ui='fun'] button,
+      :root[data-ui='fun'] .home-system-link,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-shell-auth-button,
+      :root[data-ui='fun'] .qapp-topbar-host .qapp-lib-rating-row button {
+        border-radius: 50px;
+        box-shadow: var(--button-shadow);
+      }
+      :root[data-ui='fun'] button:hover,
+      :root[data-ui='fun'] .home-system-link:hover {
+        box-shadow: none;
+        transform: translateY(2px);
+      }
+      :root[data-ui='fun'] [data-qapp-lib='left-sidebar'] .qapp-lib-left-sidebar-items {
+        background: var(--panel);
+        border-right: 3px solid var(--stroke);
+        backdrop-filter: none;
+      }
+      @media (min-width: 900px) {
+        :root[data-ui='fun'] .app,
+        :root[data-ui='fun'] .home-page {
+          padding-left: 24px;
+          padding-right: 24px;
+        }
+      }
+      @media (max-width: 390px) {
+        .developers-page,
+        .developers-header,
+        .developers-body,
+        .developers-reference,
+        .developers-section,
+        .developers-example {
+          min-width: 0;
+          max-width: 100%;
+        }
+        .developers-section p,
+        .developers-section li {
+          overflow-wrap: anywhere;
+        }
+        .developers-example pre {
+          max-width: 100%;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+        }
+        :root[data-text-size='huge'] .developers-body {
+          flex-direction: column;
+        }
+        :root[data-text-size='huge'] .developers-toc {
+          flex-direction: row;
+          flex-wrap: wrap;
+          width: auto;
+        }
+        :root[data-text-size='huge'] .developers-toc a,
+        :root[data-text-size='huge'] .menu-button,
+        :root[data-text-size='huge'] .topbar-changelog,
+        :root[data-text-size='huge'] .topbar-developers-button {
+          min-height: 44px;
+          min-width: 44px;
+        }
+      }
     </style>
     <script>
       window.QORTIUM_APP_VERSION = '__QORTIUM_APP_VERSION__';
@@ -1891,17 +2302,129 @@
         };
       }
 
+      var DEVELOPERS_VIEW_PARAM = 'view';
+      var DEVELOPERS_VIEW_ID = 'developers';
+      var DEVELOPERS_VIEW_ALIASES = ['developer', 'reference'];
+      var DEVELOPERS_SECTION_PARAM = 'section';
+      var DEVELOPERS_SECTION_IDS = [
+        'overview',
+        'resource-model',
+        'bridge-actions',
+        'deep-links',
+        'player-lifecycle'
+      ];
+      var DEVELOPERS_DEFAULT_SECTION_ID = DEVELOPERS_SECTION_IDS[0];
+      var DEEP_LINK_ROUTE_QUERY_KEYS = ['fileIdentifier', 'filePublisher', 'core'];
+
+      function normalizeDevelopersViewParam(value) {
+        if (typeof value !== 'string') {
+          return '';
+        }
+        var normalized = value.trim().toLowerCase();
+        if (normalized === DEVELOPERS_VIEW_ID) {
+          return DEVELOPERS_VIEW_ID;
+        }
+        return DEVELOPERS_VIEW_ALIASES.indexOf(normalized) !== -1 ? DEVELOPERS_VIEW_ID : '';
+      }
+
+      function normalizeDevelopersSectionId(value) {
+        if (typeof value !== 'string') {
+          return '';
+        }
+        var normalized = value.trim().toLowerCase();
+        return DEVELOPERS_SECTION_IDS.indexOf(normalized) !== -1 ? normalized : '';
+      }
+
+      function readDevelopersViewState() {
+        var params = new URLSearchParams(window.location.search || '');
+        var isDevelopers = normalizeDevelopersViewParam(params.get(DEVELOPERS_VIEW_PARAM)) === DEVELOPERS_VIEW_ID;
+        var sectionId = isDevelopers
+          ? (normalizeDevelopersSectionId(params.get(DEVELOPERS_SECTION_PARAM)) || DEVELOPERS_DEFAULT_SECTION_ID)
+          : '';
+        return { isDevelopers: isDevelopers, sectionId: sectionId };
+      }
+
+      function buildDevelopersNavigationUrl(nextState) {
+        var state = nextState && typeof nextState === 'object' ? nextState : { isDevelopers: false };
+        var params = new URLSearchParams(window.location.search || '');
+        if (state.isDevelopers) {
+          params.set(DEVELOPERS_VIEW_PARAM, DEVELOPERS_VIEW_ID);
+          var sectionId = normalizeDevelopersSectionId(state.sectionId);
+          if (sectionId) {
+            params.set(DEVELOPERS_SECTION_PARAM, sectionId);
+          } else {
+            params.delete(DEVELOPERS_SECTION_PARAM);
+          }
+        } else {
+          params.delete(DEVELOPERS_VIEW_PARAM);
+          params.delete(DEVELOPERS_SECTION_PARAM);
+        }
+        var search = params.toString();
+        var hash = typeof window.location.hash === 'string' ? window.location.hash : '';
+        return window.location.pathname + (search ? '?' + search : '') + hash;
+      }
+
+      function commitDevelopersViewState(nextState, historyMode) {
+        var mode = historyMode === 'push' ? 'push' : 'replace';
+        var targetUrl = buildDevelopersNavigationUrl(nextState);
+        var currentUrl = (window.location.pathname || '') +
+          (window.location.search || '') +
+          (window.location.hash || '');
+        if (targetUrl !== currentUrl) {
+          window.history[mode + 'State'](window.history.state, '', targetUrl);
+        }
+        return nextState;
+      }
+
+      function canonicalizeDevelopersViewParam() {
+        var params = new URLSearchParams(window.location.search || '');
+        var raw = params.get(DEVELOPERS_VIEW_PARAM);
+        if (typeof raw !== 'string') {
+          return false;
+        }
+        var normalized = normalizeDevelopersViewParam(raw);
+        if (!normalized) {
+          return false;
+        }
+        var changed = raw !== normalized;
+        if (changed) {
+          params.set(DEVELOPERS_VIEW_PARAM, normalized);
+        }
+        var rawSection = params.get(DEVELOPERS_SECTION_PARAM);
+        if (rawSection !== null) {
+          var normalizedSection = normalizeDevelopersSectionId(rawSection) || DEVELOPERS_DEFAULT_SECTION_ID;
+          if (rawSection !== normalizedSection) {
+            params.set(DEVELOPERS_SECTION_PARAM, normalizedSection);
+            changed = true;
+          }
+        }
+        if (!changed) {
+          return false;
+        }
+        var search = params.toString();
+        var hash = typeof window.location.hash === 'string' ? window.location.hash : '';
+        var targetUrl = window.location.pathname + (search ? '?' + search : '') + hash;
+        window.history.replaceState(window.history.state, '', targetUrl);
+        return true;
+      }
+
       var initialDeepLinkRoute = parseDeepLinkRoutePath(getCurrentAppRelativePath());
       var initialHashForBoot = typeof window.location.hash === 'string'
         ? window.location.hash.trim().toLowerCase()
         : '';
-	      var initialBootPage = initialDeepLinkRoute
-	        ? 'systems'
-	        : ((!initialHashForBoot || initialHashForBoot === '#home') ? 'home' : 'systems');
+	      var initialDevelopersViewState = readDevelopersViewState();
+	      var initialBootPage = initialDevelopersViewState.isDevelopers
+	        ? 'developers'
+	        : (initialDeepLinkRoute
+	          ? 'systems'
+	          : ((!initialHashForBoot || initialHashForBoot === '#home') ? 'home' : 'systems'));
 	      setVisiblePage(initialBootPage);
 
 	      function setVisiblePage(page) {
-	        document.documentElement.dataset.qdnesBootPage = page === 'systems' ? 'systems' : 'home';
+	        var normalized = page === 'systems'
+	          ? 'systems'
+	          : (page === 'developers' ? 'developers' : 'home');
+	        document.documentElement.dataset.qdnesBootPage = normalized;
 	      }
 
       var userName = null;
@@ -1993,6 +2516,13 @@
         name: 'QDNES',
         identifier: 'cores',
         pathPrefix: 'bios'
+      };
+
+      // Inert example validated against the actual metadata file-reference filter.
+      var DEVELOPERS_METADATA_EXAMPLE = {
+        title: 'Original example',
+        description: 'Synthetic metadata; no published game is referenced.',
+        fileReferences: [{ label: 'rom', service: 'FILE', identifier: 'example-game.nes', filename: 'example-game.nes', isHeader: true }]
       };
 
       var gameFrame = null;
@@ -2500,9 +3030,9 @@
       }
 
       function clearQdnesRouteSearchParams(params) {
-        params.delete('filePublisher');
-        params.delete('fileIdentifier');
-        params.delete('core');
+        DEEP_LINK_ROUTE_QUERY_KEYS.forEach(function(key) {
+          params.delete(key);
+        });
       }
 
       function buildQdnesUrlFromRouteState(routeState) {
@@ -2561,7 +3091,7 @@
         }
 
         if (mode !== 'none' && currentUrl !== targetUrl) {
-          window.history[mode + 'State']({}, '', targetUrl);
+          window.history[mode + 'State'](window.history.state, '', targetUrl);
         }
         return setStoredQdnesRouteState(readQdnesRouteState());
       }
@@ -2645,6 +3175,7 @@
 	        bindMenuButton();
 	        bindHomeSystemButtons();
 	        bindChangelogButton();
+	        bindDevelopersWorkspace();
 	        bindQortalNewTabLinks();
 	        bindScreenPlaceholderAction();
 	        bindPirateNintendoButton();
@@ -2656,7 +3187,10 @@
         var initialRoute = window.__qdnesRouteApi && typeof window.__qdnesRouteApi.readState === 'function'
           ? window.__qdnesRouteApi.readState()
           : readHashRouteState();
-	        commitQdnesRouteState(initialRoute, 'replace');
+	        if (!readDevelopersViewState().isDevelopers) {
+	          commitQdnesRouteState(initialRoute, 'replace');
+	        }
+	        canonicalizeDevelopersViewParam();
 	        var initialSystemId = initialRoute.kind === 'system'
 	          ? normalizeSystemId(initialRoute.systemId)
 	          : normalizeSystemId(window.__qdnesPendingSystemId || 'nes');
@@ -2664,12 +3198,17 @@
 	          reloadLibrary: false,
 	          showPage: initialRoute.kind !== 'home'
 	        });
-        if (initialRoute.kind === 'deep-link') {
+        var bootDevelopersViewState = readDevelopersViewState();
+        if (!bootDevelopersViewState.isDevelopers && initialRoute.kind === 'deep-link') {
           if (await bootstrapDeepLinkRoute(initialRoute, 'replace')) {
             void populateRomListFromQDN();
           }
-        } else if (initialRoute.kind === 'system') {
+        } else if (!bootDevelopersViewState.isDevelopers && initialRoute.kind === 'system') {
           await populateRomListFromQDN();
+        }
+        if (bootDevelopersViewState.isDevelopers) {
+          setVisiblePage('developers');
+          renderDevelopersSection(bootDevelopersViewState.sectionId);
         }
         if (romList) {
           romList.onchange = loadRomVariants;
@@ -2685,7 +3224,14 @@
         }
 	        if (!browserNavigationBound) {
 	          window.addEventListener('popstate', function() {
-	            void handleRouteNavigationChange();
+            void handleRouteNavigationChange().then(function() {
+              canonicalizeDevelopersViewParam();
+	              var developersViewState = readDevelopersViewState();
+	              if (developersViewState.isDevelopers) {
+	                setVisiblePage('developers');
+	                renderDevelopersSection(developersViewState.sectionId);
+	              }
+	            });
 	          });
 	          browserNavigationBound = true;
 	        }
@@ -2766,6 +3312,251 @@
 	          }
 	        });
 	      }
+
+      function scrollToDevelopersSection(sectionId) {
+        var normalized = normalizeDevelopersSectionId(sectionId);
+        if (!normalized) {
+          return false;
+        }
+        var container = document.getElementById('developersReferenceContainer');
+        var target = document.getElementById('dev-section-' + normalized);
+        if (!container || !target || !container.contains(target)) {
+          return false;
+        }
+        container.scrollTop = target.offsetTop - container.offsetTop;
+        return true;
+      }
+
+      function refreshDevelopersTocState(activeSectionId) {
+        var tocLinks = document.querySelectorAll('[data-dev-toc-item]');
+        for (var i = 0; i < tocLinks.length; i += 1) {
+          var link = tocLinks[i];
+          var linkSectionId = link.getAttribute('data-dev-toc-item');
+          link.setAttribute('aria-current', linkSectionId === activeSectionId ? 'true' : 'false');
+          link.setAttribute('href', buildDevelopersNavigationUrl({
+            isDevelopers: true,
+            sectionId: normalizeDevelopersSectionId(linkSectionId) || DEVELOPERS_DEFAULT_SECTION_ID
+          }));
+        }
+      }
+
+      function refreshDevelopersControlHrefs(activeSectionId) {
+        var openButton = document.getElementById('developersButton');
+        if (openButton) {
+          openButton.setAttribute('href', buildDevelopersNavigationUrl({
+            isDevelopers: true,
+            sectionId: activeSectionId || DEVELOPERS_DEFAULT_SECTION_ID
+          }));
+        }
+        var closeButton = document.getElementById('developersCloseButton');
+        if (closeButton) {
+          closeButton.setAttribute('href', buildDevelopersNavigationUrl({ isDevelopers: false }));
+        }
+      }
+
+      function renderDevelopersSection(sectionId) {
+        var normalized = normalizeDevelopersSectionId(sectionId) || DEVELOPERS_DEFAULT_SECTION_ID;
+        refreshDevelopersTocState(normalized);
+        refreshDevelopersControlHrefs(normalized);
+        scrollToDevelopersSection(normalized);
+      }
+
+      function openDevelopersWorkspace(sectionId, historyMode) {
+        setVisiblePage('developers');
+        var normalizedSection = normalizeDevelopersSectionId(sectionId) || DEVELOPERS_DEFAULT_SECTION_ID;
+        commitDevelopersViewState({ isDevelopers: true, sectionId: normalizedSection }, historyMode || 'push');
+        renderDevelopersSection(normalizedSection);
+      }
+
+      function closeDevelopersWorkspace(historyMode) {
+        var routeState = window.__qdnesRouteApi && typeof window.__qdnesRouteApi.readState === 'function'
+          ? window.__qdnesRouteApi.readState()
+          : readQdnesRouteState();
+        setVisiblePage(routeState.kind === 'home' ? 'home' : 'systems');
+        commitDevelopersViewState({ isDevelopers: false }, historyMode || 'push');
+        if (routeState.kind !== 'home' && !activeGameUrl && romList && romList.options.length <= 1) {
+          void populateRomListFromQDN();
+        }
+      }
+
+      function navigateDevelopersSection(sectionId) {
+        var normalized = normalizeDevelopersSectionId(sectionId);
+        if (!normalized) {
+          return false;
+        }
+        renderDevelopersSection(normalized);
+        commitDevelopersViewState({ isDevelopers: true, sectionId: normalized }, 'push');
+        return true;
+      }
+
+      function setDevelopersListText(elementId, values) {
+        var element = document.getElementById(elementId);
+        if (!element) {
+          return;
+        }
+        element.textContent = Array.isArray(values) && values.length ? values.join(', ') : '(unavailable)';
+      }
+
+      function getDevelopersDisplaySettingsSchema() {
+        return (window.__qdnesDisplaySettingsSchema && typeof window.__qdnesDisplaySettingsSchema === 'object')
+          ? window.__qdnesDisplaySettingsSchema
+          : { themes: [], textSizes: [], accents: [], uiStyles: [] };
+      }
+
+      function renderDevelopersDocumentationLists() {
+        var bridge = (window.qortiumQortal && typeof window.qortiumQortal === 'object') ? window.qortiumQortal : null;
+        var actions = bridge && bridge.ACTIONS ? bridge.ACTIONS : {};
+        var genericActions = actions.generic && typeof actions.generic === 'object' ? actions.generic : {};
+        var legacyActions = actions.legacy && typeof actions.legacy === 'object' ? actions.legacy : {};
+        setDevelopersListText('devBridgeActionsList', [
+          genericActions.search ? 'qortalRequest: ' + genericActions.search : '',
+          genericActions.status ? 'qortalRequest: ' + genericActions.status : '',
+          genericActions.fetch ? 'qortalRequest: ' + genericActions.fetch : '',
+          genericActions.url ? 'qortalRequest: ' + genericActions.url : '',
+          legacyActions.search ? 'qdnRequest: ' + legacyActions.search : '',
+          legacyActions.status ? 'qdnRequest: ' + legacyActions.status : '',
+          legacyActions.fetch ? 'qdnRequest: ' + legacyActions.fetch : '',
+          legacyActions.url ? 'qdnRequest: ' + legacyActions.url : ''
+        ].filter(Boolean));
+        var searchFields = bridge && bridge.SEARCH_QUERY_FIELDS ? Object.keys(bridge.SEARCH_QUERY_FIELDS) : [];
+        setDevelopersListText('devSearchFieldsList', searchFields);
+        setDevelopersListText('devFallbackBaseUrl', bridge && bridge.DEFAULT_QORTAL_API_URL ? [bridge.DEFAULT_QORTAL_API_URL] : []);
+        setDevelopersListText('devDeepLinkQueryKeysList', DEEP_LINK_ROUTE_QUERY_KEYS);
+        setDevelopersListText('devSectionIdsList', DEVELOPERS_SECTION_IDS);
+        setDevelopersListText('devViewAliasesList', DEVELOPERS_VIEW_ALIASES);
+        document.getElementById('devMetadataExample').textContent = JSON.stringify(DEVELOPERS_METADATA_EXAMPLE, null, 2);
+        document.getElementById('devPlayerResources').textContent = JSON.stringify({
+          cores: PLAYER_CORE_BUNDLE_RESOURCE,
+          ps1Bios: PLAYER_PSX_BIOS_RESOURCE,
+          segaCdBios: PLAYER_SEGA_CD_BIOS_RESOURCE,
+          saturnBios: PLAYER_SATURN_BIOS_RESOURCE
+        }, null, 2);
+        setDevelopersListText('devReadyStatuses', Array.from(QDN_RESOURCE_READY_STATUSES));
+        setDevelopersListText('devErrorStatuses', Array.from(QDN_RESOURCE_ERROR_STATUSES));
+        var schema = getDevelopersDisplaySettingsSchema();
+        setDevelopersListText('devThemesList', schema.themes);
+        setDevelopersListText('devTextSizesList', schema.textSizes);
+        setDevelopersListText('devAccentsList', schema.accents);
+        setDevelopersListText('devUiStylesList', schema.uiStyles);
+      }
+
+      function reportDevelopersCopyResult(button, success) {
+        var targetId = button.getAttribute('data-dev-copy-example');
+        var status = targetId ? document.querySelector('[data-dev-copy-status-for="' + targetId + '"]') : null;
+        if (status) {
+          status.textContent = success ? 'Copied' : 'Copy failed';
+          status.setAttribute('data-copy-state', success ? 'success' : 'error');
+        }
+      }
+
+      function copyDevelopersExampleTextFallback(text) {
+        if (!document.body || typeof document.execCommand !== 'function') {
+          return false;
+        }
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', 'readonly');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        var succeeded = false;
+        try {
+          succeeded = document.execCommand('copy');
+        } catch (error) {
+          succeeded = false;
+        }
+        document.body.removeChild(textarea);
+        return succeeded;
+      }
+
+      function copyDevelopersExampleText(text) {
+        if (window.navigator && window.navigator.clipboard && typeof window.navigator.clipboard.writeText === 'function') {
+          return window.navigator.clipboard.writeText(text).then(function() {
+            return true;
+          }).catch(function() {
+            return copyDevelopersExampleTextFallback(text);
+          });
+        }
+        return Promise.resolve(copyDevelopersExampleTextFallback(text));
+      }
+
+      function bindDevelopersTocLink(link) {
+        if (!link || link.dataset.devTocBound === 'true') {
+          return;
+        }
+        link.dataset.devTocBound = 'true';
+        link.addEventListener('click', function(event) {
+          if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey ||
+              event.altKey || event.button === 1) {
+            return;
+          }
+          event.preventDefault();
+          navigateDevelopersSection(link.getAttribute('data-dev-toc-item'));
+        });
+      }
+
+      function bindDevelopersCopyButton(button) {
+        if (!button || button.dataset.devCopyBound === 'true') {
+          return;
+        }
+        button.dataset.devCopyBound = 'true';
+        button.addEventListener('click', function(event) {
+          event.preventDefault();
+          var targetId = button.getAttribute('data-dev-copy-example');
+          var source = targetId ? document.getElementById(targetId) : null;
+          var text = source ? (source.textContent || '') : '';
+          var focusTarget = document.activeElement;
+          Promise.resolve(copyDevelopersExampleText(text)).then(function(success) {
+            reportDevelopersCopyResult(button, Boolean(success));
+            if (focusTarget && typeof focusTarget.focus === 'function') {
+              focusTarget.focus();
+            } else if (typeof button.focus === 'function') {
+              button.focus();
+            }
+          });
+        });
+      }
+
+      function bindDevelopersWorkspace() {
+        var openButton = document.getElementById('developersButton');
+        var closeButton = document.getElementById('developersCloseButton');
+
+        if (openButton && openButton.dataset.devOpenBound !== 'true') {
+          openButton.dataset.devOpenBound = 'true';
+          openButton.addEventListener('click', function(event) {
+            if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey ||
+                event.altKey || event.button === 1) {
+              return;
+            }
+            event.preventDefault();
+            openDevelopersWorkspace(DEVELOPERS_DEFAULT_SECTION_ID, 'push');
+          });
+        }
+        if (closeButton && closeButton.dataset.devCloseBound !== 'true') {
+          closeButton.dataset.devCloseBound = 'true';
+          closeButton.addEventListener('click', function(event) {
+            if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey ||
+                event.altKey || event.button === 1) {
+              return;
+            }
+            event.preventDefault();
+            closeDevelopersWorkspace('push');
+          });
+        }
+
+        var tocLinks = document.querySelectorAll('[data-dev-toc-item]');
+        for (var i = 0; i < tocLinks.length; i += 1) {
+          bindDevelopersTocLink(tocLinks[i]);
+        }
+        var copyButtons = document.querySelectorAll('[data-dev-copy-example]');
+        for (var j = 0; j < copyButtons.length; j += 1) {
+          bindDevelopersCopyButton(copyButtons[j]);
+        }
+
+        refreshDevelopersControlHrefs(readDevelopersViewState().sectionId);
+        renderDevelopersDocumentationLists();
+      }
 
       function bindMenuButton() {
         var button = document.getElementById('menuButton');
@@ -4989,15 +5780,24 @@
 	        var navigationIsCurrent = function() {
 	          return navigationSerial === routeNavigationSerial;
 	        };
-        var routeState = window.__qdnesRouteApi && typeof window.__qdnesRouteApi.readState === 'function'
-          ? window.__qdnesRouteApi.readState()
-          : readQdnesRouteState();
-	        if (routeState.kind !== 'deep-link') {
+	        var routeState = window.__qdnesRouteApi && typeof window.__qdnesRouteApi.readState === 'function'
+	          ? window.__qdnesRouteApi.readState()
+	          : readQdnesRouteState();
+	        if (readDevelopersViewState().isDevelopers) {
+	          // Developers is a cosmetic overlay. A deep-link URL underneath it must
+	          // remain pending until the user returns to the emulator view.
+	          setStoredQdnesRouteState(routeState);
+	          return;
+	        }
+		        if (routeState.kind !== 'deep-link') {
 	          window.__qdnesResolvedRouteSystemId = '';
 	          setStoredQdnesRouteState(routeState);
 	          if (routeState.kind === 'system') {
 	            if (normalizeSystemId(activeSystemId) === normalizeSystemId(routeState.systemId)) {
 	              setVisiblePage('systems');
+              if (!activeGameUrl && romList && romList.options.length <= 1) {
+                void populateRomListFromQDN();
+              }
 	            } else {
 	              setActiveSystem(routeState.systemId, {
 	                reloadLibrary: true,
@@ -5496,8 +6296,15 @@
         var root = document.documentElement;
         var THEMES = ['dark', 'light'];
         var SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large', 'huge'];
-        var ACCENTS = ['green', 'blue', 'orange', 'purple', 'red', 'teal', 'cyan', 'pink', 'yellow'];
-        var UI_STYLES = ['classic', 'modern'];
+        var ACCENTS = ['clay', 'green', 'blue', 'orange', 'purple', 'red', 'teal', 'cyan', 'pink', 'yellow'];
+        var UI_STYLES = ['classic', 'modern', 'fun'];
+
+        window.__qdnesDisplaySettingsSchema = {
+          themes: THEMES,
+          textSizes: SIZES,
+          accents: ACCENTS,
+          uiStyles: UI_STYLES
+        };
 
         function normalizeChoice(value, allowedValues) {
           if (typeof value !== 'string') {
@@ -5605,6 +6412,20 @@
           }
         }
 
+        function isTrustedDisplaySettingsEvent(event) {
+          if (!event) {
+            return false;
+          }
+          if (event.source === null || event.source === window) {
+            return true;
+          }
+          try {
+            return window.parent !== window && event.source === window.parent;
+          } catch (error) {
+            return false;
+          }
+        }
+
         try {
           var params = new URLSearchParams(window.location.search || '');
           applyDisplaySettings({
@@ -5626,6 +6447,9 @@
         }
 
         window.addEventListener('message', function handleHomeDisplaySettingsMessage(event) {
+          if (!isTrustedDisplaySettingsEvent(event)) {
+            return;
+          }
           var data = event.data;
           if (!data || typeof data !== 'object') {
             return;
@@ -5691,6 +6515,29 @@
 	              </li>
 	            </ul>
 	          </div>
+	          <a
+	            id="developersButton"
+	            class="topbar-changelog topbar-developers-button"
+	            href="?view=developers&amp;section=overview"
+	            aria-label="Developers"
+	            title="Developers"
+	          >
+	            <svg
+	              class="qapp-shell-info-icon"
+	              aria-hidden="true"
+	              viewBox="0 0 24 24"
+	              focusable="false"
+	            >
+	              <path
+	                d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"
+	                fill="none"
+	                stroke="currentColor"
+	                stroke-width="1.8"
+	                stroke-linecap="round"
+	                stroke-linejoin="round"
+	              ></path>
+	            </svg>
+	          </a>
 	        </div>
 	        <div class="topbar-spacer"></div>
 	        <div class="topbar-status" aria-label="Emulator status">
@@ -5820,6 +6667,140 @@
         </aside>
       </main>
       </div>
+        <section class="developers-page" data-system-page="developers" id="developersReferenceContainer" tabindex="0" lang="en" dir="ltr">
+          <header class="developers-header">
+            <div>
+              <p class="developers-eyebrow">Reference</p>
+              <h1 class="developers-title">Developers</h1>
+              <p class="developers-intro">Qortal resources, Home bridge actions, deep links, and player behavior.</p>
+            </div>
+            <a id="developersCloseButton" class="secondary developers-close-button" href="?">Back to Emulator</a>
+          </header>
+          <div class="developers-body">
+            <nav class="developers-toc" aria-label="Developers reference sections">
+              <a data-dev-toc-item="overview" href="?view=developers&amp;section=overview">Overview</a>
+              <a data-dev-toc-item="resource-model" href="?view=developers&amp;section=resource-model">Resource model</a>
+              <a data-dev-toc-item="bridge-actions" href="?view=developers&amp;section=bridge-actions">Bridge actions</a>
+              <a data-dev-toc-item="deep-links" href="?view=developers&amp;section=deep-links">Deep links</a>
+              <a data-dev-toc-item="player-lifecycle" href="?view=developers&amp;section=player-lifecycle">Player lifecycle</a>
+            </nav>
+            <div class="developers-reference">
+              <section id="dev-section-overview" class="developers-section">
+                <h2>Overview</h2>
+                <p>
+                  Qortium Emulator is a Qortium QDN app. It runs EmulatorJS locally and
+                  reads game metadata, ROM, BIOS, and core-bundle resources that happen to
+                  be hosted on Qortal. Qortium and Qortal are distinct platforms; the
+                  <code>QORTAL</code>-labeled actions and resource services below are
+                  technical identifiers for that hosting layer, not a statement that this
+                  app is a Qortal app.
+                </p>
+                <p>
+                  Everything documented on this page is read-only from Emulator&#39;s side:
+                  browsing, fetching, and playing published resources. This app does not
+                  publish, write, or modify anything on Qortal or Qortium.
+                </p>
+              </section>
+              <section id="dev-section-resource-model" class="developers-section">
+                <h2>Resource model</h2>
+                <p>
+                  Resources are addressed by service, publisher name, and identifier, with
+                  an optional in-resource file path. <code>qortium-qortal-bridge.js</code>
+                  builds every request from those three-or-four coordinates.
+                </p>
+                <p>Search query fields accepted by resource search: <code id="devSearchFieldsList"></code></p>
+                <p>Plain-browser fallback API base: <code id="devFallbackBaseUrl"></code> (override with <code>window.EMULATOR_QORTAL_API_URL</code> or <code>window.QORTIUM_EMULATOR_QORTAL_API_URL</code> before this script loads)</p>
+                <div class="developers-example">
+                  <pre id="devResourceExample">{ "service": "FILE", "name": "ExamplePublisher", "identifier": "example-rom-id", "path": "game.nes" }</pre>
+                  <button type="button" data-dev-copy-example="devResourceExample" class="secondary">Copy example</button>
+                  <span class="developers-copy-status" data-dev-copy-status-for="devResourceExample" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+                <p>
+                  This is an inert, made-up example for illustration; it is not a real
+                  publisher, identifier, or file. The bridge accepts <code>path</code> or
+                  <code>filepath</code> in this input and sends the normalized path as
+                  <code>filepath</code> to the resource endpoint.
+                </p>
+                <h3>Game metadata and file references</h3>
+                <p>The library searches Qortal <code>METADATA</code> resources by the selected system's queries (up to 200 results per query). The full metadata is fetched as base64 JSON with a 5 MiB response limit. ROM entries require <code>label: rom</code>, service <code>FILE</code> (or empty), and a filename/identifier extension supported by that system. Mods also accept <code>label: prom</code>. The metadata resource's publisher supplies the file publisher; a reference's own publisher field is not used. <code>isHeader</code> marks the default variant.</p>
+                <div class="developers-example">
+                  <pre id="devMetadataExample"></pre>
+                  <button type="button" data-dev-copy-example="devMetadataExample" class="secondary">Copy metadata example</button>
+                  <span class="developers-copy-status" data-dev-copy-status-for="devMetadataExample" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+                <h3>Core and BIOS resources</h3>
+                <p>The normal app build bundles fceumm. Other cores and required BIOS files use these current Qortal coordinates. Only <code id="devReadyStatuses"></code> is ready to read; terminal statuses are <code id="devErrorStatuses"></code>. Publication alone does not mean the selected node has downloaded every chunk.</p>
+                <pre id="devPlayerResources"></pre>
+              </section>
+              <section id="dev-section-bridge-actions" class="developers-section">
+                <h2>Bridge actions</h2>
+                <p>
+                  Emulator only calls read-only Home bridge actions: <code id="devBridgeActionsList"></code>.
+                  When neither Home bridge (<code>qortalRequest</code> nor <code>qdnRequest</code>) is available &mdash; for
+                  example in a plain browser tab &mdash; the same calls fall back to direct
+                  HTTPS requests against the fallback API base above.
+                </p>
+                <p>
+                  When <code>qortalRequest</code> is available it has precedence and receives
+                  the generic <code>SEARCH_QDN_RESOURCES</code>, status, fetch, and URL
+                  actions. A present bridge is terminal: a rejected bridge call is reported
+                  to the caller and is not silently retried over HTTP. The legacy
+                  <code>qdnRequest</code> names are used only when the generic bridge is
+                  absent.
+                </p>
+              </section>
+              <section id="dev-section-deep-links" class="developers-section">
+                <h2>Deep links</h2>
+                <p>
+                  Emulator recognizes three route kinds in the app URL: <code>home</code>
+                  (<code>#home</code>), <code>system</code> (<code>#&lt;systemId&gt;</code>), and
+                  a path-based <code>ROM</code>/<code>Mod</code> deep link
+                  (<code>ROM/&lt;publisher&gt;/&lt;identifier&gt;</code>). Deep links may add
+                  the query keys <code id="devDeepLinkQueryKeysList"></code> to pin a
+                  specific file or core.
+                </p>
+                <p>
+                  This Developers workspace adds its own query keys on top of that scheme:
+                  <code>view</code> (canonical value <code>developers</code>; aliases
+                  <code id="devViewAliasesList"></code> are normalized to the canonical value)
+                  and <code>section</code> (one of <code id="devSectionIdsList"></code>).
+                  These keys never overload the URL fragment, and opening or closing this
+                  workspace never reloads the app or interrupts a running game &mdash; it only
+                  takes precedence for which page is visually shown.
+                </p>
+                <div class="developers-example">
+                  <pre id="devDeepLinkExample">ROM/ExamplePublisher/example-rom-id?view=developers&amp;section=deep-links</pre>
+                  <button type="button" data-dev-copy-example="devDeepLinkExample" class="secondary">Copy example</button>
+                  <span class="developers-copy-status" data-dev-copy-status-for="devDeepLinkExample" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+              </section>
+              <section id="dev-section-player-lifecycle" class="developers-section">
+                <h2>Player lifecycle</h2>
+                <p>
+                  Returning to the exact same linked ROM, file, and core reuses the running
+                  game instead of reloading the player. EmulatorJS fullscreen state is
+                  bridged back to the launcher, which can also expand the player surface as
+                  a fallback and exposes an Exit Fullscreen control.
+                </p>
+                <p>
+                  After a ROM is loaded, Run Diagnostics samples current, capped, and
+                  expanded player surfaces and produces JSON and Markdown reports. There is
+                  no automated ROM compatibility suite and no bundled download of core or
+                  BIOS assets outside of what a launched session already streamed; every
+                  release is smoke-checked manually against the checklist in
+                  <code>README.md</code>. The report links request a browser Blob download; they do not provide a host-acknowledged save result.
+                </p>
+                <p>
+                  Appearance follows Qortium Home theme, accent, text-size, UI style, and
+                  language messages in both the launcher and the player iframe. Supported
+                  values today: themes <code id="devThemesList"></code>, text sizes
+                  <code id="devTextSizesList"></code>, accents <code id="devAccentsList"></code>,
+                  and UI styles <code id="devUiStylesList"></code>.
+                </p>
+              </section>
+            </div>
+          </div>
+        </section>
         </div>
       </div>
     </div>

@@ -154,6 +154,12 @@ copy_file "player.html"
 copy_file "qortium-qortal-bridge.js"
 copy_file "Lexend-Regular.ttf"
 copy_file "assets/fonts/inter/inter-latin-wght-normal.woff2"
+copy_file "assets/fonts/comic-neue/comic-neue-latin-400-normal.woff2"
+copy_file "assets/fonts/comic-neue/comic-neue-latin-700-normal.woff2"
+copy_file "assets/fonts/comic-neue/LICENSE"
+copy_file "assets/fonts/fredoka/fredoka-latin-400-normal.woff2"
+copy_file "assets/fonts/fredoka/fredoka-latin-700-normal.woff2"
+copy_file "assets/fonts/fredoka/LICENSE"
 
 # Runtime directories/files required by player.html and loader.js.
 copy_file "data/emulator.min.js"
